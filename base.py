@@ -5,14 +5,12 @@ import time, requests, random
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException, TimeoutException, StaleElementReferenceException
 from config import config
-from data import data
 
 class base:
 
     def __init__(self):
         self.proxy = self.getProxy(True)
         self.config = config(1, self.proxy)
-        self.data = data()
         self.driver = self.config.driver
 
     def getProxyAddr(self):

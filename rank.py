@@ -3,21 +3,22 @@ __author__ = 'liufei'
 
 import time, random
 from page import page
+from data import data
 from selenium.webdriver.common.by import By
 
 class rank(page):
     def __init__(self):
-        # 实例化
-        self.pageobj = page()
-        self.data = self.pageobj.data
-
         #搜索关键词
+        self.data = data()
         self.SearchKeywords = self.data.SearchKeywords.items()
-
         # 常量设置
         self.PagesCount = 3     # 搜索结果页面中，遍历结果页面数量
         self.randomNo_firstpage = 2  # 首页最大随机点击URL数量
         self.radio_sorted = 0.8  # 首页正序随机点击URL比例
+
+    def begin(self):
+        # 实例化
+        self.pageobj = page()
 
     def end(self):
         self.pageobj.quit()
@@ -27,7 +28,7 @@ class rank(page):
             self.key, self.value = kw[0], kw[1]
             self.output_testResult(place=self.key)
             for click in range(self.value):
-                self.__init__()
+                self.begin()
                 driver = self.pageobj.getDriver()
                 # 1. 打开搜索页面并使用关键词搜索
                 self.pageobj.gotoURL(self.data.baidu)
