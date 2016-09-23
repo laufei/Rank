@@ -8,14 +8,17 @@ import time
 class config:
     def __init__(self, driverConfig=1, proxy=""):
         # 1 - 本地浏览器配置代理；2 - windows测试机配置代理；
-        ip = proxy.split(":")[0]
-        port = proxy.split(":")[1]
+        iparray = proxy.split(":")
+        if len(iparray) == 2:
+            ip, port = iparray[0], int(iparray[1])
+        else:
+            ip, port = "", ""
         print "当前使用的代理服务器：%s" % proxy
         if driverConfig == 1:
             profile = webdriver.FirefoxProfile()
             profile.set_preference("network.proxy.type", 1)
             profile.set_preference("network.proxy.http", ip)
-            profile.set_preference("network.proxy.http_port", int(port))
+            profile.set_preference("network.proxy.http_port", port)
             profile.update_preferences()
             try:
                 self.driver = webdriver.Firefox(firefox_profile=profile)

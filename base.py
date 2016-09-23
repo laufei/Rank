@@ -18,7 +18,6 @@ class base:
 
     def getProxy(self, rand=False):
         reqURL = "http://dev.kuaidaili.com/api/getproxy/?orderid=967269662653487&num=999&b_pcchrome=1&b_pcie=1&b_pcff=1&protocol=1&method=2&an_ha=1&sp1=1&sp2=1&sep=1"
-        time.sleep(3)
 	try:
             response = requests.get(reqURL)
         except Exception, e:
