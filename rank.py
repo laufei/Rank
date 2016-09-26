@@ -24,10 +24,11 @@ class rank(page):
         self.pageobj.quit()
 
     def rank_baidu(self):
+
         for kw in self.SearchKeywords:
-            self.runtime = 0
+            self.process, self.runtime  = 1, 0
             self.key, self.value = kw[0], kw[1]
-            self.output_testResult(place=self.key)
+            self.output_testResult(place="【Begin】：当前关键字%s (%d/%d)" % (self.key, self.process, len(self.SearchKeywords)))
             for click in range(self.value):
                 self.begin()
                 driver = self.pageobj.getDriver()
@@ -84,7 +85,8 @@ class rank(page):
                 self.output_testResult(proxy=self.pageobj.getProxyAddr())
                 self.end()
                 self.runtime += 1
-            self.output_testResult(place="=============End============当前关键字，成功点击%d次" % self.runtime)
+            self.process += 1
+            self.output_testResult(place="【End】：当前关键字，成功点击%d次" % self.runtime)
 
 if __name__ == "__main__":
     rank = rank()
