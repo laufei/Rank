@@ -111,4 +111,3 @@ class base:
                 ff.write("              ["+time.ctime()+"]"+"         ")
                 ff.write(proxy+"\n")
             ff.close()
-

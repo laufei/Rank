@@ -42,12 +42,6 @@ class config:
             except Exception, e:
                 assert False, e
 
-    def output_testResult(self, filename, result):
-        with open(filename, 'a+') as ff:
-            ff.write("["+time.ctime()+"]"+"         ")
-            ff.write(result)
-            ff.close()
-
         self.driver.implicitly_wait(30)
         self.driver.set_script_timeout(30)
         self.driver.set_page_load_timeout(100)
