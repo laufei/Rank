@@ -25,6 +25,7 @@ class rank(page):
 
     def rank_baidu(self):
         for kw in self.SearchKeywords:
+            self.runtime = 0
             self.key, self.value = kw[0], kw[1]
             self.output_testResult(place=self.key)
             for click in range(self.value):
@@ -82,6 +83,8 @@ class rank(page):
                         self.pageobj.scroll_page(100)
                 self.output_testResult(proxy=self.pageobj.getProxyAddr())
                 self.end()
+                self.runtime += 1
+            self.output_testResult(place="=============End============当前关键字，成功点击%d次" % self.runtime)
 
 if __name__ == "__main__":
     rank = rank()
