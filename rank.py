@@ -24,7 +24,6 @@ class rank(page):
         self.pageobj.quit()
 
     def rank_baidu(self):
-
         for kw in self.SearchKeywords:
             self.total = len(self.SearchKeywords)
             self.process, self.runtime  = 1, 0
@@ -34,8 +33,10 @@ class rank(page):
                 self.begin()
                 driver = self.pageobj.getDriver()
                 # 1. 打开搜索页面并使用关键词搜索
-                self.pageobj.gotoURL(self.data.baidu)
-                self.pageobj.isPageOpened(*self.baidu_kw)
+                try:
+                    self.pageobj.gotoURL(self.data.baidu)
+                except:
+                    continue
                 window = driver.current_window_handle
                 self.pageobj.find_element(*self.baidu_kw).send_keys(self.key)
                 self.pageobj.find_element(*self.baidu_submit).click()
@@ -60,7 +61,7 @@ class rank(page):
                                 baidu_result_items[index].click()
                                 time.sleep(1)
                             except:
-                                print "8好意思，并没有点到您想要的链接.....T_T"
+                                print "         8好意思，并没有点到您想要的链接.....  T_T"
                             driver.switch_to_window(window)
                     else:
                         pageButton[page].click()
@@ -80,7 +81,7 @@ class rank(page):
                                     baidu_result_items[index].click()
                                     time.sleep(1)
                                 except:
-                                    print "8好意思，并没有点到您想要的链接.....T_T"
+                                    print "         8好意思，并没有点到您想要的链接.....  T_T"
                             driver.switch_to_window(window)
                         self.pageobj.scroll_page(100)
                 self.output_testResult(proxy=self.pageobj.getProxyAddr())
