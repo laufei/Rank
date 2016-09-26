@@ -108,7 +108,7 @@ class base:
             if place:
                 ff.write(place+"\n")
             if proxy:
-                ff.write("["+time.ctime()+"]"+"         ")
+                ff.write("              ["+time.ctime()+"]"+"         ")
                 ff.write(proxy+"\n")
             ff.close()
 
