@@ -26,9 +26,10 @@ class rank(page):
     def rank_baidu(self):
 
         for kw in self.SearchKeywords:
+            self.total = len(self.SearchKeywords)
             self.process, self.runtime  = 1, 0
             self.key, self.value = kw[0], kw[1]
-            self.output_testResult(place="【Begin】：当前关键字%s (%d/%d)" % (self.key, self.process, len(self.SearchKeywords)))
+            self.output_testResult(place="【Begin】：当前关键字 - %s (%d/%d)" % (self.key, self.process, self.total))
             for click in range(self.value):
                 self.begin()
                 driver = self.pageobj.getDriver()
