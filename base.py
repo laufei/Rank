@@ -1,16 +1,18 @@
 # coding: utf-8
 __author__ = 'liufei'
 
-import time, requests, random
+import sys, time, requests, random
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException, TimeoutException, StaleElementReferenceException
 from config import config
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 class base:
 
-    def __init__(self):
+    def __init__(self, platform="web"):
         self.proxy = self.getProxy(True)
-        self.config = config(1, self.proxy)
+        self.config = config(platform, self.proxy)
         self.driver = self.config.driver
 
     def getProxyAddr(self):

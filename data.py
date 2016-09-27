@@ -1,9 +1,13 @@
 ﻿# coding: utf-8
 __author__ = 'liufei'
+import sys
+
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 class data:
     def __init__(self):
-        self.baidu = "https://www.baidu.com/"
+        self.URLKeywords = [u'穷游网']
         self.SearchKeywords = {
                                                 u'曼谷旅游':20,
                                                 u'新加坡旅游':117,
@@ -15,4 +19,3 @@ class data:
                                                 u'荷兰旅游':19,
                                                 u'意大利旅游':29
         }
-        self.URLKeywords = [u'穷游网']

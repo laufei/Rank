@@ -1,10 +1,12 @@
 ﻿# coding: utf-8
 __author__ = 'liufei'
 
-import time, random
+import sys, time, random
 from page import page
 from data import data
 from selenium.webdriver.common.by import By
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 class rank(page):
     def __init__(self):
@@ -16,29 +18,30 @@ class rank(page):
         self.randomNo_firstpage = 2  # 首页最大随机点击URL数量
         self.radio_sorted = 0.8  # 首页正序随机点击URL比例
 
-    def begin(self):
+    def begin(self, platform):
         # 实例化
-        self.pageobj = page()
+        self.pageobj = page(platform)
 
     def end(self):
         self.pageobj.quit()
 
-    def rank_baidu(self):
+    def rank_baidu(self, platform):
+        process = 1
         for kw in self.SearchKeywords:
-            self.total = len(self.SearchKeywords)
-            self.process, self.runtime  = 1, 0
-            self.key, self.value = kw[0], kw[1]
-            self.output_testResult(place="【Begin】：当前关键字 - %s (%d/%d)" % (self.key, self.process, self.total))
-            for click in range(self.value):
-                self.begin()
+            total = len(self.SearchKeywords)
+            runtime = 0
+            key, value = kw[0], kw[1]
+            self.output_testResult(place="【Begin】：当前关键字 - %s (%d/%d)" % (key, process, total))
+            for click in range(value):
+                self.begin(platform)
                 driver = self.pageobj.getDriver()
                 # 1. 打开搜索页面并使用关键词搜索
                 try:
-                    self.pageobj.gotoURL(self.data.baidu)
+                    self.pageobj.gotoURL(self.pageobj.baidu)
                 except:
                     continue
                 window = driver.current_window_handle
-                self.pageobj.find_element(*self.baidu_kw).send_keys(self.key)
+                self.pageobj.find_element(*self.baidu_kw).send_keys(key)
                 self.pageobj.find_element(*self.baidu_submit).click()
                 time.sleep(2)
 
@@ -58,8 +61,8 @@ class rank(page):
                         for index in targets:
                             print "         点击结果页面第[%d]个链接" % (index+1)
                             try:
+                                time.sleep(2)
                                 baidu_result_items[index].click()
-                                time.sleep(1)
                             except:
                                 print "         8好意思，并没有点到您想要的链接.....  T_T"
                             driver.switch_to_window(window)
@@ -74,22 +77,22 @@ class rank(page):
                     for index in range(len(baidu_result_items)):
                         resultTitle = baidu_result_items[index].text
                         resultURL = baidu_result_items[index].get_attribute("href")
-                        for key in self.data.URLKeywords:
-                            if key in resultTitle:
+                        for kw in self.data.URLKeywords:
+                            if kw in resultTitle:
                                 print "         点击结果页面第[%d]个链接: %s" % (index+1, resultURL)
                                 try:
-                                    baidu_result_items[index].click()
                                     time.sleep(1)
+                                    baidu_result_items[index].click()
                                 except:
                                     print "         8好意思，并没有点到您想要的链接.....  T_T"
                             driver.switch_to_window(window)
                         self.pageobj.scroll_page(100)
                 self.output_testResult(proxy=self.pageobj.getProxyAddr())
                 self.end()
-                self.runtime += 1
-            self.process += 1
-            self.output_testResult(place="【End】：当前关键字，成功点击%d次" % self.runtime)
+                runtime += 1
+            process += 1
+            self.output_testResult(place="【End】：当前关键字，成功点击%d次" % runtime)
 
 if __name__ == "__main__":
     rank = rank()
-    rank.rank_baidu()
+    rank.rank_baidu("web")
