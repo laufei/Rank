@@ -1,6 +1,6 @@
-﻿# coding: utf-8
+# coding: utf-8
 __author__ = 'liufei'
 
 from rank import rank
 rank = rank()
-rank.rank_baidu()
+rank.rank_baidu("web")

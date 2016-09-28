@@ -48,7 +48,8 @@ class base:
         try:
             print "     正在打开页面：", url
             self.driver.get(url)
-            self.driver.maximize_window()
+            if not self.driver.capabilities["platform"] in ["android", "ANDROID", "Android"]:
+                self.driver.maximize_window()
         except TimeoutException, e:
             print "     打开该页面超时！"
             assert False, "Timed out waiting for page load! "
