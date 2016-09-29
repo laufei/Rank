@@ -136,7 +136,7 @@ class rank(page):
                                 print "         Oops，并没有点到您想要的链接.....  T_T", e
                             driver.switch_to_window(window)
                     else:
-                        self.pageobj.find_elements(*self.baidu_result_pages_m).click()
+                        self.pageobj.find_elements(*self.baidu_result_pages_m)[-1].click()
                         time.sleep(2)
                         # 等待翻页数据加载完成
                         self.pageobj.waitForPageLoad(*self.baidu_se_kw_m)
