@@ -3,4 +3,4 @@ __author__ = 'liufei'
 
 from rank import rank
 rank = rank()
-rank.rank_baidu("web")
+rank.rank_baidu_web("web")

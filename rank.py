@@ -31,7 +31,7 @@ class rank(page):
             total = len(self.SearchKeywords)
             runtime = 0
             key, value = kw[0], kw[1]
-            self.output_testResult(place="【Begin】：当前关键字 - %s (%d/%d)" % (key, process, total))
+            self.output_testResult(place="【WEB Begin】：当前关键字 - %s (%d/%d)" % (key, process, total))
             for click in range(value):
                 self.begin(platform)
                 driver = self.pageobj.getDriver()
@@ -63,8 +63,8 @@ class rank(page):
                             try:
                                 time.sleep(2)
                                 baidu_result_items[index].click()
-                            except:
-                                print "         8好意思，并没有点到您想要的链接.....  T_T"
+                            except Exception, e:
+                                print "         Oops，并没有点到您想要的链接.....  T_T", e
                             driver.switch_to_window(window)
                     else:
                         pageButton[page].click()
@@ -83,15 +83,15 @@ class rank(page):
                                 try:
                                     time.sleep(1)
                                     baidu_result_items[index].click()
-                                except:
-                                    print "         8好意思，并没有点到您想要的链接.....  T_T"
+                                except Exception, e:
+                                    print "         Oops，并没有点到您想要的链接.....  T_T", e
                             driver.switch_to_window(window)
                         self.pageobj.scroll_page(100)
                 self.output_testResult(proxy=self.pageobj.getProxyAddr())
                 self.end()
                 runtime += 1
             process += 1
-            self.output_testResult(place="【End】：当前关键字，成功点击%d次" % runtime)
+            self.output_testResult(place="【WEB End】：当前关键字，成功点击%d次" % runtime)
 
     def rank_baidu_m(self, platform):
         process = 1
@@ -99,7 +99,7 @@ class rank(page):
             total = len(self.SearchKeywords)
             runtime = 0
             key, value = kw[0], kw[1]
-            self.output_testResult(place="【Begin】：当前关键字 - %s (%d/%d)" % (key, process, total))
+            self.output_testResult(place="【H5 Begin】：当前关键字 - %s (%d/%d)" % (key, process, total))
             for click in range(value):
                 self.begin(platform)
                 driver = self.pageobj.getDriver()
@@ -162,7 +162,7 @@ class rank(page):
                 self.end()
                 runtime += 1
             process += 1
-            self.output_testResult(place="【End】：当前关键字，成功点击%d次" % runtime)
+            self.output_testResult(place="【H5 End】：当前关键字，成功点击%d次" % runtime)
 
 if __name__ == "__main__":
     rank = rank()

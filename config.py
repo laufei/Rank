@@ -26,7 +26,7 @@ class config:
                 self.driver = webdriver.Firefox(firefox_profile=profile)
             except Exception, e:
                 assert False, e
-        elif driverConfig == 2:
+        elif driverConfig == "web_remote":
             PROXY = proxy
             webdriver.DesiredCapabilities.FIREFOX['proxy'] = {
                 "httpProxy":PROXY,
@@ -39,7 +39,7 @@ class config:
             }
             try:
                 self.driver = webdriver.Remote(
-                    'http://192.168.56.101:4444/wd/hub',
+                    "http://192.168.56.101:4444/wd/hub",
                     webdriver.DesiredCapabilities.FIREFOX)
             except Exception, e:
                 assert False, e
@@ -55,6 +55,23 @@ class config:
             profile.update_preferences()
             try:
                 self.driver = webdriver.Firefox(firefox_profile=profile)
+            except Exception, e:
+                assert False, e
+        elif driverConfig == "h5_remote":
+            profile = webdriver.FirefoxProfile()
+            profile.set_preference("network.proxy.type", 1)
+            profile.set_preference("network.proxy.http", ip)
+            profile.set_preference("network.proxy.http_port", port)
+            profile.set_preference(
+                "general.useragent.override",
+                "Mozilla/5.0 (Linux; Android 5.1.1; Mi-4c Build/LMY47V) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.83 Mobile Safari/537.36"
+            )
+            profile.update_preferences()
+            try:
+                self.driver = webdriver.Remote(
+                    command_executor="http://192.168.56.101:4444/wd/hub",
+                    browser_profile=profile,
+                    desired_capabilities=DesiredCapabilities.FIREFOX)
             except Exception, e:
                 assert False, e
 
