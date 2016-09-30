@@ -38,12 +38,14 @@ class rank(page):
                 # 1. 打开搜索页面并使用关键词搜索
                 try:
                     self.pageobj.gotoURL(self.pageobj.baidu)
+                    window = driver.current_window_handle
+                    self.pageobj.find_element(*self.baidu_kw).send_keys(key)
+                    time.sleep(2)
+                    self.pageobj.find_element(*self.baidu_submit).click()
+                    time.sleep(2)
                 except:
+                    self.end()
                     continue
-                window = driver.current_window_handle
-                self.pageobj.find_element(*self.baidu_kw).send_keys(key)
-                self.pageobj.find_element(*self.baidu_submit).click()
-                time.sleep(2)
 
                 # 2. 翻页操作
                 for page in range(self.PagesCount):
@@ -105,13 +107,13 @@ class rank(page):
                 driver = self.pageobj.getDriver()
                 # 1. 打开搜索页面并使用关键词搜索
                 try:
-                    self.pageobj.gotoURL(self.pageobj.baidu)
+                    self.pageobj.gotoURL(self.pageobj.baidu_m)
+                    self.pageobj.find_element(*self.baidu_kw_m).send_keys(key)
+                    self.pageobj.find_element(*self.baidu_submit_m).click()
+                    time.sleep(2)
                 except:
+                    self.end()
                     continue
-                window = driver.current_window_handle
-                self.pageobj.find_element(*self.baidu_kw_m).send_keys(key)
-                self.pageobj.find_element(*self.baidu_submit_m).click()
-                time.sleep(2)
 
                 # 2. 翻页操作
                 for page in range(self.PagesCount):
@@ -129,12 +131,12 @@ class rank(page):
                             print "         点击结果页面第[%d]个链接" % (index+1)
                             try:
                                 time.sleep(2)
+                                baidu_result_items = self.pageobj.find_elements(*self.baidu_result_items_m)
                                 baidu_result_items[index].click()
                                 time.sleep(2)
                                 driver.back()
                             except Exception, e:
                                 print "         Oops，并没有点到您想要的链接.....  T_T", e
-                            driver.switch_to_window(window)
                     else:
                         self.pageobj.find_elements(*self.baidu_result_pages_m)[-1].click()
                         time.sleep(2)
@@ -142,21 +144,21 @@ class rank(page):
                         self.pageobj.waitForPageLoad(*self.baidu_se_kw_m)
 
                     # 3. 遍历结果页面中的跳转URL，并点击结果URL
-                    baidu_result_items = self.pageobj.find_elements(*self.baidu_result_items)
+                    baidu_result_items = self.pageobj.find_elements(*self.baidu_result_items_m)
                     for index in range(len(baidu_result_items)):
+                        baidu_result_items = self.pageobj.find_elements(*self.baidu_result_items_m)
                         resultTitle = baidu_result_items[index].text
                         resultURL = baidu_result_items[index].get_attribute("href")
                         for kw in self.data.URLKeywords:
                             if kw in resultTitle:
                                 print "         点击结果页面第[%d]个链接: %s" % (index+1, resultURL)
                                 try:
-                                    time.sleep(1)
+                                    time.sleep(2)
                                     baidu_result_items[index].click()
                                     time.sleep(2)
-                                    self.driver.back()
+                                    driver.back()
                                 except Exception, e:
                                     print "         Oops，并没有点到您想要的链接.....  T_T", e
-                            driver.switch_to_window(window)
                         self.pageobj.scroll_page(100)
                 self.output_testResult(proxy=self.pageobj.getProxyAddr())
                 self.end()

@@ -1,7 +1,7 @@
 ﻿# coding: utf-8
 __author__ = 'liufei'
 
-import sys
+import sys, os
 from selenium import webdriver
 from selenium.webdriver import DesiredCapabilities
 reload(sys)
@@ -16,7 +16,7 @@ class config:
         else:
             ip, port = "", ""
         print "当前使用的代理服务器：%s" % proxy
-        if driverConfig == "web":
+        if driverConfig == "web_firefox":
             profile = webdriver.FirefoxProfile()
             profile.set_preference("network.proxy.type", 1)
             profile.set_preference("network.proxy.http", ip)
@@ -26,6 +26,7 @@ class config:
                 self.driver = webdriver.Firefox(firefox_profile=profile)
             except Exception, e:
                 assert False, e
+
         elif driverConfig == "web_remote":
             PROXY = proxy
             webdriver.DesiredCapabilities.FIREFOX['proxy'] = {
@@ -43,7 +44,8 @@ class config:
                     webdriver.DesiredCapabilities.FIREFOX)
             except Exception, e:
                 assert False, e
-        elif driverConfig == "h5":
+
+        elif driverConfig == "h5_firefox":
             profile = webdriver.FirefoxProfile()
             profile.set_preference("network.proxy.type", 1)
             profile.set_preference("network.proxy.http", ip)
@@ -57,7 +59,22 @@ class config:
                 self.driver = webdriver.Firefox(firefox_profile=profile)
             except Exception, e:
                 assert False, e
-        elif driverConfig == "h5_remote":
+
+        elif driverConfig == "h5_chrome":
+            chromedriver = "/Users/luca/chromedriver"
+            os.environ["webdriver.chrome.driver"] = chromedriver
+            mobile_emulation = {"deviceName": "Google Nexus 5"}
+            option = webdriver.ChromeOptions()
+            option.add_experimental_option("mobileEmulation", mobile_emulation)
+            option.add_argument('--proxy-server=%s' % proxy)
+            try:
+                self.driver = webdriver.Chrome(
+                    executable_path=chromedriver,
+                    chrome_options=option)
+            except Exception, e:
+                assert False, e
+
+        elif driverConfig == "h5_remote_firefox":
             profile = webdriver.FirefoxProfile()
             profile.set_preference("network.proxy.type", 1)
             profile.set_preference("network.proxy.http", ip)
@@ -74,6 +91,19 @@ class config:
                     desired_capabilities=DesiredCapabilities.FIREFOX)
             except Exception, e:
                 assert False, e
+
+        elif driverConfig == "h5_remote_chrome":
+            mobile_emulation = {"deviceName": "Google Nexus 5"}
+            options = webdriver.ChromeOptions()
+            options.add_argument('--proxy-server=%s' % proxy)
+            options.add_experimental_option("mobileEmulation", mobile_emulation)
+            try:
+                self.driver = webdriver.Remote(
+                    command_executor="http://192.168.56.101:4444/wd/hub",
+                    desired_capabilities=options.to_capabilities())
+            except Exception, e:
+                assert False, e
+
         self.driver.implicitly_wait(30)
         self.driver.set_script_timeout(30)
         self.driver.set_page_load_timeout(30)

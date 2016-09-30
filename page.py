@@ -9,6 +9,7 @@ sys.setdefaultencoding('utf8')
 
 class page(base):
     baidu = "https://www.baidu.com/"
+    baidu_m = "http://m.baidu.com/"
     baidu_kw = (By.ID, 'kw')                # 百度首页输入框
     baidu_kw_m = (By.ID, 'index-kw')        # 百度首页输入框
     baidu_se_kw_m = (By.ID, 'kw')      # 百度搜索结果页输入框
