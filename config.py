@@ -66,7 +66,7 @@ class config:
             mobile_emulation = {"deviceName": "Google Nexus 5"}
             option = webdriver.ChromeOptions()
             option.add_experimental_option("mobileEmulation", mobile_emulation)
-            option.add_argument('--proxy-server=%s' % proxy)
+            # option.add_argument('--proxy-server=%s' % proxy)
             try:
                 self.driver = webdriver.Chrome(
                     executable_path=chromedriver,

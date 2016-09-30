@@ -108,6 +108,7 @@ class rank(page):
                 # 1. 打开搜索页面并使用关键词搜索
                 try:
                     self.pageobj.gotoURL(self.pageobj.baidu_m)
+                    window = driver.current_window_handle
                     self.pageobj.find_element(*self.baidu_kw_m).send_keys(key)
                     self.pageobj.find_element(*self.baidu_submit_m).click()
                     time.sleep(2)
@@ -130,13 +131,13 @@ class rank(page):
                         for index in targets:
                             print "         点击结果页面第[%d]个链接" % (index+1)
                             try:
+                                js = "document.querySelectorAll('%s')[%d].setAttribute('target', '_blank')"
+                                driver.execute_script(js % (self.baidu_result_items_m[-1], index))
                                 time.sleep(2)
-                                baidu_result_items = self.pageobj.find_elements(*self.baidu_result_items_m)
                                 baidu_result_items[index].click()
-                                time.sleep(2)
-                                driver.back()
                             except Exception, e:
                                 print "         Oops，并没有点到您想要的链接.....  T_T", e
+                            driver.switch_to_window(window)
                     else:
                         self.pageobj.find_elements(*self.baidu_result_pages_m)[-1].click()
                         time.sleep(2)
@@ -146,19 +147,19 @@ class rank(page):
                     # 3. 遍历结果页面中的跳转URL，并点击结果URL
                     baidu_result_items = self.pageobj.find_elements(*self.baidu_result_items_m)
                     for index in range(len(baidu_result_items)):
-                        baidu_result_items = self.pageobj.find_elements(*self.baidu_result_items_m)
                         resultTitle = baidu_result_items[index].text
                         resultURL = baidu_result_items[index].get_attribute("href")
                         for kw in self.data.URLKeywords:
                             if kw in resultTitle:
                                 print "         点击结果页面第[%d]个链接: %s" % (index+1, resultURL)
                                 try:
+                                    js = "document.querySelectorAll('%s')[%d].setAttribute('target', '_blank')"
+                                    driver.execute_script(js % (self.baidu_result_items_m[-1], index))
                                     time.sleep(2)
                                     baidu_result_items[index].click()
-                                    time.sleep(2)
-                                    driver.back()
                                 except Exception, e:
                                     print "         Oops，并没有点到您想要的链接.....  T_T", e
+                                driver.switch_to_window(window)
                         self.pageobj.scroll_page(100)
                 self.output_testResult(proxy=self.pageobj.getProxyAddr())
                 self.end()

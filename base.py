@@ -53,6 +53,9 @@ class base:
         except TimeoutException, e:
             print "     打开该页面超时！"
             assert False, "Timed out waiting for page load! "
+        except Exception, e:
+            print "     打开该页面失败！"
+            assert False, "Failed to open this page! "
 
     def quit(self):
         try:
