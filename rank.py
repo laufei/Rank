@@ -16,7 +16,9 @@ class rank(page):
         # 常量设置
         self.PagesCount = 3     # 搜索结果页面中，遍历结果页面数量
         self.randomNo_firstpage = 2  # 首页最大随机点击URL数量
+        self.randomArea = 5     # 首页随机点击URL范围
         self.radio_sorted = 0.8  # 首页正序随机点击URL比例
+        self.baidu_keywords = ['百度', '_相关']
 
     def begin(self, platform):
         # 实例化
@@ -57,9 +59,9 @@ class rank(page):
                         # 按照比例随机点击URL，正序80%，乱序20%
                         ra = random.random()
                         if ra < self.radio_sorted:
-                            targets = sorted(random.sample(range(5), random.sample(range(1, self.randomNo_firstpage+1), 1)[0]))
+                            targets = sorted(random.sample(range(self.randomArea), random.sample(range(1, self.randomNo_firstpage+1), 1)[0]))
                         else:
-                            targets = random.sample(range(5), random.sample(range(1, self.randomNo_firstpage+1), 1)[0])
+                            targets = random.sample(range(self.randomArea), random.sample(range(1, self.randomNo_firstpage+1), 1)[0])
                         for index in targets:
                             print "         点击结果页面第[%d]个链接" % (index+1)
                             try:
@@ -69,7 +71,11 @@ class rank(page):
                                 print "         Oops，并没有点到您想要的链接.....  T_T", e
                             driver.switch_to_window(window)
                     else:
-                        pageButton[page].click()
+                        try:
+                            pageButton[page].click()
+                        except:
+                            self.end()
+                            continue
                         time.sleep(2)
                         # 等待翻页数据加载完成
                         self.pageobj.waitForPageLoad(*self.baidu_kw)
@@ -110,6 +116,7 @@ class rank(page):
                     self.pageobj.gotoURL(self.pageobj.baidu_m)
                     window = driver.current_window_handle
                     self.pageobj.find_element(*self.baidu_kw_m).send_keys(key)
+                    time.sleep(2)
                     self.pageobj.find_element(*self.baidu_submit_m).click()
                     time.sleep(2)
                 except:
@@ -125,21 +132,34 @@ class rank(page):
                         # 按照比例随机点击URL，正序80%，乱序20%
                         ra = random.random()
                         if ra < self.radio_sorted:
-                            targets = sorted(random.sample(range(5), random.sample(range(1, self.randomNo_firstpage+1), 1)[0]))
+                            targets = sorted(random.sample(range(self.randomArea), random.sample(range(1, self.randomNo_firstpage+1), 1)[0]))
                         else:
-                            targets = random.sample(range(5), random.sample(range(1, self.randomNo_firstpage+1), 1)[0])
+                            targets = random.sample(range(self.randomArea), random.sample(range(1, self.randomNo_firstpage+1), 1)[0])
                         for index in targets:
+                            for baikw in self.baidu_keywords:
+                                if baikw in baidu_result_items[index].text:
+                                    isBaiduUrl = True
+                                else:
+                                    isBaiduUrl = False
                             print "         点击结果页面第[%d]个链接" % (index+1)
                             try:
                                 js = "document.querySelectorAll('%s')[%d].setAttribute('target', '_blank')"
                                 driver.execute_script(js % (self.baidu_result_items_m[-1], index))
-                                time.sleep(2)
+                                time.sleep(1)
                                 baidu_result_items[index].click()
+                                time.sleep(1)
+                                # 如果目标链接是百度自己的链接，则点击后，页面执行返回操作
+                                if isBaiduUrl:
+                                    driver.back()
                             except Exception, e:
                                 print "         Oops，并没有点到您想要的链接.....  T_T", e
                             driver.switch_to_window(window)
                     else:
-                        self.pageobj.find_elements(*self.baidu_result_pages_m)[-1].click()
+                        try:
+                            self.pageobj.find_elements(*self.baidu_result_pages_m)[-1].click()
+                        except:
+                            self.end()
+                            continue
                         time.sleep(2)
                         # 等待翻页数据加载完成
                         self.pageobj.waitForPageLoad(*self.baidu_se_kw_m)
@@ -153,6 +173,7 @@ class rank(page):
                             if kw in resultTitle:
                                 print "         点击结果页面第[%d]个链接: %s" % (index+1, resultURL)
                                 try:
+                                    # 将结果页面中的URL修改为新页面打开
                                     js = "document.querySelectorAll('%s')[%d].setAttribute('target', '_blank')"
                                     driver.execute_script(js % (self.baidu_result_items_m[-1], index))
                                     time.sleep(2)

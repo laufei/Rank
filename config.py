@@ -10,8 +10,8 @@ sys.setdefaultencoding('utf8')
 class config:
     def __init__(self, driverConfig, proxy=""):
         # 1 - 本地浏览器配置代理；2 - windows测试机配置代理；
-        iparray = proxy.split(":")
-        if len(iparray) == 2:
+        if not ('ERROR' in proxy):
+            iparray = proxy.split(":")
             ip, port = iparray[0], int(iparray[1])
         else:
             ip, port = "", ""
