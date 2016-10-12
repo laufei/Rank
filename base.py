@@ -33,9 +33,9 @@ class base:
             with open(filename, 'r') as ff:
                 data = ff.readlines()
                 proxyaddr = data[0].split("\r")
-            if rand:
-                return proxyaddr[random.randint(0, len(proxyaddr)-1)]
-            return proxyaddr
+        if rand:
+            return proxyaddr[random.randint(0, len(proxyaddr)-1)]
+        return proxyaddr
 
     def getDriver(self):
         return self.driver

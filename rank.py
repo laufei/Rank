@@ -19,7 +19,7 @@ class BaiduRank(wx.Panel):
         sizer = wx.BoxSizer(wx.VERTICAL)
         self.rb = wx.RadioBox(self, -1, "wx.RadioBox", wx.DefaultPosition, wx.DefaultSize, sampleList, 2, wx.RA_SPECIFY_COLS)
         self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox, self.rb)
-        self.rb.SetLabel("Platfrom：")
+        self.rb.SetLabel("Platfrom:")
         sizer.Add(self.rb, 0, wx.ALL, 15)
         self.SetSizer(sizer)
 
