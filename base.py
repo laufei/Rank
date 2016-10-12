@@ -11,23 +11,31 @@ sys.setdefaultencoding('utf8')
 class base:
 
     def __init__(self, platform="web"):
-        self.proxy = self.getProxy(True)
+        self.proxy = self.getProxy(rand=True)
         self.config = config(platform, self.proxy)
         self.driver = self.config.driver
 
     def getProxyAddr(self):
         return self.proxy
 
-    def getProxy(self, rand=False):
-        reqURL = "http://dev.kuaidaili.com/api/getproxy/?orderid=967269662653487&num=999&b_pcchrome=1&b_pcie=1&b_pcff=1&protocol=1&method=2&an_ha=1&sp1=1&sp2=1&sep=1"
-	try:
-            response = requests.get(reqURL)
-        except Exception, e:
-            assert False, e
-        proxyaddr = response.text.split("\r\n")
-        if rand:
-            return proxyaddr[random.randint(0, len(proxyaddr)-1)]
-        return proxyaddr
+    def getProxy(self, type=1, rand=False):
+        # type 0: api接口获取，1: 文件获取
+        # rand False: 返回全部，True: 随机返回一个
+        if type == 0:
+            reqURL = "http://dev.kuaidaili.com/api/getproxy/?orderid=967269662653487&num=999&b_pcchrome=1&b_pcie=1&b_pcff=1&protocol=1&method=2&an_ha=1&sp1=1&sp2=1&sep=1"
+            try:
+                response = requests.get(reqURL)
+            except Exception, e:
+                assert False, e
+            proxyaddr = response.text.split("\r\n")
+        if type == 1:
+            filename = "proxy.txt"
+            with open(filename, 'r') as ff:
+                data = ff.readlines()
+                proxyaddr = data[0].split("\r")
+            if rand:
+                return proxyaddr[random.randint(0, len(proxyaddr)-1)]
+            return proxyaddr
 
     def getDriver(self):
         return self.driver
