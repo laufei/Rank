@@ -1,12 +1,44 @@
 ﻿# coding: utf-8
 __author__ = 'liufei'
 
-import sys, time, random
+import sys, time, random, wx
 from page import page
 from data import data
 from selenium.webdriver.common.by import By
 reload(sys)
 sys.setdefaultencoding('utf8')
+
+class BaiduRank(wx.Panel):
+    def __init__(self, parent):
+        wx.Panel.__init__(self, parent)
+
+        # 配置代理API接口地址
+
+        # 选择是web还是h5平台
+        sampleList = ['Web', 'H5']
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        self.rb = wx.RadioBox(self, -1, "wx.RadioBox", wx.DefaultPosition, wx.DefaultSize, sampleList, 2, wx.RA_SPECIFY_COLS)
+        self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox, self.rb)
+        self.rb.SetLabel("Platfrom：")
+        sizer.Add(self.rb, 0, wx.ALL, 15)
+        self.SetSizer(sizer)
+
+        # 执行log
+
+        # 执行按钮
+        self.button = wx.Button(self, label='Run', pos=(380, 230))
+        self.Bind(wx.EVT_BUTTON, self.OnClick, self.button)
+
+    def EvtRadioBox(self, evt):
+        return self.rb.GetItemLabel(self.rb.GetSelection())
+
+    def OnClick(self, evt):
+        from rank import rank
+        rank = rank()
+        if self.EvtRadioBox(evt) == 'Web':
+            rank.rank_baidu_web("web_firefox")
+        if self.EvtRadioBox(evt) == 'H5':
+            rank.rank_baidu_m("h5_chrome")
 
 class rank(page):
     def __init__(self):
@@ -189,5 +221,8 @@ class rank(page):
             self.output_testResult(place="【H5 End】：当前关键字，成功点击%d次" % runtime)
 
 if __name__ == "__main__":
-    rank = rank()
-    rank.rank_baidu_m("h5")
+    app = wx.App(False)
+    frame = wx.Frame(None, title='百度刷排名小工具   --By Liufei', size=(500, 300), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
+    panel = BaiduRank(frame)
+    frame.Show()
+    app.MainLoop()
