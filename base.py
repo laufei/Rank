@@ -10,25 +10,25 @@ sys.setdefaultencoding('utf8')
 
 class base:
 
-    def __init__(self, platform="web"):
-        self.proxy = self.getProxy(rand=True)
+    def __init__(self, platform, proxyType, rand=True):
+        self.proxy = self.getProxy(type=proxyType, rand=rand)
         self.config = config(platform, self.proxy)
         self.driver = self.config.driver
 
     def getProxyAddr(self):
         return self.proxy
 
-    def getProxy(self, type=1, rand=False):
+    def getProxy(self, type, rand):
         # type 0: api接口获取，1: 文件获取
         # rand False: 返回全部，True: 随机返回一个
-        if type == 0:
+        if type == "API":
             reqURL = "http://dev.kuaidaili.com/api/getproxy/?orderid=967269662653487&num=999&b_pcchrome=1&b_pcie=1&b_pcff=1&protocol=1&method=2&an_ha=1&sp1=1&sp2=1&sep=1"
             try:
                 response = requests.get(reqURL)
             except Exception, e:
                 assert False, e
             proxyaddr = response.text.split("\r\n")
-        if type == 1:
+        if type == "TXT":
             filename = "proxy.txt"
             with open(filename, 'r') as ff:
                 data = ff.readlines()
@@ -118,10 +118,12 @@ class base:
 
     def output_testResult(self, proxy='', place=''):
         filename = "TestResult.txt"
+        msg = ""
         with open(filename, 'a+') as ff:
             if place:
-                ff.write(place+"\n")
+                msg = place+"\n"
+                ff.write(msg)
             if proxy:
-                ff.write("              ["+time.ctime()+"]"+"         ")
-                ff.write(proxy+"\n")
-            ff.close()
+                msg = "              ["+time.ctime()+"]"+"         " + proxy + "\n"
+                ff.write(msg)
+        return msg

@@ -8,41 +8,62 @@ from selenium.webdriver.common.by import By
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-class BaiduRank(wx.Panel):
+class wxRank(wx.Panel):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
 
         # 配置代理API接口地址
 
-        # 选择是web还是h5平台
+        # 选择平台：web，h5
         sampleList = ['Web', 'H5']
         sizer = wx.BoxSizer(wx.VERTICAL)
-        self.rb = wx.RadioBox(self, -1, "wx.RadioBox", wx.DefaultPosition, wx.DefaultSize, sampleList, 2, wx.RA_SPECIFY_COLS)
-        self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox, self.rb)
-        self.rb.SetLabel("Platfrom:")
-        sizer.Add(self.rb, 0, wx.ALL, 15)
+        self.rb_platform = wx.RadioBox(self, -1, "wx.RadioBox", wx.DefaultPosition, wx.DefaultSize, sampleList, 2, wx.RA_SPECIFY_COLS)
+        self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_PF, self.rb_platform)
+        self.rb_platform.SetLabel("Platfrom:")
+        sizer.Add(self.rb_platform, 0, wx.ALL, 5)
+        self.SetSizer(sizer)
+
+        # 选择代理方式：api，txt
+        sampleList = ['API', 'TXT']
+        self.rb_proxy = wx.RadioBox(self, -1, "wx.RadioBox", wx.DefaultPosition, wx.DefaultSize, sampleList, 2, wx.RA_SPECIFY_COLS)
+        self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_Proxy, self.rb_proxy)
+        self.rb_proxy.SetLabel("Proxy Mode:")
+        sizer.Add(self.rb_proxy, 0, wx.ALL, 5)
         self.SetSizer(sizer)
 
         # 执行log
+        self.multiText = wx.TextCtrl(self, -1, value="", size=(600, 500), style=wx.TE_MULTILINE) #创建一个文本控件
+        sizer.Add(self.multiText, 0, wx.ALL, 5)
+        self.multiText.SetInsertionPoint(0)
+        self.SetSizer(sizer)
+        self.multiText.SetEditable(wx.TE_READONLY)
 
         # 执行按钮
-        self.button = wx.Button(self, label='Run', pos=(380, 230))
+        self.button = wx.Button(self, label='Run', pos=(380, 630))
         self.Bind(wx.EVT_BUTTON, self.OnClick, self.button)
 
-    def EvtRadioBox(self, evt):
-        return self.rb.GetItemLabel(self.rb.GetSelection())
+    def EvtRadioBox_PF(self, evt):
+        return self.rb_platform.GetItemLabel(self.rb_platform.GetSelection())
+
+    def EvtRadioBox_Proxy(self, evt):
+        return self.rb_proxy.GetItemLabel(self.rb_proxy.GetSelection())
 
     def OnClick(self, evt):
+        self.button.SetLabel("Done")
         from rank import rank
-        rank = rank()
-        if self.EvtRadioBox(evt) == 'Web':
-            rank.rank_baidu_web("web_firefox")
-        if self.EvtRadioBox(evt) == 'H5':
-            rank.rank_baidu_m("h5_chrome")
+        if self.EvtRadioBox_PF(evt) == 'Web':
+            rank("web_firefox", self.EvtRadioBox_Proxy(evt)).rank_baidu_web()
+        if self.EvtRadioBox_PF(evt) == 'H5':
+            rank("h5_chrome", self.EvtRadioBox_Proxy(evt)).rank_baidu_m()
+
+    def printLog(self, log):
+        wxRank.multiText.AppendText(log)
 
 class rank(page):
-    def __init__(self):
+    def __init__(self, platform, proxyType):
         #搜索关键词
+        self.platform = platform
+        self.proxyType = proxyType
         self.data = data()
         self.SearchKeywords = self.data.SearchKeywords.items()
         # 常量设置
@@ -52,14 +73,14 @@ class rank(page):
         self.radio_sorted = 0.8  # 首页正序随机点击URL比例
         self.baidu_keywords = ['百度', '_相关']
 
-    def begin(self, platform):
+    def begin(self):
         # 实例化
-        self.pageobj = page(platform)
+        self.pageobj = page(self.platform, self.proxyType)
 
     def end(self):
         self.pageobj.quit()
 
-    def rank_baidu_web(self, platform):
+    def rank_baidu_web(self):
         process = 1
         for kw in self.SearchKeywords:
             total = len(self.SearchKeywords)
@@ -67,7 +88,7 @@ class rank(page):
             key, value = kw[0], kw[1]
             self.output_testResult(place="【WEB Begin】：当前关键字 - %s (%d/%d)" % (key, process, total))
             for click in range(value):
-                self.begin(platform)
+                self.begin()
                 driver = self.pageobj.getDriver()
                 # 1. 打开搜索页面并使用关键词搜索
                 try:
@@ -133,7 +154,7 @@ class rank(page):
             process += 1
             self.output_testResult(place="【WEB End】：当前关键字，成功点击%d次" % runtime)
 
-    def rank_baidu_m(self, platform):
+    def rank_baidu_m(self):
         process = 1
         for kw in self.SearchKeywords:
             total = len(self.SearchKeywords)
@@ -141,7 +162,7 @@ class rank(page):
             key, value = kw[0], kw[1]
             self.output_testResult(place="【H5 Begin】：当前关键字 - %s (%d/%d)" % (key, process, total))
             for click in range(value):
-                self.begin(platform)
+                self.begin()
                 driver = self.pageobj.getDriver()
                 # 1. 打开搜索页面并使用关键词搜索
                 try:
@@ -222,7 +243,7 @@ class rank(page):
 
 if __name__ == "__main__":
     app = wx.App(False)
-    frame = wx.Frame(None, title='百度刷排名小工具   --By Liufei', size=(500, 300), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
-    panel = BaiduRank(frame)
-    frame.Show()
+    frame = wx.Frame(None, title='百度刷排名小工具   --By Liufei', size=(500, 700), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
+    panel = wxRank(frame)
+    frame.Show(True)
     app.MainLoop()
