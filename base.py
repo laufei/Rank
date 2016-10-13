@@ -116,14 +116,13 @@ class base:
         js = "document.documentElement.scrollTop+=%d" % pix
         self.driver.execute_script(js)
 
-    def output_testResult(self, proxy='', place=''):
+    def output_testResult(self, printlog, proxy='', place=''):
         filename = "TestResult.txt"
         msg = ""
         with open(filename, 'a+') as ff:
             if place:
                 msg = place+"\n"
-                ff.write(msg)
             if proxy:
                 msg = "              ["+time.ctime()+"]"+"         " + proxy + "\n"
-                ff.write(msg)
-        return msg
+            ff.write(msg)
+        printlog(msg)

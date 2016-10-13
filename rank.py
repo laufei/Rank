@@ -8,7 +8,7 @@ from selenium.webdriver.common.by import By
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-class wxRank(wx.Panel):
+class wxRank(wx.Panel, page):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
 
