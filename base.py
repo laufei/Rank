@@ -8,7 +8,7 @@ from config import config
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-class base:
+class base():
 
     def __init__(self, platform, proxyType, rand=True):
         self.proxy = self.getProxy(type=proxyType, rand=rand)
@@ -21,6 +21,7 @@ class base:
     def getProxy(self, type, rand):
         # type 0: api接口获取，1: 文件获取
         # rand False: 返回全部，True: 随机返回一个
+        proxyaddr = ""
         if type == "API":
             reqURL = "http://dev.kuaidaili.com/api/getproxy/?orderid=967269662653487&num=999&b_pcchrome=1&b_pcie=1&b_pcff=1&protocol=1&method=2&an_ha=1&sp1=1&sp2=1&sep=1"
             try:
@@ -32,7 +33,7 @@ class base:
             filename = "proxy.txt"
             with open(filename, 'r') as ff:
                 data = ff.readlines()
-                proxyaddr = data[0].split("\r")
+            proxyaddr = data[0].split("\r")
         if rand:
             return proxyaddr[random.randint(0, len(proxyaddr)-1)]
         return proxyaddr
@@ -116,7 +117,7 @@ class base:
         js = "document.documentElement.scrollTop+=%d" % pix
         self.driver.execute_script(js)
 
-    def output_testResult(self, printlog, proxy='', place=''):
+    def output_testResult(self, proxy='', place=''):
         filename = "TestResult.txt"
         msg = ""
         with open(filename, 'a+') as ff:
@@ -125,4 +126,3 @@ class base:
             if proxy:
                 msg = "              ["+time.ctime()+"]"+"         " + proxy + "\n"
             ff.write(msg)
-        printlog(msg)
