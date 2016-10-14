@@ -2,5 +2,4 @@
 __author__ = 'liufei'
 
 from rank import rank
-rank = rank()
-rank.rank_baidu_m("h5_chrome")
+rank("h5_chrome", "TXT").rank_baidu_m()

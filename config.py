@@ -1,7 +1,7 @@
 ﻿# coding: utf-8
 __author__ = 'liufei'
 
-import sys, os
+import sys, os, platform
 from selenium import webdriver
 from selenium.webdriver import DesiredCapabilities
 reload(sys)
@@ -61,7 +61,10 @@ class config:
                 assert False, e
 
         elif driverConfig == "h5_chrome":
-            chromedriver = "/Users/luca/chromedriver"
+            if platform.system() == "Mac":
+                chromedriver = "/Users/luca/chromedriver"
+            elif platform.system() == "Windows":
+                chromedriver = "C:\chromedriver\chromedriver.exe"
             os.environ["webdriver.chrome.driver"] = chromedriver
             mobile_emulation = {"deviceName": "Google Nexus 5"}
             option = webdriver.ChromeOptions()

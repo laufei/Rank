@@ -2,5 +2,4 @@
 __author__ = 'liufei'
 
 from rank import rank
-rank = rank()
-rank.rank_baidu_web("web_firefox")
+rank("web_firefox", "TXT").rank_baidu_web()
