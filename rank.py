@@ -4,6 +4,7 @@ __author__ = 'liufei'
 import sys, time, random, wx
 from page import page
 from data import data
+from threading import Thread
 from selenium.webdriver.common.by import By
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -11,8 +12,6 @@ sys.setdefaultencoding('utf8')
 class wxRank(wx.Panel, page):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
-
-        # 配置代理API接口地址
 
         # 选择平台：web，h5
         sampleList = ['Web', 'H5']
@@ -31,15 +30,16 @@ class wxRank(wx.Panel, page):
         sizer.Add(self.rb_proxy, 0, wx.ALL, 5)
         self.SetSizer(sizer)
 
+        # 配置代理API接口地址
+
         # 执行log
-        self.multiText = wx.TextCtrl(self, -1, value="", size=(600, 500), style=wx.TE_MULTILINE) #创建一个文本控件
+        self.multiText = wx.TextCtrl(self, -1, value="", size=(600, 100), style=wx.TE_MULTILINE|wx.TE_READONLY) #创建一个文本控件
         sizer.Add(self.multiText, 0, wx.ALL, 5)
         self.multiText.SetInsertionPoint(0)
         self.SetSizer(sizer)
-        self.multiText.SetEditable(wx.TE_READONLY)
 
         # 执行按钮
-        self.button = wx.Button(self, label='Run', pos=(380, 630))
+        self.button = wx.Button(self, label='Run', pos=(380, 230))
         self.Bind(wx.EVT_BUTTON, self.OnClick, self.button)
 
     def EvtRadioBox_PF(self, evt):
@@ -49,20 +49,22 @@ class wxRank(wx.Panel, page):
         return self.rb_proxy.GetItemLabel(self.rb_proxy.GetSelection())
 
     def OnClick(self, evt):
-        self.button.SetLabel("Done")
+        self.button.SetLabel("Running")
+        evt.GetEventObject().Disable()
         from rank import rank
         if self.EvtRadioBox_PF(evt) == 'Web':
-            rank("web_firefox", self.EvtRadioBox_Proxy(evt)).rank_baidu_web()
+            rank("web_firefox", self.EvtRadioBox_Proxy(evt), self.printLog)
         if self.EvtRadioBox_PF(evt) == 'H5':
-            rank("h5_chrome", self.EvtRadioBox_Proxy(evt)).rank_baidu_m()
+            rank("h5_chrome", self.EvtRadioBox_Proxy(evt), self.printLog)
 
     def printLog(self, log):
-        wxRank.multiText.AppendText(log)
+        self.multiText.AppendText(log)
 
-class rank(page):
-    def __init__(self, platform, proxyType):
+class rank(page, Thread):
+    def __init__(self, driverType, proxyType, printlog):
+        Thread.__init__(self)
         #搜索关键词
-        self.platform = platform
+        self.driverType = driverType
         self.proxyType = proxyType
         self.data = data()
         self.SearchKeywords = self.data.SearchKeywords.items()
@@ -72,10 +74,20 @@ class rank(page):
         self.randomArea = 5     # 首页随机点击URL范围
         self.radio_sorted = 0.8  # 首页正序随机点击URL比例
         self.baidu_keywords = ['百度', '_相关']
+        # 输出log方法
+        self.printlog = printlog
+        # 启动线程
+        self.start()
+
+    def run(self):
+        if self.driverType.startswith("web"):
+            self.rank_baidu_web()
+        if self.driverType.startswith("h5"):
+            self.rank_baidu_m()
 
     def begin(self):
         # 实例化
-        self.pageobj = page(self.platform, self.proxyType)
+        self.pageobj = page(self.driverType, self.proxyType)
 
     def end(self):
         self.pageobj.quit()
@@ -86,7 +98,7 @@ class rank(page):
             total = len(self.SearchKeywords)
             runtime = 0
             key, value = kw[0], kw[1]
-            self.output_testResult(place="【WEB Begin】：当前关键字 - %s (%d/%d)" % (key, process, total))
+            self.output_testResult(self.printlog, place="【%d/%d】：当前关键字 - %s" % (process, total, key))
             for click in range(value):
                 self.begin()
                 driver = self.pageobj.getDriver()
@@ -148,11 +160,11 @@ class rank(page):
                                     print "         Oops，并没有点到您想要的链接.....  T_T", e
                             driver.switch_to_window(window)
                         self.pageobj.scroll_page(100)
-                self.output_testResult(proxy=self.pageobj.getProxyAddr())
+                self.output_testResult(self.printlog, proxy=self.pageobj.getProxyAddr())
                 self.end()
                 runtime += 1
             process += 1
-            self.output_testResult(place="【WEB End】：当前关键字，成功点击%d次" % runtime)
+            self.output_testResult(self.printlog, place="当前关键字，成功点击%d次" % runtime)
 
     def rank_baidu_m(self):
         process = 1
@@ -160,7 +172,7 @@ class rank(page):
             total = len(self.SearchKeywords)
             runtime = 0
             key, value = kw[0], kw[1]
-            self.output_testResult(place="【H5 Begin】：当前关键字 - %s (%d/%d)" % (key, process, total))
+            self.output_testResult(self.printlog, place="【%d/%d】：当前关键字 - %s" % (process, total, key))
             for click in range(value):
                 self.begin()
                 driver = self.pageobj.getDriver()
@@ -235,15 +247,15 @@ class rank(page):
                                     print "         Oops，并没有点到您想要的链接.....  T_T", e
                                 driver.switch_to_window(window)
                         self.pageobj.scroll_page(100)
-                self.output_testResult(proxy=self.pageobj.getProxyAddr())
+                self.output_testResult(self.printlog, proxy=self.pageobj.getProxyAddr())
                 self.end()
                 runtime += 1
             process += 1
-            self.output_testResult(place="【H5 End】：当前关键字，成功点击%d次" % runtime)
+            self.output_testResult(self.printlog, place="当前关键字，成功点击%d次" % runtime)
 
 if __name__ == "__main__":
     app = wx.App(False)
-    frame = wx.Frame(None, title='百度刷排名小工具   --By Liufei', size=(500, 700), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
+    frame = wx.Frame(None, title='刷百度排名小工具   --By Liufei', size=(500, 300), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
     panel = wxRank(frame)
     frame.Show(True)
     app.MainLoop()
