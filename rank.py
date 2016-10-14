@@ -16,15 +16,15 @@ class wxRank(wx.Panel, page):
         # 选择平台：web，h5
         sampleList = ['Web', 'H5']
         sizer = wx.BoxSizer(wx.VERTICAL)
-        self.rb_platform = wx.RadioBox(self, -1, "wx.RadioBox", wx.DefaultPosition, wx.DefaultSize, sampleList, 2, wx.RA_SPECIFY_COLS)
+        self.rb_platform = wx.RadioBox(self, -1, "wx.RadioBox", wx.DefaultPosition, wx.DefaultSize, sampleList, 3, wx.RA_SPECIFY_COLS)
         self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_PF, self.rb_platform)
         self.rb_platform.SetLabel("Platfrom:")
         sizer.Add(self.rb_platform, 0, wx.ALL, 5)
         self.SetSizer(sizer)
 
         # 选择代理方式：api，txt
-        sampleList = ['API', 'TXT']
-        self.rb_proxy = wx.RadioBox(self, -1, "wx.RadioBox", wx.DefaultPosition, wx.DefaultSize, sampleList, 2, wx.RA_SPECIFY_COLS)
+        sampleList = ['DNS', 'API', 'TXT']
+        self.rb_proxy = wx.RadioBox(self, -1, "wx.RadioBox", wx.DefaultPosition, wx.DefaultSize, sampleList, 3, wx.RA_SPECIFY_COLS)
         self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_Proxy, self.rb_proxy)
         self.rb_proxy.SetLabel("Proxy Mode:")
         sizer.Add(self.rb_proxy, 0, wx.ALL, 5)
@@ -39,8 +39,12 @@ class wxRank(wx.Panel, page):
         self.SetSizer(sizer)
 
         # 执行按钮
-        self.button = wx.Button(self, label='Run', pos=(380, 230))
-        self.Bind(wx.EVT_BUTTON, self.OnClick, self.button)
+        self.buttonRun = wx.Button(self, label='Run', pos=(300, 240))
+        self.Bind(wx.EVT_BUTTON, self.OnClickRun, self.buttonRun)
+
+        # 终止按钮
+        self.buttonStop = wx.Button(self, label='Stop', pos=(390, 240))
+        self.Bind(wx.EVT_BUTTON, self.OnClickStop, self.buttonStop)
 
     def EvtRadioBox_PF(self, evt):
         return self.rb_platform.GetItemLabel(self.rb_platform.GetSelection())
@@ -48,14 +52,19 @@ class wxRank(wx.Panel, page):
     def EvtRadioBox_Proxy(self, evt):
         return self.rb_proxy.GetItemLabel(self.rb_proxy.GetSelection())
 
-    def OnClick(self, evt):
-        self.button.SetLabel("Running")
+    def OnClickRun(self, evt):
+        self.buttonRun.SetLabel("Running")
         evt.GetEventObject().Disable()
         from rank import rank
-        if self.EvtRadioBox_PF(evt) == 'Web':
-            rank("web_firefox", self.EvtRadioBox_Proxy(evt), self.printLog)
-        if self.EvtRadioBox_PF(evt) == 'H5':
-            rank("h5_chrome", self.EvtRadioBox_Proxy(evt), self.printLog)
+        drvierTyple = ""
+        if self.EvtRadioBox_PF(evt) == 'Web': drvierTyple = "web_firefox"
+        if self.EvtRadioBox_PF(evt) == 'H5': drvierTyple = "h5_chrome"
+        rank(drvierTyple, self.EvtRadioBox_Proxy(evt), self.printLog)
+
+    def OnClickStop(self, evt):
+        self.buttonRun.SetLabel("Run")
+        evt.GetEventObject().Disable()
+        exit()
 
     def printLog(self, log):
         self.multiText.AppendText(log)

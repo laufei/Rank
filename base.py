@@ -22,8 +22,12 @@ class base():
         # type 0: api接口获取，1: 文件获取
         # rand False: 返回全部，True: 随机返回一个
         proxyaddr = ""
+        if type == "DNS":
+            proxyaddr = "d.conn.run:32804"
+            return proxyaddr
+
         if type == "API":
-            reqURL = "http://dev.kuaidaili.com/api/getproxy/?orderid=967269662653487&num=999&b_pcchrome=1&b_pcie=1&b_pcff=1&protocol=1&method=2&an_ha=1&sp1=1&sp2=1&sep=1"
+            reqURL = "http://www.shandiandaili.com/bindip.aspx?Key=f01064e025ce0a6717db03a8bc4f2712&IP=60.206.194.34"
             try:
                 response = requests.get(reqURL)
             except Exception, e:
@@ -117,12 +121,19 @@ class base():
         js = "document.documentElement.scrollTop+=%d" % pix
         self.driver.execute_script(js)
 
-    def output_testResult(self, proxy='', place=''):
-        filename = "TestResult.txt"
+    def output_testResult(self, printlog, proxy='', place='', outputfile=False):
         msg = ""
-        with open(filename, 'a+') as ff:
+        if outputfile:
+            filename = "TestResult.txt"
+            with open(filename, 'a+') as ff:
+                if place:
+                    msg = place+"\n"
+                if proxy:
+                    msg = "              ["+time.ctime()+"]"+"         " + proxy + "\n"
+                ff.write(msg)
+        else:
             if place:
                 msg = place+"\n"
             if proxy:
                 msg = "              ["+time.ctime()+"]"+"         " + proxy + "\n"
-            ff.write(msg)
+            printlog(msg)

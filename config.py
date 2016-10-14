@@ -61,7 +61,7 @@ class config:
                 assert False, e
 
         elif driverConfig == "h5_chrome":
-            if platform.system() == "Mac":
+            if platform.system() == "Darwin":
                 chromedriver = "/Users/luca/chromedriver"
             elif platform.system() == "Windows":
                 chromedriver = "C:\chromedriver\chromedriver.exe"
