@@ -70,7 +70,7 @@ class wxRank(wx.Panel, page):
         self.proxyText.SetLabel(self.data.proxy_txt)
 
     def OnClickRun(self, evt):
-        self.proxyConfig = self.proxyText.GetValue()
+        self.proxyConfig = self.proxyText.GetValue().strip()
         self.buttonRun.SetLabel("Running")
         evt.GetEventObject().Disable()
         from rank import rank

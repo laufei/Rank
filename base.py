@@ -32,12 +32,15 @@ class base():
             try:
                 response = requests.get(reqURL)
             except Exception, e:
-                assert False, e
+                return False
             proxyaddr = response.text.split("\r\n")
         if type == "TXT":
             filename = config
-            with open(filename, 'r') as ff:
-                data = ff.readlines()
+            try:
+                with open(filename, 'r') as ff:
+                    data = ff.readlines()
+            except:
+                return False
             proxyaddr = data[0].split("\r")
         if rand:
             return proxyaddr[random.randint(0, len(proxyaddr)-1)]
