@@ -11,7 +11,7 @@ sys.setdefaultencoding('utf8')
 class base():
 
     def __init__(self, platform, proxyType, rand=True):
-        self.proxy = self.getProxy(type=proxyType, rand=rand)
+        self.proxy = self.getProxy(proxyType, rand)
         self.config = config(platform, self.proxy)
         self.driver = self.config.driver
 
@@ -25,7 +25,6 @@ class base():
         if type == "DNS":
             proxyaddr = "d.conn.run:32804"
             return proxyaddr
-
         if type == "API":
             reqURL = "http://www.shandiandaili.com/bindip.aspx?Key=f01064e025ce0a6717db03a8bc4f2712&IP=60.206.194.34"
             try:

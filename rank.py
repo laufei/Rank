@@ -30,27 +30,43 @@ class wxRank(wx.Panel, page):
         sizer.Add(self.rb_proxy, 0, wx.ALL, 5)
         self.SetSizer(sizer)
 
-        # 配置代理API接口地址
+        # 代理DNS，API配置输入框
+        self.proxyText = wx.TextCtrl(self, -1, value="please select proxy type first...", size=(400, 25))
+        sizer.Add(self.proxyText, 0, wx.ALL, 5)
+        self.SetSizer(sizer)
 
         # 执行log
-        self.multiText = wx.TextCtrl(self, -1, value="", size=(600, 100), style=wx.TE_MULTILINE|wx.TE_READONLY) #创建一个文本控件
+        self.multiText = wx.TextCtrl(self, -1, value="", size=(600, 180), style=wx.TE_MULTILINE|wx.TE_READONLY) #创建一个文本控件
         sizer.Add(self.multiText, 0, wx.ALL, 5)
         self.multiText.SetInsertionPoint(0)
         self.SetSizer(sizer)
 
         # 执行按钮
-        self.buttonRun = wx.Button(self, label='Run', pos=(300, 240))
+        self.buttonRun = wx.Button(self, label='Run', pos=(300, 340))
         self.Bind(wx.EVT_BUTTON, self.OnClickRun, self.buttonRun)
 
         # 终止按钮
-        self.buttonStop = wx.Button(self, label='Stop', pos=(390, 240))
+        self.buttonStop = wx.Button(self, label='Stop', pos=(390, 340))
         self.Bind(wx.EVT_BUTTON, self.OnClickStop, self.buttonStop)
 
     def EvtRadioBox_PF(self, evt):
         return self.rb_platform.GetItemLabel(self.rb_platform.GetSelection())
 
     def EvtRadioBox_Proxy(self, evt):
-        return self.rb_proxy.GetItemLabel(self.rb_proxy.GetSelection())
+        selected = self.rb_proxy.GetItemLabel(self.rb_proxy.GetSelection())
+        if selected == "DNS": self.OnClickDNS(evt)
+        if selected == "API": self.OnClickAPI(evt)
+        if selected == "TXT": self.OnClickTXT(evt)
+        return selected
+
+    def OnClickDNS(self, evt):
+        self.proxyText.SetLabel("DNS")
+
+    def OnClickAPI(self, evt):
+        self.proxyText.SetLabel("API")
+
+    def OnClickTXT(self, evt):
+        self.proxyText.SetLabel("TXT")
 
     def OnClickRun(self, evt):
         self.buttonRun.SetLabel("Running")
@@ -62,9 +78,10 @@ class wxRank(wx.Panel, page):
         rank(drvierTyple, self.EvtRadioBox_Proxy(evt), self.printLog)
 
     def OnClickStop(self, evt):
-        self.buttonRun.SetLabel("Run")
-        evt.GetEventObject().Disable()
-        exit()
+        ret = wx.MessageBox('Do you really want to leave?','Confirm',wx.OK|wx.CANCEL)
+        if ret == wx.OK:
+            wx.GetApp().ExitMainLoop()
+            evt.Skip()
 
     def printLog(self, log):
         self.multiText.AppendText(log)
@@ -178,6 +195,7 @@ class rank(page, Thread):
     def rank_baidu_m(self):
         process = 1
         for kw in self.SearchKeywords:
+            found = False   # 定位到关键字排名后，跳出循环标志位
             total = len(self.SearchKeywords)
             runtime = 0
             key, value = kw[0], kw[1]
@@ -252,10 +270,16 @@ class rank(page, Thread):
                                     driver.execute_script(js % (self.baidu_result_items_m[-1], index))
                                     time.sleep(2)
                                     baidu_result_items[index].click()
+                                    found = True
+                                    break
                                 except Exception, e:
                                     print "         Oops，并没有点到您想要的链接.....  T_T", e
+                            if found:
+                                break
                                 driver.switch_to_window(window)
                         self.pageobj.scroll_page(100)
+                    if found:
+                        break
                 self.output_testResult(self.printlog, proxy=self.pageobj.getProxyAddr())
                 self.end()
                 runtime += 1
@@ -264,7 +288,7 @@ class rank(page, Thread):
 
 if __name__ == "__main__":
     app = wx.App(False)
-    frame = wx.Frame(None, title='刷百度排名小工具   --By Liufei', size=(500, 300), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
+    frame = wx.Frame(None, title='刷百度排名小工具   --By Liufei', size=(500, 400), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
     panel = wxRank(frame)
     frame.Show(True)
     app.MainLoop()
