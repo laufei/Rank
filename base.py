@@ -3,37 +3,39 @@ __author__ = 'liufei'
 
 import sys, time, requests, random
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import NoSuchElementException, TimeoutException, StaleElementReferenceException
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from config import config
+from data import data
 reload(sys)
 sys.setdefaultencoding('utf8')
 
 class base():
 
-    def __init__(self, platform, proxyType, rand=True):
-        self.proxy = self.getProxy(proxyType, rand)
+    def __init__(self, platform, proxyType, proxyConfig, rand=True):
+        self.proxy = self.getProxy(proxyType, proxyConfig, rand)
         self.config = config(platform, self.proxy)
+        self.data = data()
         self.driver = self.config.driver
 
     def getProxyAddr(self):
         return self.proxy
 
-    def getProxy(self, type, rand):
+    def getProxy(self, type, config, rand):
         # type 0: api接口获取，1: 文件获取
         # rand False: 返回全部，True: 随机返回一个
         proxyaddr = ""
         if type == "DNS":
-            proxyaddr = "d.conn.run:32804"
+            proxyaddr = config
             return proxyaddr
         if type == "API":
-            reqURL = "http://www.shandiandaili.com/bindip.aspx?Key=f01064e025ce0a6717db03a8bc4f2712&IP=60.206.194.34"
+            reqURL = config
             try:
                 response = requests.get(reqURL)
             except Exception, e:
                 assert False, e
             proxyaddr = response.text.split("\r\n")
         if type == "TXT":
-            filename = "proxy.txt"
+            filename = config
             with open(filename, 'r') as ff:
                 data = ff.readlines()
             proxyaddr = data[0].split("\r")

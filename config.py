@@ -10,10 +10,11 @@ sys.setdefaultencoding('utf8')
 class config:
     def __init__(self, driverConfig, proxy=""):
         # 1 - 本地浏览器配置代理；2 - windows测试机配置代理；
-        if not ('ERROR' in proxy) and proxy:
+        try:
             iparray = proxy.split(":")
             ip, port = iparray[0], int(iparray[1])
-        else:
+        except:
+            proxy = "获取代理失败!"
             ip, port = "", ""
         print "当前使用的代理服务器：%s" % proxy
         if driverConfig == "web_firefox":

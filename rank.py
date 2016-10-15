@@ -12,42 +12,43 @@ sys.setdefaultencoding('utf8')
 class wxRank(wx.Panel, page):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
-
+        self.data = data()
+        self.proxyConfig = ""
         # 选择平台：web，h5
         sampleList = ['Web', 'H5']
         sizer = wx.BoxSizer(wx.VERTICAL)
-        self.rb_platform = wx.RadioBox(self, -1, "wx.RadioBox", wx.DefaultPosition, wx.DefaultSize, sampleList, 3, wx.RA_SPECIFY_COLS)
+        self.rb_platform = wx.RadioBox(self, -1, "wx.RadioBox", wx.DefaultPosition, wx.DefaultSize, sampleList, 2, wx.RA_SPECIFY_COLS)
         self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_PF, self.rb_platform)
         self.rb_platform.SetLabel("Platfrom:")
         sizer.Add(self.rb_platform, 0, wx.ALL, 5)
-        self.SetSizer(sizer)
 
-        # 选择代理方式：api，txt
+        # 选择代理方式：dns, api，txt
         sampleList = ['DNS', 'API', 'TXT']
         self.rb_proxy = wx.RadioBox(self, -1, "wx.RadioBox", wx.DefaultPosition, wx.DefaultSize, sampleList, 3, wx.RA_SPECIFY_COLS)
         self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_Proxy, self.rb_proxy)
         self.rb_proxy.SetLabel("Proxy Mode:")
         sizer.Add(self.rb_proxy, 0, wx.ALL, 5)
-        self.SetSizer(sizer)
 
-        # 代理DNS，API配置输入框
-        self.proxyText = wx.TextCtrl(self, -1, value="please select proxy type first...", size=(400, 25))
+        # 代理DNS，API, TXT配置输入框
+        self.proxyInfo = wx.StaticText(self, -1, label="Please input the proxy config below:")
+        sizer.Add(self.proxyInfo, 0, wx.ALL, 5)
+        self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_dns, size=(400, 25))
         sizer.Add(self.proxyText, 0, wx.ALL, 5)
-        self.SetSizer(sizer)
 
         # 执行log
         self.multiText = wx.TextCtrl(self, -1, value="", size=(600, 180), style=wx.TE_MULTILINE|wx.TE_READONLY) #创建一个文本控件
         sizer.Add(self.multiText, 0, wx.ALL, 5)
         self.multiText.SetInsertionPoint(0)
-        self.SetSizer(sizer)
 
         # 执行按钮
-        self.buttonRun = wx.Button(self, label='Run', pos=(300, 340))
+        self.buttonRun = wx.Button(self, label='Run', pos=(300, 363))
         self.Bind(wx.EVT_BUTTON, self.OnClickRun, self.buttonRun)
 
         # 终止按钮
-        self.buttonStop = wx.Button(self, label='Stop', pos=(390, 340))
+        self.buttonStop = wx.Button(self, label='Stop', pos=(390, 363))
         self.Bind(wx.EVT_BUTTON, self.OnClickStop, self.buttonStop)
+
+        self.SetSizer(sizer)
 
     def EvtRadioBox_PF(self, evt):
         return self.rb_platform.GetItemLabel(self.rb_platform.GetSelection())
@@ -60,22 +61,23 @@ class wxRank(wx.Panel, page):
         return selected
 
     def OnClickDNS(self, evt):
-        self.proxyText.SetLabel("DNS")
+        self.proxyText.SetLabel(self.data.proxy_dns)
 
     def OnClickAPI(self, evt):
-        self.proxyText.SetLabel("API")
+        self.proxyText.SetLabel(self.data.proxy_api)
 
     def OnClickTXT(self, evt):
-        self.proxyText.SetLabel("TXT")
+        self.proxyText.SetLabel(self.data.proxy_txt)
 
     def OnClickRun(self, evt):
+        self.proxyConfig = self.proxyText.GetValue()
         self.buttonRun.SetLabel("Running")
         evt.GetEventObject().Disable()
         from rank import rank
         drvierTyple = ""
         if self.EvtRadioBox_PF(evt) == 'Web': drvierTyple = "web_firefox"
         if self.EvtRadioBox_PF(evt) == 'H5': drvierTyple = "h5_chrome"
-        rank(drvierTyple, self.EvtRadioBox_Proxy(evt), self.printLog)
+        rank(drvierTyple, self.EvtRadioBox_Proxy(evt), self.proxyConfig, self.printLog)
 
     def OnClickStop(self, evt):
         ret = wx.MessageBox('Do you really want to leave?','Confirm',wx.OK|wx.CANCEL)
@@ -87,11 +89,12 @@ class wxRank(wx.Panel, page):
         self.multiText.AppendText(log)
 
 class rank(page, Thread):
-    def __init__(self, driverType, proxyType, printlog):
+    def __init__(self, driverType, proxyType, proxyConfig, printlog):
         Thread.__init__(self)
         #搜索关键词
         self.driverType = driverType
         self.proxyType = proxyType
+        self.proxyConfig = proxyConfig
         self.data = data()
         self.SearchKeywords = self.data.SearchKeywords.items()
         # 常量设置
@@ -113,7 +116,7 @@ class rank(page, Thread):
 
     def begin(self):
         # 实例化
-        self.pageobj = page(self.driverType, self.proxyType)
+        self.pageobj = page(self.driverType, self.proxyType, self.proxyConfig)
 
     def end(self):
         self.pageobj.quit()
@@ -288,7 +291,7 @@ class rank(page, Thread):
 
 if __name__ == "__main__":
     app = wx.App(False)
-    frame = wx.Frame(None, title='刷百度排名小工具   --By Liufei', size=(500, 400), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
+    frame = wx.Frame(None, title='刷百度排名小工具   --By Liufei', size=(500, 420), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
     panel = wxRank(frame)
     frame.Show(True)
     app.MainLoop()
