@@ -1,7 +1,10 @@
 # coding: utf-8
 __author__ = 'liufei'
 
-import sys, time, requests, random
+import sys
+import time
+import requests
+import random
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from config import config

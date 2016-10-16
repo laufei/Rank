@@ -1,7 +1,9 @@
 ﻿# coding: utf-8
 __author__ = 'liufei'
 
-import sys, os, platform
+import sys
+import os
+import platform
 from selenium import webdriver
 from selenium.webdriver import DesiredCapabilities
 reload(sys)

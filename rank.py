@@ -1,7 +1,10 @@
 ﻿# coding: utf-8
 __author__ = 'liufei'
 
-import sys, time, random, wx
+import sys
+import time
+import random
+import wx
 from page import page
 from data import data
 from threading import Thread
@@ -19,18 +22,18 @@ class wxRank(wx.Panel, page):
         sizer = wx.BoxSizer(wx.VERTICAL)
         self.rb_platform = wx.RadioBox(self, -1, "wx.RadioBox", wx.DefaultPosition, wx.DefaultSize, sampleList, 2, wx.RA_SPECIFY_COLS)
         self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_PF, self.rb_platform)
-        self.rb_platform.SetLabel("Platfrom:")
+        self.rb_platform.SetLabel("1. Platfrom:")
         sizer.Add(self.rb_platform, 0, wx.ALL, 5)
 
         # 选择代理方式：dns, api，txt
         sampleList = ['DNS', 'API', 'TXT']
         self.rb_proxy = wx.RadioBox(self, -1, "wx.RadioBox", wx.DefaultPosition, wx.DefaultSize, sampleList, 3, wx.RA_SPECIFY_COLS)
         self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_Proxy, self.rb_proxy)
-        self.rb_proxy.SetLabel("Proxy Mode:")
+        self.rb_proxy.SetLabel("2. Proxy Mode:")
         sizer.Add(self.rb_proxy, 0, wx.ALL, 5)
 
         # 代理DNS，API, TXT配置输入框
-        self.proxyInfo = wx.StaticText(self, -1, label="Please input the proxy config below:")
+        self.proxyInfo = wx.StaticText(self, -1, label="3. Please input the proxy config below:")
         sizer.Add(self.proxyInfo, 0, wx.ALL, 5)
         self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_dns, size=(400, 25))
         sizer.Add(self.proxyText, 0, wx.ALL, 5)
