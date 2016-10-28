@@ -95,12 +95,12 @@ class wxRank(wx.Panel, page):
 
     def OnClickRun(self, evt):
         # 如果未选择keyworks文件, 提示错误
-        if self.keyworks == "":
+        if not self.keyworks:
             self.multiText.SetBackgroundColour("#FFC1C1")
             self.multiText.SetValue("Failed to read keywords, please check the keywords file!")
             return
         self.proxyConfig = self.proxyText.GetValue().strip()
-        if self.proxyConfig == "":
+        if not self.proxyConfig:
             self.multiText.SetBackgroundColour("#FFC1C1")
             self.multiText.SetValue("Please input proxy config in <Proxy Mode:>!")
             return
@@ -130,14 +130,20 @@ class wxRank(wx.Panel, page):
         dlg.Destroy()
 
     def kyFileHeadle(self, filename):
+        name = os.path.basename(filename)
+        if name != "kw.data":
+            self.multiText.SetBackgroundColour("#FFC1C1")
+            self.multiText.SetValue("The keyworks filename must be 'kw.data'")
+            return False
         try:
             with open(filename, "r") as ff:
-                kw = ff.read()
+                kw = ff.read().decode("utf-8")
+                print kw
                 return eval(kw)
         except Exception, e:
             self.multiText.SetBackgroundColour("#FFC1C1")
             self.multiText.SetValue("Failed to get keywords:\n%s" % str(e))
-            return ""
+            return False
 
     def printLog(self, log):
         try:
@@ -187,7 +193,7 @@ class rank(page, Thread):
 
     def rank_baidu_web(self):
         process = 1
-        for kw in self.SearchKeywords:
+        for kw in self.SearchKeywords.items():
             total = len(self.SearchKeywords)
             runtime = 0
             key, value = kw[0], kw[1]
