@@ -27,17 +27,17 @@ class wxRank(wx.Panel, page):
             self.kwBtn = wx.Button(self, label='...', size=(30, 21))
             self.Bind(wx.EVT_BUTTON, self.OnOpenFile, self.kwBtn)
             # 选择平台：web，h5
-            sampleList = ['Web', 'H5']
+            sampleList = ['H5', 'Web']
             self.rb_platform = wx.RadioBox(self, -1, "Platform:", wx.DefaultPosition, wx.DefaultSize, sampleList, 2)
             self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_PF, self.rb_platform)
             pm= wx.StaticBox(self, -1, "Proxy Mode:")
             proxyBox = wx.StaticBoxSizer(pm, wx.VERTICAL)
             # 选择代理方式：dns, api，txt
-            sampleList = ['DNS', 'API', 'TXT']
+            sampleList = ['API', 'DNS', 'TXT']
             self.rb_proxy = wx.RadioBox(self, 0, "", wx.DefaultPosition, wx.DefaultSize, sampleList, 3)
             self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_Proxy, self.rb_proxy)
             # 代理DNS，API, TXT配置输入框
-            self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_dns, size=(220, 21))
+            self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_api, size=(220, 21))
             proxyBox.Add(self.rb_proxy, 0, wx.ALL|wx.ALL, 5)
             proxyBox.Add(self.proxyText, 0, wx.ALL|wx.ALL, 5)
 
@@ -79,8 +79,8 @@ class wxRank(wx.Panel, page):
 
     def EvtRadioBox_Proxy(self, evt):
         selected = self.rb_proxy.GetItemLabel(self.rb_proxy.GetSelection())
-        if selected == "DNS": self.OnClickDNS(evt)
         if selected == "API": self.OnClickAPI(evt)
+        if selected == "DNS": self.OnClickDNS(evt)
         if selected == "TXT": self.OnClickTXT(evt)
         return selected
 
@@ -104,6 +104,7 @@ class wxRank(wx.Panel, page):
             self.multiText.SetBackgroundColour("#FFC1C1")
             self.multiText.SetValue("Please input proxy config in <Proxy Mode:>!")
             return
+        self.multiText.SetBackgroundColour("white")
         self.multiText.SetValue("")
         self.buttonRun.SetLabel("Running")
         self.buttonStop.SetLabel("Stop")
@@ -125,6 +126,7 @@ class wxRank(wx.Panel, page):
         if dlg.ShowModal() == wx.ID_OK:
             kwfilename = dlg.GetPath()
             self.kwText.SetLabel(kwfilename)
+            self.multiText.SetBackgroundColour("white")
             self.multiText.SetValue("")
             self.keyworks = self.kyFileHeadle(kwfilename)
         dlg.Destroy()
@@ -138,7 +140,6 @@ class wxRank(wx.Panel, page):
         try:
             with open(filename, "r") as ff:
                 kw = ff.read().decode("utf-8")
-                print kw
                 return eval(kw)
         except Exception, e:
             self.multiText.SetBackgroundColour("#FFC1C1")
@@ -205,11 +206,12 @@ class rank(page, Thread):
                 try:
                     self.pageobj.gotoURL(self.pageobj.baidu)
                     window = driver.current_window_handle
-                    self.pageobj.find_element(*self.baidu_kw).send_keys(key)
+                    self.pageobj.find_element(*self.baidu_kw).send_keys(unicode(key))
                     time.sleep(2)
                     self.pageobj.find_element(*self.baidu_submit).click()
                     time.sleep(2)
-                except:
+                except Exception, e:
+                    self.output_testResult(self.printlog, place=str(e))
                     self.end()
                     continue
 
@@ -267,7 +269,7 @@ class rank(page, Thread):
 
     def rank_baidu_m(self):
         process = 1
-        for kw in self.SearchKeywords:
+        for kw in self.SearchKeywords.items():
             found = False   # 定位到关键字排名后，跳出循环标志位
             total = len(self.SearchKeywords)
             runtime = 0
@@ -280,11 +282,12 @@ class rank(page, Thread):
                 try:
                     self.pageobj.gotoURL(self.pageobj.baidu_m)
                     window = driver.current_window_handle
-                    self.pageobj.find_element(*self.baidu_kw_m).send_keys(key)
+                    self.pageobj.find_element(*self.baidu_kw_m).send_keys(unicode(key))
                     time.sleep(2)
                     self.pageobj.find_element(*self.baidu_submit_m).click()
                     time.sleep(2)
-                except:
+                except Exception, e:
+                    self.output_testResult(self.printlog, place=str(e))
                     self.end()
                     continue
 
