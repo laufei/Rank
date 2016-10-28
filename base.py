@@ -133,7 +133,7 @@ class base():
         if place:
             msg = place+"\n"
         if proxy:
-            msg = "              ["+time.ctime()+"]"+"         " + proxy + "\n"
+            msg = " ["+time.ctime()+"]  " + proxy + "\n"
         printlog(msg)
         if outputfile:
             filename = "TestResult.txt"
@@ -141,5 +141,5 @@ class base():
                 if place:
                     msg = place+"\n"
                 if proxy:
-                    msg = "              ["+time.ctime()+"]"+"         " + proxy + "\n"
+                    msg = " ["+time.ctime()+"]  " + proxy + "\n"
                 ff.write(msg)

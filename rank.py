@@ -1,56 +1,78 @@
 ﻿# coding: utf-8
 __author__ = 'liufei'
 
-import sys
+import os
 import time
 import random
 import wx
 from page import page
 from data import data
 from threading import Thread
-from selenium.webdriver.common.by import By
-reload(sys)
-sys.setdefaultencoding('utf8')
 
 class wxRank(wx.Panel, page):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
         self.data = data()
+        self.keyworks = ""
         self.proxyConfig = ""
-        # 选择平台：web，h5
-        sampleList = ['Web', 'H5']
-        sizer = wx.BoxSizer(wx.VERTICAL)
-        self.rb_platform = wx.RadioBox(self, -1, "wx.RadioBox", wx.DefaultPosition, wx.DefaultSize, sampleList, 2, wx.RA_SPECIFY_COLS)
-        self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_PF, self.rb_platform)
-        self.rb_platform.SetLabel("1. Platform:")
-        sizer.Add(self.rb_platform, 0, wx.ALL, 5)
+        self.initWindow()
 
-        # 选择代理方式：dns, api，txt
-        sampleList = ['DNS', 'API', 'TXT']
-        self.rb_proxy = wx.RadioBox(self, -1, "wx.RadioBox", wx.DefaultPosition, wx.DefaultSize, sampleList, 3, wx.RA_SPECIFY_COLS)
-        self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_Proxy, self.rb_proxy)
-        self.rb_proxy.SetLabel("2. Proxy Mode:")
-        sizer.Add(self.rb_proxy, 0, wx.ALL, 5)
+    def initWindow(self):
+            vbox = wx.BoxSizer(wx.HORIZONTAL)
+            leftbox = wx.BoxSizer(wx.VERTICAL)
+            fm = wx.StaticBox(self, -1, "Keywords File:")
+            filebox = wx.StaticBoxSizer(fm, wx.HORIZONTAL)
+            # 选择keywords文件
+            self.kwText = wx.TextCtrl(self, -1, size=(200, 21))
+            self.kwBtn = wx.Button(self, label='...', size=(30, 21))
+            self.Bind(wx.EVT_BUTTON, self.OnOpenFile, self.kwBtn)
+            # 选择平台：web，h5
+            sampleList = ['Web', 'H5']
+            self.rb_platform = wx.RadioBox(self, -1, "Platform:", wx.DefaultPosition, wx.DefaultSize, sampleList, 2)
+            self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_PF, self.rb_platform)
+            pm= wx.StaticBox(self, -1, "Proxy Mode:")
+            proxyBox = wx.StaticBoxSizer(pm, wx.VERTICAL)
+            # 选择代理方式：dns, api，txt
+            sampleList = ['DNS', 'API', 'TXT']
+            self.rb_proxy = wx.RadioBox(self, 0, "", wx.DefaultPosition, wx.DefaultSize, sampleList, 3)
+            self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_Proxy, self.rb_proxy)
+            # 代理DNS，API, TXT配置输入框
+            self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_dns, size=(220, 21))
+            proxyBox.Add(self.rb_proxy, 0, wx.ALL|wx.ALL, 5)
+            proxyBox.Add(self.proxyText, 0, wx.ALL|wx.ALL, 5)
 
-        # 代理DNS，API, TXT配置输入框
-        # self.proxyInfo = wx.StaticText(self, -1, label="3. Please input the proxy config below:")
-        # sizer.Add(self.proxyInfo, 0, wx.ALL, 5)
-        self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_dns, size=(500, 25))
-        sizer.Add(self.proxyText, 0, wx.ALL, 5)
+            # 左侧布局
+            filebox.Add(self.kwText, 0, wx.ALIGN_LEFT, 5)
+            filebox.Add(self.kwBtn, 0, wx.ALIGN_RIGHT, 5)
+            leftbox.Add(filebox, 0, wx.ALL, 5)
+            leftbox.Add(self.rb_platform, 0, wx.ALL, 5)
+            leftbox.Add(proxyBox, 0, wx.ALL, 5)
 
-        # 执行log
-        self.multiText = wx.TextCtrl(self, -1, value="", size=(500, 180), style=wx.TE_MULTILINE|wx.TE_READONLY) #创建一个文本控件
-        sizer.Add(self.multiText, 0, wx.ALL, 5)
-        self.multiText.SetInsertionPoint(0)
+            # 执行log
+            rightBox = wx.BoxSizer(wx.VERTICAL)
+            om = wx.StaticBox(self, 0, "Log:")
+            logBox = wx.StaticBoxSizer(om, wx.HORIZONTAL)
+            self.multiText = wx.TextCtrl(self, 0, value="", size=(480, 160), style=wx.TE_MULTILINE|wx.TE_READONLY) #创建一个文本控件
+            self.multiText.SetInsertionPoint(0)
+            # 执行按钮
+            btnBox = wx.BoxSizer(wx.HORIZONTAL)
+            self.buttonRun = wx.Button(self, label="Run")
+            self.Bind(wx.EVT_BUTTON, self.OnClickRun, self.buttonRun)
+            # 终止按钮
+            self.buttonStop = wx.Button(self, label="Close")
+            self.Bind(wx.EVT_BUTTON, self.OnClickStop, self.buttonStop)
 
-        # 执行按钮
-        self.buttonRun = wx.Button(self, label='Run', pos=(300, 363))
-        self.Bind(wx.EVT_BUTTON, self.OnClickRun, self.buttonRun)
+            # 右侧布局
+            logBox.Add(self.multiText, 0, wx.ALL, 5)
+            btnBox.Add(self.buttonRun, 0, wx.ALL, 5)
+            btnBox.Add(self.buttonStop, 0, wx.ALL, 5)
+            rightBox.Add(logBox, 0, wx.ALL, 5)
+            rightBox.Add(btnBox, 0, wx.ALIGN_RIGHT, 5)
 
-        # 终止按钮
-        self.buttonStop = wx.Button(self, label='Close', pos=(390, 363))
-        self.Bind(wx.EVT_BUTTON, self.OnClickStop, self.buttonStop)
-        self.SetSizer(sizer)
+            # 整体布局
+            vbox.Add(leftbox, 0, wx.ALL|wx.ALL, 5)
+            vbox.Add(rightBox, 0, wx.ALL|wx.ALL, 5)
+            self.SetSizer(vbox)
 
     def EvtRadioBox_PF(self, evt):
         return self.rb_platform.GetItemLabel(self.rb_platform.GetSelection())
@@ -72,7 +94,17 @@ class wxRank(wx.Panel, page):
         self.proxyText.SetLabel(self.data.proxy_txt)
 
     def OnClickRun(self, evt):
+        # 如果未选择keyworks文件, 提示错误
+        if self.keyworks == "":
+            self.multiText.SetBackgroundColour("#FFC1C1")
+            self.multiText.SetValue("Failed to read keywords, please check the keywords file!")
+            return
         self.proxyConfig = self.proxyText.GetValue().strip()
+        if self.proxyConfig == "":
+            self.multiText.SetBackgroundColour("#FFC1C1")
+            self.multiText.SetValue("Please input proxy config in <Proxy Mode:>!")
+            return
+        self.multiText.SetValue("")
         self.buttonRun.SetLabel("Running")
         self.buttonStop.SetLabel("Stop")
         evt.GetEventObject().Disable()
@@ -80,25 +112,48 @@ class wxRank(wx.Panel, page):
         drvierTyple = ""
         if self.EvtRadioBox_PF(evt) == 'Web': drvierTyple = "web_firefox"
         if self.EvtRadioBox_PF(evt) == 'H5': drvierTyple = "h5_chrome"
-        rank(drvierTyple, self.EvtRadioBox_Proxy(evt), self.proxyConfig, self.printLog)
+        rank(drvierTyple, self.EvtRadioBox_Proxy(evt), self.proxyConfig, self.printLog, self.keyworks)
 
     def OnClickStop(self, evt):
         ret = wx.MessageBox('Do you really want to close?', 'Confirm', wx.OK|wx.CANCEL)
         if ret == wx.OK:
             wx.Exit()
 
+    def OnOpenFile(self, evt):
+        file_wildcard = "All files(*.*)|*.*"
+        dlg = wx.FileDialog(self, "Open file...", os.getcwd(), style=wx.FC_OPEN, wildcard=file_wildcard)
+        if dlg.ShowModal() == wx.ID_OK:
+            kwfilename = dlg.GetPath()
+            self.kwText.SetLabel(kwfilename)
+            self.multiText.SetValue("")
+            self.keyworks = self.kyFileHeadle(kwfilename)
+        dlg.Destroy()
+
+    def kyFileHeadle(self, filename):
+        try:
+            with open(filename, "r") as ff:
+                kw = ff.read()
+                return eval(kw)
+        except Exception, e:
+            self.multiText.SetBackgroundColour("#FFC1C1")
+            self.multiText.SetValue("Failed to get keywords:\n%s" % str(e))
+            return ""
+
     def printLog(self, log):
-        self.multiText.AppendText(log)
+        try:
+            self.multiText.AppendText(log)
+        except Exception, e:
+            self.multiText.AppendText(str(e))
 
 class rank(page, Thread):
-    def __init__(self, driverType, proxyType, proxyConfig, printlog):
+    def __init__(self, driverType, proxyType, proxyConfig, printlog, keyworks):
         Thread.__init__(self)
         #搜索关键词
         self.driverType = driverType
         self.proxyType = proxyType
         self.proxyConfig = proxyConfig
         self.data = data()
-        self.SearchKeywords = self.data.SearchKeywords.items()
+        self.SearchKeywords = keyworks
         # 常量设置
         self.PagesCount = 3     # 搜索结果页面中，遍历结果页面数量
         self.randomNo_firstpage = 2  # 首页最大随机点击URL数量
@@ -300,7 +355,7 @@ class rank(page, Thread):
 
 if __name__ == "__main__":
     app = wx.App(False)
-    frame = wx.Frame(None, title='刷百度排名小工具[By LiuFei]', size=(500, 420), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
+    frame = wx.Frame(None, title='刷百度排名小工具 [By LiuFei]', size=(700, 280), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
     panel = wxRank(frame)
     frame.Show(True)
     app.MainLoop()
