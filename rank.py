@@ -22,7 +22,7 @@ class wxRank(wx.Panel, page):
         sizer = wx.BoxSizer(wx.VERTICAL)
         self.rb_platform = wx.RadioBox(self, -1, "wx.RadioBox", wx.DefaultPosition, wx.DefaultSize, sampleList, 2, wx.RA_SPECIFY_COLS)
         self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_PF, self.rb_platform)
-        self.rb_platform.SetLabel("1. Platfrom:")
+        self.rb_platform.SetLabel("1. Platform:")
         sizer.Add(self.rb_platform, 0, wx.ALL, 5)
 
         # 选择代理方式：dns, api，txt
@@ -33,13 +33,13 @@ class wxRank(wx.Panel, page):
         sizer.Add(self.rb_proxy, 0, wx.ALL, 5)
 
         # 代理DNS，API, TXT配置输入框
-        self.proxyInfo = wx.StaticText(self, -1, label="3. Please input the proxy config below:")
-        sizer.Add(self.proxyInfo, 0, wx.ALL, 5)
-        self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_dns, size=(400, 25))
+        # self.proxyInfo = wx.StaticText(self, -1, label="3. Please input the proxy config below:")
+        # sizer.Add(self.proxyInfo, 0, wx.ALL, 5)
+        self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_dns, size=(500, 25))
         sizer.Add(self.proxyText, 0, wx.ALL, 5)
 
         # 执行log
-        self.multiText = wx.TextCtrl(self, -1, value="", size=(600, 180), style=wx.TE_MULTILINE|wx.TE_READONLY) #创建一个文本控件
+        self.multiText = wx.TextCtrl(self, -1, value="", size=(500, 180), style=wx.TE_MULTILINE|wx.TE_READONLY) #创建一个文本控件
         sizer.Add(self.multiText, 0, wx.ALL, 5)
         self.multiText.SetInsertionPoint(0)
 
@@ -48,7 +48,7 @@ class wxRank(wx.Panel, page):
         self.Bind(wx.EVT_BUTTON, self.OnClickRun, self.buttonRun)
 
         # 终止按钮
-        self.buttonStop = wx.Button(self, label='Stop', pos=(390, 363))
+        self.buttonStop = wx.Button(self, label='Close', pos=(390, 363))
         self.Bind(wx.EVT_BUTTON, self.OnClickStop, self.buttonStop)
         self.SetSizer(sizer)
 
@@ -74,6 +74,7 @@ class wxRank(wx.Panel, page):
     def OnClickRun(self, evt):
         self.proxyConfig = self.proxyText.GetValue().strip()
         self.buttonRun.SetLabel("Running")
+        self.buttonStop.SetLabel("Stop")
         evt.GetEventObject().Disable()
         from rank import rank
         drvierTyple = ""
@@ -82,9 +83,9 @@ class wxRank(wx.Panel, page):
         rank(drvierTyple, self.EvtRadioBox_Proxy(evt), self.proxyConfig, self.printLog)
 
     def OnClickStop(self, evt):
-        ret = wx.MessageBox('Do you really want to stop?', 'Confirm', wx.OK|wx.CANCEL)
+        ret = wx.MessageBox('Do you really want to close?', 'Confirm', wx.OK|wx.CANCEL)
         if ret == wx.OK:
-            wx.GetApp().ExitMainLoop()
+            wx.Exit()
 
     def printLog(self, log):
         self.multiText.AppendText(log)
@@ -299,7 +300,7 @@ class rank(page, Thread):
 
 if __name__ == "__main__":
     app = wx.App(False)
-    frame = wx.Frame(None, title='刷百度排名小工具   --By Liufei', size=(500, 420), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
+    frame = wx.Frame(None, title='刷百度排名小工具[By LiuFei]', size=(500, 420), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
     panel = wxRank(frame)
     frame.Show(True)
     app.MainLoop()
