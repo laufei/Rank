@@ -50,7 +50,6 @@ class wxRank(wx.Panel, page):
         # 终止按钮
         self.buttonStop = wx.Button(self, label='Stop', pos=(390, 363))
         self.Bind(wx.EVT_BUTTON, self.OnClickStop, self.buttonStop)
-
         self.SetSizer(sizer)
 
     def EvtRadioBox_PF(self, evt):
@@ -83,10 +82,9 @@ class wxRank(wx.Panel, page):
         rank(drvierTyple, self.EvtRadioBox_Proxy(evt), self.proxyConfig, self.printLog)
 
     def OnClickStop(self, evt):
-        ret = wx.MessageBox('Do you really want to leave?','Confirm',wx.OK|wx.CANCEL)
+        ret = wx.MessageBox('Do you really want to stop?', 'Confirm', wx.OK|wx.CANCEL)
         if ret == wx.OK:
             wx.GetApp().ExitMainLoop()
-            evt.Skip()
 
     def printLog(self, log):
         self.multiText.AppendText(log)
@@ -108,8 +106,12 @@ class rank(page, Thread):
         self.baidu_keywords = ['百度', '_相关']
         # 输出log方法
         self.printlog = printlog
-        # 启动线程
+        # 设置线程为后台线程, 并启动线程
+        self.setDaemon(True)
         self.start()
+
+    def __del__(self):
+        self.end()
 
     def run(self):
         if self.driverType.startswith("web"):
@@ -122,7 +124,10 @@ class rank(page, Thread):
         self.pageobj = page(self.driverType, self.proxyType, self.proxyConfig)
 
     def end(self):
-        self.pageobj.quit()
+        try:
+            self.pageobj.quit()
+        except:
+            pass
 
     def rank_baidu_web(self):
         process = 1
