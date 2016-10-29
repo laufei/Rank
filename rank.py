@@ -5,7 +5,7 @@ import os, time, random, wx
 from page import page
 from data import data
 from threading import Thread
-
+from wx.lib.pubsub import pub
 class wxRank(wx.Panel, page):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
@@ -13,75 +13,81 @@ class wxRank(wx.Panel, page):
         self.keyworks = ""
         self.proxyConfig = ""
         self.initWindow()
+        self.update()
 
     def initWindow(self):
-            vbox = wx.BoxSizer(wx.HORIZONTAL)
-            leftbox = wx.BoxSizer(wx.VERTICAL)
-            # 选择keywords文件
-            fm = wx.StaticBox(self, -1, "指定搜索关键词文件路径:")
-            filebox = wx.StaticBoxSizer(fm, wx.HORIZONTAL)
-            self.kwText = wx.TextCtrl(self, -1, size=(205, 21))
-            self.kwText.SetEditable(False)
-            self.kwBtn = wx.Button(self, label='...', size=(30, 21))
-            self.Bind(wx.EVT_BUTTON, self.OnOpenFile, self.kwBtn)
-            # 选择平台：web，h5
-            sampleList = ["H5-Chrome", "Web-Firefx"]
-            self.rb_platform = wx.RadioBox(self, -1, "运行平台:", wx.DefaultPosition, wx.DefaultSize, sampleList, 2)
-            self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_PF, self.rb_platform)
-            # 关键词执行次数
-            rm = wx.StaticBox(self, -1, "运行次数:")
-            runBox = wx.StaticBoxSizer(rm, wx.HORIZONTAL)
-            self.runTime = wx.CheckBox(self, -1, "是否自定义?  执行次数:")
-            self.runText = wx.TextCtrl(self, -1, size=(60, 21))
-            self.runText.SetEditable(False)
-            self.runText.SetValue("10")
-            self.Bind(wx.EVT_CHECKBOX, self.EvtCheckBox_RT, self.runTime)
-            # 选择代理方式：dns, api，txt
-            pm = wx.StaticBox(self, -1, "代理方式:")
-            proxyBox = wx.StaticBoxSizer(pm, wx.VERTICAL)
-            sampleList = ["API", "DNS", "TXT"]
-            self.rb_proxy = wx.RadioBox(self, 0, "", wx.DefaultPosition, wx.DefaultSize, sampleList, 3)
-            self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_Proxy, self.rb_proxy)
-            # 代理DNS，API, TXT配置输入框
-            self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_api, size=(220, 21))
-            proxyBox.Add(self.rb_proxy, 0, wx.ALL|wx.ALL, 5)
-            proxyBox.Add(self.proxyText, 0, wx.ALL|wx.ALL, 5)
+        # 选择keywords文件
+        fm = wx.StaticBox(self, -1, "指定搜索关键词文件路径:")
+        self.kwText = wx.TextCtrl(self, -1, size=(205, 21))
+        self.kwText.SetEditable(False)
+        self.kwBtn = wx.Button(self, label='...', size=(30, 21))
+        self.Bind(wx.EVT_BUTTON, self.OnOpenFile, self.kwBtn)
+        # 关键词运行次数
+        rm = wx.StaticBox(self, -1, "运行次数:")
+        self.runTime = wx.CheckBox(self, -1, "是否自定义?  运行次数:")
+        self.runText = wx.TextCtrl(self, -1, size=(56, 21))
+        self.runText.SetEditable(False)
+        self.runText.SetValue("10")
+        self.Bind(wx.EVT_CHECKBOX, self.EvtCheckBox_RT, self.runTime)
+        # 选择平台：web，h5
+        sampleList = ["H5-Chrome    ", "Web-Firefox     "]
+        self.rb_platform = wx.RadioBox(self, -1, "运行平台:", wx.DefaultPosition, wx.DefaultSize, sampleList, 2)
+        self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_PF, self.rb_platform)
+        # 选择代理方式：dns, api，txt
+        pm = wx.StaticBox(self, -1, "代理方式:")
+        sampleList = ["API", "DNS", "TXT"]
+        self.rb_proxy = wx.RadioBox(self, 0, "", wx.DefaultPosition, wx.DefaultSize, sampleList, 3)
+        self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_Proxy, self.rb_proxy)
+        # 代理DNS，API, TXT配置输入框
+        self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_api, size=(225, 21))
+        # 运行log
+        om = wx.StaticBox(self, 0, "运行日志:")
+        self.multiText = wx.TextCtrl(self, 0, value="", size=(480, 255), style=wx.TE_MULTILINE|wx.TE_READONLY) #创建一个文本控件
+        self.multiText.SetInsertionPoint(0)
+        # 版权模块
+        self.copyRight = wx.StaticText(self, 0, "©️LiuFei ┃ ✉️ lucaliufei@gmail.com")
+        self.process = wx.StaticText(self, 0, "                                                                   ")
+        # 运行按钮
+        self.buttonRun = wx.Button(self, label="运行")
+        self.Bind(wx.EVT_BUTTON, self.OnClickRun, self.buttonRun)
+        # 终止按钮
+        self.buttonStop = wx.Button(self, label="关闭")
+        self.Bind(wx.EVT_BUTTON, self.OnClickStop, self.buttonStop)
 
-            # 左侧布局
-            filebox.Add(self.kwText, 0, wx.ALIGN_LEFT, 5)
-            filebox.Add(self.kwBtn, 0, wx.ALIGN_RIGHT, 5)
-            leftbox.Add(filebox, 0, wx.ALL, 5)
-            runBox.Add(self.runTime, 0, wx.ALL, 5)
-            runBox.Add(self.runText, 0, wx.ALL, 5)
-            leftbox.Add(runBox, 0, wx.ALL, 5)
-            leftbox.Add(self.rb_platform, 0, wx.ALL, 5)
-            leftbox.Add(proxyBox, 0, wx.ALL, 5)
-
-            # 执行log
-            rightBox = wx.BoxSizer(wx.VERTICAL)
-            om = wx.StaticBox(self, 0, "执行日志:")
-            logBox = wx.StaticBoxSizer(om, wx.HORIZONTAL)
-            self.multiText = wx.TextCtrl(self, 0, value="", size=(480, 260), style=wx.TE_MULTILINE|wx.TE_READONLY) #创建一个文本控件
-            self.multiText.SetInsertionPoint(0)
-            # 执行按钮
-            btnBox = wx.BoxSizer(wx.HORIZONTAL)
-            self.buttonRun = wx.Button(self, label="运行")
-            self.Bind(wx.EVT_BUTTON, self.OnClickRun, self.buttonRun)
-            # 终止按钮
-            self.buttonStop = wx.Button(self, label="关闭")
-            self.Bind(wx.EVT_BUTTON, self.OnClickStop, self.buttonStop)
-
-            # 右侧布局
-            logBox.Add(self.multiText, 0, wx.ALL, 5)
-            btnBox.Add(self.buttonRun, 0, wx.ALL, 5)
-            btnBox.Add(self.buttonStop, 0, wx.ALL, 5)
-            rightBox.Add(logBox, 0, wx.ALL, 5)
-            rightBox.Add(btnBox, 0, wx.ALIGN_RIGHT, 5)
-
-            # 整体布局
-            vbox.Add(leftbox, 0, wx.ALL|wx.ALL, 5)
-            vbox.Add(rightBox, 0, wx.ALL|wx.ALL, 5)
-            self.SetSizer(vbox)
+        # 左侧布局
+        mbox = wx.BoxSizer(wx.VERTICAL)
+        vbox = wx.BoxSizer(wx.HORIZONTAL)
+        leftbox = wx.BoxSizer(wx.VERTICAL)
+        filebox = wx.StaticBoxSizer(fm, wx.HORIZONTAL)
+        runBox = wx.StaticBoxSizer(rm, wx.HORIZONTAL)
+        filebox.Add(self.kwText, 0, wx.ALIGN_LEFT, 5)
+        filebox.Add(self.kwBtn, 0, wx.ALIGN_RIGHT, 5)
+        runBox.Add(self.runTime, 0, wx.ALL, 5)
+        runBox.Add(self.runText, 0, wx.ALL, 5)
+        leftbox.Add(filebox, 0, wx.ALL, 5)
+        leftbox.Add(runBox, 0, wx.ALL, 5)
+        leftbox.Add(self.rb_platform, 0, wx.ALL, 5)
+        proxyBox = wx.StaticBoxSizer(pm, wx.VERTICAL)
+        proxyBox.Add(self.rb_proxy, 0, wx.ALL|wx.ALL, 5)
+        proxyBox.Add(self.proxyText, 0, wx.ALL|wx.ALL, 5)
+        leftbox.Add(proxyBox, 0, wx.ALL, 5)
+        # 右侧布局
+        rightBox = wx.BoxSizer(wx.VERTICAL)
+        logBox = wx.StaticBoxSizer(om, wx.VERTICAL)
+        logBox.Add(self.multiText, 0, wx.ALL, 5)
+        rightBox.Add(logBox, 0, wx.ALL, 5)
+        # 底部布局
+        btnBox = wx.BoxSizer(wx.HORIZONTAL)
+        btnBox.Add(self.copyRight, 0, wx.CENTER|wx.ALIGN_LEFT, 5)
+        btnBox.Add(self.process, 0, wx.CENTER|wx.ALIGN_LEFT, 5)
+        btnBox.Add(self.buttonRun, 0, wx.ALL, 5)
+        btnBox.Add(self.buttonStop, 0, wx.ALL, 5)
+        # 整体布局
+        vbox.Add(leftbox, 0, wx.ALL|wx.ALL, 5)
+        vbox.Add(rightBox, 0, wx.ALL|wx.ALL, 5)
+        mbox.Add(vbox, 0, wx.ALL|wx.ALL, 5)
+        mbox.Add(btnBox, 0, wx.CENTER|wx.CENTER, 5)
+        self.SetSizer(mbox)
 
     def EvtRadioBox_PF(self, evt):
         return self.rb_platform.GetItemLabel(self.rb_platform.GetSelection())
@@ -127,8 +133,8 @@ class wxRank(wx.Panel, page):
             return
         self.multiText.SetBackgroundColour("white")
         self.multiText.SetValue("")
-        self.buttonRun.SetLabel("Running")
-        self.buttonStop.SetLabel("Stop")
+        self.buttonRun.SetLabel("运行中")
+        self.buttonStop.SetLabel("停止")
         evt.GetEventObject().Disable()
         from rank import rank
         drvierTyple = ""
@@ -176,6 +182,15 @@ class wxRank(wx.Panel, page):
         except Exception, e:
             self.multiText.AppendText(str(e))
 
+    def reset(self):
+        self.buttonRun.Enable(True)
+        self.buttonRun.SetLabel("运行")
+        self.buttonStop.SetLabel("关闭")
+
+    def update(self):
+        pub.subscribe(self.printLog, "log")
+        pub.subscribe(self.reset, "reset")
+
 class rank(page, Thread):
     def __init__(self, driverType, proxyType, proxyConfig, printlog, keyworks, runtime=0):
         Thread.__init__(self)
@@ -197,7 +212,6 @@ class rank(page, Thread):
         # 设置线程为后台线程, 并启动线程
         self.setDaemon(True)
         self.start()
-        self.join()
 
     def __del__(self):
         self.end()
@@ -207,13 +221,15 @@ class rank(page, Thread):
             self.rank_baidu_web()
         if self.driverType.startswith("h5"):
             self.rank_baidu_m()
+        wx.CallAfter(pub.sendMessage, "log", log="[Done]")
+        wx.CallAfter(pub.sendMessage, "reset")
 
     def begin(self):
         # 实例化
         try:
             self.pageobj = page(self.driverType, self.proxyType, self.proxyConfig)
         except Exception, e:
-            self.output_testResult(self.printlog, place=str(e))
+            self.output_testResult(info=str(e))
             exit()
 
     def end(self):
@@ -232,7 +248,7 @@ class rank(page, Thread):
                 value = kw[1]
             else:
                 value = self.Runtime
-            self.output_testResult(self.printlog, place="【%d/%d】：当前关键字 - %s" % (process, total, key))
+            self.output_testResult(info="【%d/%d】：当前关键字 - %s" % (process, total, key))
             for click in range(value):
                 self.begin()
                 driver = self.pageobj.getDriver()
@@ -245,7 +261,7 @@ class rank(page, Thread):
                     self.pageobj.find_element(*self.baidu_submit).click()
                     time.sleep(2)
                 except Exception, e:
-                    # self.output_testResult(self.printlog, place=str(e))
+                    self.output_testResult(log=str(e))
                     self.end()
                     continue
 
@@ -295,11 +311,11 @@ class rank(page, Thread):
                                     print "         Oops，并没有点到您想要的链接.....  T_T", e
                             driver.switch_to_window(window)
                         self.pageobj.scroll_page(100)
-                self.output_testResult(self.printlog, proxy=self.pageobj.getProxyAddr())
+                self.output_testResult(log=self.pageobj.getProxyAddr())
                 self.end()
                 runtime += 1
             process += 1
-            self.output_testResult(self.printlog, place="当前关键字，成功点击%d次" % runtime)
+            self.output_testResult(info="当前关键字，成功点击%d次" % runtime)
 
     def rank_baidu_m(self):
         process = 1
@@ -312,7 +328,7 @@ class rank(page, Thread):
                 value = kw[1]
             else:
                 value = self.Runtime
-            self.output_testResult(self.printlog, place="【%d/%d】：当前关键字 - %s" % (process, total, key))
+            self.output_testResult(info="【%d/%d】：当前关键字 - %s" % (process, total, key))
             for click in range(value):
                 self.begin()
                 driver = self.pageobj.getDriver()
@@ -325,7 +341,7 @@ class rank(page, Thread):
                     self.pageobj.find_element(*self.baidu_submit_m).click()
                     time.sleep(2)
                 except Exception, e:
-                    # self.output_testResult(self.printlog, place=str(e))
+                    #self.output_testResult(info=str(e))
                     self.end()
                     continue
 
@@ -354,7 +370,7 @@ class rank(page, Thread):
                                 time.sleep(1)
                                 baidu_result_items[index].click()
                                 time.sleep(1)
-                                # 如果目标链接是百度自己的链接，则点击后，页面执行返回操作
+                                # 如果目标链接是百度自己的链接，则点击后，页面运行返回操作
                                 if isBaiduUrl:
                                     driver.back()
                             except Exception, e:
@@ -394,15 +410,15 @@ class rank(page, Thread):
                         self.pageobj.scroll_page(100)
                     if found:
                         break
-                self.output_testResult(self.printlog, proxy=self.pageobj.getProxyAddr())
+                self.output_testResult(log=self.pageobj.getProxyAddr())
                 self.end()
                 runtime += 1
             process += 1
-            self.output_testResult(self.printlog, place="当前关键字，成功点击%d次" % runtime)
+            self.output_testResult(info="当前关键字，成功点击%d次" % runtime)
 
 if __name__ == "__main__":
     app = wx.App(False)
-    frame = wx.Frame(None, title='刷百度排名小工具 [By LiuFei]', size=(700, 400), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
+    frame = wx.Frame(None, title='刷百度排名小工具', size=(800, 400), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
     panel = wxRank(frame)
     frame.Show(True)
     app.MainLoop()
