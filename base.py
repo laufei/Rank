@@ -135,9 +135,10 @@ class base():
         msg = ""
         if info:
             msg = info+"\n"
+            wx.CallAfter(pub.sendMessage, "info", info=msg)
         if log:
             msg = " ["+time.ctime()+"]  " + log + "\n"
-        wx.CallAfter(pub.sendMessage, "log", log=msg)
+            wx.CallAfter(pub.sendMessage, "log", log=msg, mode=1)
         if outputfile:
             filename = "TestResult.txt"
             with open(filename, 'a+') as ff:

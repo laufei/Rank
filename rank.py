@@ -143,7 +143,7 @@ class wxRank(wx.Panel, page):
         rank(drvierTyple, self.EvtRadioBox_Proxy(evt), self.proxyConfig, self.printLog, self.keyworks, int(runtime))
 
     def OnClickStop(self, evt):
-        ret = wx.MessageBox('Do you really want to close?', 'Confirm', wx.OK|wx.CANCEL)
+        ret = wx.MessageBox('确定要关闭吗?', 'Confirm', wx.OK|wx.CANCEL)
         if ret == wx.OK:
             wx.Exit()
 
@@ -172,13 +172,17 @@ class wxRank(wx.Panel, page):
             self.errInfo("Failed to get keywords:\n%s" % str(e))
             return False
 
-    def errInfo(self, err):
-            self.multiText.SetBackgroundColour("#FFC1C1")
-            self.multiText.SetValue(err)
+    def errInfo(self, log, mode=0):
+            self.multiText.SetDefaultStyle(wx.TextAttr("RED"))
+            if not mode:
+                self.multiText.SetValue(log)
+            else:
+                self.multiText.AppendText(log)
+            self.multiText.SetDefaultStyle(wx.TextAttr("BLACK"))
 
-    def printLog(self, log):
+    def printLog(self, info):
         try:
-            self.multiText.AppendText(log)
+            self.multiText.AppendText(info)
         except Exception, e:
             self.multiText.AppendText(str(e))
 
@@ -188,7 +192,8 @@ class wxRank(wx.Panel, page):
         self.buttonStop.SetLabel("关闭")
 
     def update(self):
-        pub.subscribe(self.printLog, "log")
+        pub.subscribe(self.errInfo, "log")
+        pub.subscribe(self.printLog, "info")
         pub.subscribe(self.reset, "reset")
 
 class rank(page, Thread):
@@ -221,7 +226,6 @@ class rank(page, Thread):
             self.rank_baidu_web()
         if self.driverType.startswith("h5"):
             self.rank_baidu_m()
-        wx.CallAfter(pub.sendMessage, "log", log="[Done]")
         wx.CallAfter(pub.sendMessage, "reset")
 
     def begin(self):
@@ -267,7 +271,7 @@ class rank(page, Thread):
 
                 # 2. 翻页操作
                 for page in range(self.PagesCount):
-                    print "     搜索结果页面翻到第[%d]页" % (page+1)
+                    self.output_testResult(info="     搜索结果页面翻到第[%d]页" % (page+1))
                     pageButton = self.pageobj.find_elements(*self.baidu_result_pages)
                     if page == 0:
                         # 如果是第一页的话，随机从前五中随机点击若干(1-self.randomNo_firstpage)个URL
@@ -279,12 +283,12 @@ class rank(page, Thread):
                         else:
                             targets = random.sample(range(self.randomArea), random.sample(range(1, self.randomNo_firstpage+1), 1)[0])
                         for index in targets:
-                            print "         点击结果页面第[%d]个链接" % (index+1)
+                            self.output_testResult(info="     点击结果页面第[%d]个链接" % (index+1))
                             try:
                                 time.sleep(2)
                                 baidu_result_items[index].click()
                             except Exception, e:
-                                print "         Oops，并没有点到您想要的链接.....  T_T", e
+                                self.output_testResult(log="     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
                             driver.switch_to_window(window)
                     else:
                         try:
@@ -303,15 +307,17 @@ class rank(page, Thread):
                         resultURL = baidu_result_items[index].get_attribute("href")
                         for kw in self.data.URLKeywords:
                             if kw in resultTitle:
-                                print "         点击结果页面第[%d]个链接: %s" % (index+1, resultURL)
+                                self.output_testResult(info="     点击结果页面第[%d]个链接: %s" % (index+1, resultURL))
                                 try:
                                     time.sleep(1)
                                     baidu_result_items[index].click()
                                 except Exception, e:
-                                    print "         Oops，并没有点到您想要的链接.....  T_T", e
+                                    self.output_testResult(log="     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
                             driver.switch_to_window(window)
                         self.pageobj.scroll_page(100)
-                self.output_testResult(log=self.pageobj.getProxyAddr())
+                self.output_testResult(info="----------------------------------------------")
+                # self.output_testResult(info=self.pageobj.getProxyAddr())
+
                 self.end()
                 runtime += 1
             process += 1
@@ -341,13 +347,13 @@ class rank(page, Thread):
                     self.pageobj.find_element(*self.baidu_submit_m).click()
                     time.sleep(2)
                 except Exception, e:
-                    #self.output_testResult(info=str(e))
+                    self.output_testResult(log=str(e))
                     self.end()
                     continue
 
                 # 2. 翻页操作
                 for page in range(self.PagesCount):
-                    print "     搜索结果页面翻到第[%d]页" % (page+1)
+                    self.output_testResult(info="     搜索结果页面翻到第[%d]页" % (page+1))
                     if page == 0:
                         # 如果是第一页的话，随机从前五中随机点击若干(1-self.randomNo_firstpage)个URL
                         baidu_result_items = self.pageobj.find_elements(*self.baidu_result_items_m)
@@ -363,7 +369,7 @@ class rank(page, Thread):
                                     isBaiduUrl = True
                                 else:
                                     isBaiduUrl = False
-                            print "         点击结果页面第[%d]个链接" % (index+1)
+                            self.output_testResult(info="     点击结果页面第[%d]个链接" % (index+1))
                             try:
                                 js = "document.querySelectorAll('%s')[%d].setAttribute('target', '_blank')"
                                 driver.execute_script(js % (self.baidu_result_items_m[-1], index))
@@ -374,7 +380,7 @@ class rank(page, Thread):
                                 if isBaiduUrl:
                                     driver.back()
                             except Exception, e:
-                                print "         Oops，并没有点到您想要的链接.....  T_T", e
+                                self.output_testResult(log="     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
                             driver.switch_to_window(window)
                     else:
                         try:
@@ -393,7 +399,7 @@ class rank(page, Thread):
                         resultURL = baidu_result_items[index].get_attribute("href")
                         for kw in self.data.URLKeywords:
                             if kw in resultTitle:
-                                print "         点击结果页面第[%d]个链接: %s" % (index+1, resultURL)
+                                self.output_testResult(info="     点击结果页面第[%d]个链接: %s" % (index+1, resultURL))
                                 try:
                                     # 将结果页面中的URL修改为新页面打开
                                     js = "document.querySelectorAll('%s')[%d].setAttribute('target', '_blank')"
@@ -403,14 +409,15 @@ class rank(page, Thread):
                                     found = True
                                     break
                                 except Exception, e:
-                                    print "         Oops，并没有点到您想要的链接.....  T_T", e
+                                    self.output_testResult(log="     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
                             if found:
                                 break
                                 driver.switch_to_window(window)
                         self.pageobj.scroll_page(100)
                     if found:
                         break
-                self.output_testResult(log=self.pageobj.getProxyAddr())
+                self.output_testResult(info="----------------------------------------------")
+                # self.output_testResult(info=self.pageobj.getProxyAddr())
                 self.end()
                 runtime += 1
             process += 1
