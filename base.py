@@ -1,6 +1,7 @@
 # coding: utf-8
 __author__ = 'liufei'
 
+import wx
 import sys
 import time
 import requests
@@ -9,6 +10,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from config import config
 from data import data
+from wx.lib.pubsub import pub
+
 reload(sys)
 sys.setdefaultencoding('utf8')
 
@@ -128,18 +131,18 @@ class base():
         js = "document.documentElement.scrollTop+=%d" % pix
         self.driver.execute_script(js)
 
-    def output_testResult(self, printlog, proxy='', place='', outputfile=True):
+    def output_testResult(self, log='', info='', outputfile=True):
         msg = ""
-        if place:
-            msg = place+"\n"
-        if proxy:
-            msg = " ["+time.ctime()+"]  " + proxy + "\n"
-        printlog(msg)
+        if info:
+            msg = info+"\n"
+        if log:
+            msg = " ["+time.ctime()+"]  " + log + "\n"
+        wx.CallAfter(pub.sendMessage, "log", log=msg)
         if outputfile:
             filename = "TestResult.txt"
             with open(filename, 'a+') as ff:
-                if place:
-                    msg = place+"\n"
-                if proxy:
-                    msg = " ["+time.ctime()+"]  " + proxy + "\n"
+                if info:
+                    msg = info+"\n"
+                if log:
+                    msg = " ["+time.ctime()+"]  " + log + "\n"
                 ff.write(msg)
