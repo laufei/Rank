@@ -61,7 +61,7 @@ class wxRank(wx.Panel, page):
                 3. 选择H5执行方式, 需要点击按钮"+"来下载chromerdriver.
                     或者自行下载chromerdriver到文件夹: ~/chromerdriver
                 4. 对于每个代理方式需配置对应请求地址或文件路径;
-                    选择TXT方式, 需要点击按钮"+"来选择代理文件.
+                    选择TXT方式, 需要点击按钮"..."来选择代理文件.
                 5. 程序会在该app所在路径下生成日志文件: Result.txt
 
                                                                                                 By: Liu Fei
@@ -228,7 +228,7 @@ class wxRank(wx.Panel, page):
             return False
 
     def DownloadDriver(self, evt):
-        os.system("wget -c -P ~/chromedriver https://github.com/laufei/Rank/blob/7ea3fa5fe7852338bb64b0a66c73ceba5a99a051/chromedriver")
+        os.system("wget -c -P ~/chromedriver https://github.com/laufei/Rank/raw/7ea3fa5fe7852338bb64b0a66c73ceba5a99a051/chromedriver")
 
     def OnCreateTmpFile(self, evt):
         kwconf = '''{
