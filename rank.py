@@ -18,30 +18,38 @@ class wxRank(wx.Panel, page):
     def initWindow(self):
         # 选择keywords文件
         fm = wx.StaticBox(self, -1, "指定搜索关键词文件路径:")
-        self.kwText = wx.TextCtrl(self, -1, size=(178, 21))
+        self.kwText = wx.TextCtrl(self, -1, size=(193, 21))
         self.kwText.SetEditable(False)
         self.kwBtn = wx.Button(self, label='...', size=(30, 21))
-        self.Bind(wx.EVT_BUTTON, self.OnOpenFile, self.kwBtn)
+        self.Bind(wx.EVT_BUTTON, self.OnOpenKWFile, self.kwBtn)
         self.tmpBtn = wx.Button(self, label='+', size=(30, 21))
         self.Bind(wx.EVT_BUTTON, self.OnCreateTmpFile, self.tmpBtn)
         # 关键词运行次数
         rm = wx.StaticBox(self, -1, "运行次数:")
         self.runTime = wx.CheckBox(self, -1, "是否统一配置?  运行次数:")
-        self.runText = wx.TextCtrl(self, -1, size=(44, 21))
+        self.runText = wx.TextCtrl(self, -1, size=(60, 21))
         self.runText.SetEditable(False)
         self.runText.SetValue("10")
         self.Bind(wx.EVT_CHECKBOX, self.EvtCheckBox_RT, self.runTime)
         # 选择平台：web，h5
-        sampleList = ["H5-Chrome    ", "Web-Firefox     "]
-        self.rb_platform = wx.RadioBox(self, -1, "运行平台:", wx.DefaultPosition, wx.DefaultSize, sampleList, 2)
+        dm = wx.StaticBox(self, -1, "运行平台:")
+        sampleList = ["H5-Chrome", "Web-Firefox"]
+        self.rb_platform = wx.RadioBox(self, -1, "", wx.DefaultPosition, wx.DefaultSize, sampleList, 2)
         self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_PF, self.rb_platform)
+        self.dndBtn = wx.Button(self, label='+', size=(30, 30))
+        self.Bind(wx.EVT_BUTTON, self.DownloadDriver, self.dndBtn)
         # 选择代理方式：dns, api，txt
         pm = wx.StaticBox(self, -1, "代理方式:")
         sampleList = ["API", "DNS", "TXT"]
         self.rb_proxy = wx.RadioBox(self, 0, "", wx.DefaultPosition, wx.DefaultSize, sampleList, 3)
         self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_Proxy, self.rb_proxy)
+        self.proxyTextBtn = wx.Button(self, label='...', size=(30, 30))
+        self.proxyTextBtn.Hide()
+        self.Bind(wx.EVT_BUTTON, self.OnOpenProxyFile, self.proxyTextBtn)
         # 代理DNS，API, TXT配置输入框
-        self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_api, size=(225, 21))
+        self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_api, size=(242, 21))
+
+
         # 运行log
         om = wx.StaticBox(self, 0, "运行日志:")
         note = '''
@@ -52,12 +60,14 @@ class wxRank(wx.Panel, page):
                 1. 选择搜索关键词文件, 文件名必须为'kw.data';
                     点击生成模板按钮"+", 查看具体文件格式.
                 2. 每个关键词可统一设置运行次数, 需先勾选该复选框.
-                3. 对于每个代理方式需配置对应请求地址或文件路径.
+                3. 选择H5执行方式, 需要点击按钮"+"来下载chromeDriver.
+                4. 对于每个代理方式需配置对应请求地址或文件路径;
+                    选择TXT方式, 需要点击按钮"+"来选择代理文件.
                 4. 程序会在该app所在路径下生成日志文件: Result.txt
 
-                                                                                        Liu Fei
+                                                                                                By: Liu Fei
         '''
-        self.multiText = wx.TextCtrl(self, 0, value=note, size=(480, 255), style=wx.TE_MULTILINE|wx.TE_READONLY) #创建一个文本控件
+        self.multiText = wx.TextCtrl(self, 0, value=note, size=(480, 275), style=wx.TE_MULTILINE|wx.TE_READONLY) #创建一个文本控件
         self.multiText.SetInsertionPoint(0)
         # 版权模块
         self.copyRight = wx.StaticText(self, 0, "©️LiuFei ┃ ✉️ lucaliufei@gmail.com")
@@ -82,10 +92,16 @@ class wxRank(wx.Panel, page):
         runBox.Add(self.runText, 0, wx.ALL, 5)
         leftbox.Add(filebox, 0, wx.ALL, 5)
         leftbox.Add(runBox, 0, wx.ALL, 5)
-        leftbox.Add(self.rb_platform, 0, wx.ALL, 5)
+        driverbox = wx.StaticBoxSizer(dm, wx.HORIZONTAL)
+        driverbox.Add(self.rb_platform, 0, wx.ALIGN_LEFT, 5)
+        driverbox.Add(self.dndBtn, 0, wx.ALIGN_RIGHT, 5)
+        leftbox.Add(driverbox, 0, wx.ALL, 5)
         proxyBox = wx.StaticBoxSizer(pm, wx.VERTICAL)
-        proxyBox.Add(self.rb_proxy, 0, wx.ALL|wx.ALL, 5)
-        proxyBox.Add(self.proxyText, 0, wx.ALL|wx.ALL, 5)
+        proxymodBox = wx.BoxSizer(wx.HORIZONTAL)
+        proxymodBox.Add(self.rb_proxy, 0, wx.ALIGN_LEFT, 5)
+        proxymodBox.Add(self.proxyTextBtn, 0, wx.ALIGN_RIGHT, 5)
+        proxyBox.Add(proxymodBox, 0, wx.ALL, 5)
+        proxyBox.Add(self.proxyText,  0, wx.ALL, 5)
         leftbox.Add(proxyBox, 0, wx.ALL, 5)
         # 右侧布局
         rightBox = wx.BoxSizer(wx.VERTICAL)
@@ -106,6 +122,12 @@ class wxRank(wx.Panel, page):
         self.SetSizer(mbox)
 
     def EvtRadioBox_PF(self, evt):
+        selected = self.rb_platform.GetItemLabel(self.rb_platform.GetSelection())
+        if selected == "Web-Firefox":
+            self.dndBtn.Hide()
+        else:
+            self.dndBtn.Show()
+        self.Layout()
         return self.rb_platform.GetItemLabel(self.rb_platform.GetSelection())
 
     def EvtCheckBox_RT(self, evt):
@@ -123,18 +145,25 @@ class wxRank(wx.Panel, page):
 
     def OnClickDNS(self, evt):
         self.proxyText.SetLabel(self.data.proxy_dns)
+        self.proxyTextBtn.Hide()
+        self.Layout()
 
     def OnClickAPI(self, evt):
         self.proxyText.SetLabel(self.data.proxy_api)
+        self.proxyTextBtn.Hide()
+        self.Layout()
 
     def OnClickTXT(self, evt):
-        self.proxyText.SetLabel(self.data.proxy_txt)
+        self.proxyText.SetLabel("")
+        self.proxyText.SetEditable(False)
+        self.proxyTextBtn.Show()
+        self.Layout()
 
     def OnClickRun(self, evt):
         runtime = 0
         # 如果未选择keyworks文件, 提示错误
         if not self.keyworks:
-            self.errInfo("请选择关键字配置文件!")
+            self.errInfo("请选择关键词配置文件!")
             return
         self.proxyConfig = self.proxyText.GetValue().strip()
         # 如果选择了固定运行次数, 但是赋值为空, 提示错误
@@ -166,9 +195,9 @@ class wxRank(wx.Panel, page):
                 pass
             wx.GetApp().ExitMainLoop()
 
-    def OnOpenFile(self, evt):
+    def OnOpenKWFile(self, evt):
         file_wildcard = "All files(*.*)|*.*"
-        dlg = wx.FileDialog(self, "选择关键字文件....", os.getcwd(), style=wx.FC_OPEN, wildcard=file_wildcard)
+        dlg = wx.FileDialog(self, "选择关键词文件....", os.getcwd(), style=wx.FC_OPEN, wildcard=file_wildcard)
         if dlg.ShowModal() == wx.ID_OK:
             kwfilename = dlg.GetPath()
             self.kwText.SetLabel(kwfilename)
@@ -177,17 +206,14 @@ class wxRank(wx.Panel, page):
             self.kwText.SetEditable(False)
         dlg.Destroy()
 
-    def OnCreateTmpFile(self, evt):
-        kwconf = '''{
-            '曼谷旅游':10,
-            '巴黎旅游':20,
-        }'''
-        try:
-            with open("kw.data.tmp", "w") as ff:
-                ff.write(kwconf)
-            self.errInfo("已在当前目录下创建关键字模板文件: kw.data.tmp")
-        except:
-            self.errInfo("创建关键字模板文件失败!")
+    def OnOpenProxyFile(self, evt):
+        file_wildcard = "All files(*.*)|*.*"
+        dlg = wx.FileDialog(self, "选择代理文件....", os.getcwd(), style=wx.FC_OPEN, wildcard=file_wildcard)
+        if dlg.ShowModal() == wx.ID_OK:
+            kwfilename = dlg.GetPath()
+            self.proxyText.SetLabel(kwfilename)
+            self.multiText.SetValue("")
+        dlg.Destroy()
 
     def kyFileHeadle(self, filename):
         name = os.path.basename(filename)
@@ -201,6 +227,22 @@ class wxRank(wx.Panel, page):
         except Exception, e:
             self.errInfo("获取关键词文件失败:%s" % str(e))
             return False
+
+    def DownloadDriver(self, evt):
+        os.system("wget -c -P ~/chromedriver https://github.com//laufei/Rank/raw/57260132103be251f30fe21f294702adf1ed2cce/chromedriver")
+
+    def OnCreateTmpFile(self, evt):
+        kwconf = '''{
+            #格式: {关键词:点击次数, 关键词:点击次数, ...}
+            '曼谷旅游':10,
+            '巴黎旅游':20,
+        }'''
+        try:
+            with open("kw.data.tmp", "w") as ff:
+                ff.write(kwconf)
+            self.errInfo("已在当前目录下创建关键词模板文件: kw.data.tmp")
+        except:
+            self.errInfo("创建关键词模板文件失败!")
 
     def errInfo(self, log, mode=0):
             self.multiText.SetDefaultStyle(wx.TextAttr("RED"))
@@ -282,7 +324,7 @@ class rank(page, Thread):
                 value = kw[1]
             else:
                 value = self.Runtime
-            self.output_Result(info="【%d/%d】：当前关键字 - %s" % (process, total, key))
+            self.output_Result(info="【%d/%d】：当前关键词 - %s" % (process, total, key))
             for click in range(value):
                 self.begin()
                 driver = self.pageobj.getDriver()
@@ -350,12 +392,12 @@ class rank(page, Thread):
                 self.end()
                 runtime += 1
             process += 1
-            self.output_Result(info="当前关键字，成功点击%d次" % runtime)
+            self.output_Result(info="当前关键词，成功点击%d次" % runtime)
 
     def rank_baidu_m(self):
         process = 1
         for kw in self.SearchKeywords.items():
-            found = False   # 定位到关键字排名后，跳出循环标志位
+            found = False   # 定位到关键词排名后，跳出循环标志位
             total = len(self.SearchKeywords)
             runtime = 0
             key = kw[0]
@@ -363,7 +405,7 @@ class rank(page, Thread):
                 value = kw[1]
             else:
                 value = self.Runtime
-            self.output_Result(info="【%d/%d】：当前关键字 - %s" % (process, total, key))
+            self.output_Result(info="【%d/%d】：当前关键词 - %s" % (process, total, key))
             for click in range(value):
                 self.begin()
                 driver = self.pageobj.getDriver()
@@ -450,11 +492,11 @@ class rank(page, Thread):
                 self.end()
                 runtime += 1
             process += 1
-            self.output_Result(info="当前关键字，成功点击%d次" % runtime)
+            self.output_Result(info="当前关键词，成功点击%d次" % runtime)
 
 if __name__ == "__main__":
     app = wx.App(False)
-    frame = wx.Frame(None, title='刷百度排名小工具', size=(800, 400), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
+    frame = wx.Frame(None, title='刷百度排名小工具', size=(800, 420), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
     panel = wxRank(frame)
     frame.Show(True)
     app.MainLoop()
