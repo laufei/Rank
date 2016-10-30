@@ -12,9 +12,6 @@ from config import config
 from data import data
 from wx.lib.pubsub import pub
 
-reload(sys)
-sys.setdefaultencoding('utf8')
-
 class base():
 
     def __init__(self, platform, proxyType, proxyConfig, rand=True):
@@ -131,7 +128,7 @@ class base():
         js = "document.documentElement.scrollTop+=%d" % pix
         self.driver.execute_script(js)
 
-    def output_testResult(self, log='', info='', outputfile=True):
+    def output_Result(self, log='', info='', outputfile=True):
         msg = ""
         if info:
             msg = info+"\n"
@@ -140,7 +137,7 @@ class base():
             msg = " ["+time.ctime()+"]  " + log + "\n"
             wx.CallAfter(pub.sendMessage, "log", log=msg, mode=1)
         if outputfile:
-            filename = "TestResult.txt"
+            filename = "Result.txt"
             with open(filename, 'a+') as ff:
                 if info:
                     msg = info+"\n"

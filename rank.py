@@ -18,14 +18,16 @@ class wxRank(wx.Panel, page):
     def initWindow(self):
         # 选择keywords文件
         fm = wx.StaticBox(self, -1, "指定搜索关键词文件路径:")
-        self.kwText = wx.TextCtrl(self, -1, size=(205, 21))
+        self.kwText = wx.TextCtrl(self, -1, size=(178, 21))
         self.kwText.SetEditable(False)
         self.kwBtn = wx.Button(self, label='...', size=(30, 21))
         self.Bind(wx.EVT_BUTTON, self.OnOpenFile, self.kwBtn)
+        self.tmpBtn = wx.Button(self, label='+', size=(30, 21))
+        self.Bind(wx.EVT_BUTTON, self.OnCreateTmpFile, self.tmpBtn)
         # 关键词运行次数
         rm = wx.StaticBox(self, -1, "运行次数:")
-        self.runTime = wx.CheckBox(self, -1, "是否自定义?  运行次数:")
-        self.runText = wx.TextCtrl(self, -1, size=(56, 21))
+        self.runTime = wx.CheckBox(self, -1, "是否统一配置?  运行次数:")
+        self.runText = wx.TextCtrl(self, -1, size=(44, 21))
         self.runText.SetEditable(False)
         self.runText.SetValue("10")
         self.Bind(wx.EVT_CHECKBOX, self.EvtCheckBox_RT, self.runTime)
@@ -42,7 +44,20 @@ class wxRank(wx.Panel, page):
         self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_api, size=(225, 21))
         # 运行log
         om = wx.StaticBox(self, 0, "运行日志:")
-        self.multiText = wx.TextCtrl(self, 0, value="", size=(480, 255), style=wx.TE_MULTILINE|wx.TE_READONLY) #创建一个文本控件
+        note = '''
+
+
+
+        NOTE:
+                1. 选择搜索关键词文件, 文件名必须为'kw.data';
+                    点击生成模板按钮"+", 查看具体文件格式.
+                2. 每个关键词可统一设置运行次数, 需先勾选该复选框.
+                3. 对于每个代理方式需配置对应请求地址或文件路径.
+                4. 程序会在该app所在路径下生成日志文件: Result.txt
+
+                                                                                        Liu Fei
+        '''
+        self.multiText = wx.TextCtrl(self, 0, value=note, size=(480, 255), style=wx.TE_MULTILINE|wx.TE_READONLY) #创建一个文本控件
         self.multiText.SetInsertionPoint(0)
         # 版权模块
         self.copyRight = wx.StaticText(self, 0, "©️LiuFei ┃ ✉️ lucaliufei@gmail.com")
@@ -62,6 +77,7 @@ class wxRank(wx.Panel, page):
         runBox = wx.StaticBoxSizer(rm, wx.HORIZONTAL)
         filebox.Add(self.kwText, 0, wx.ALIGN_LEFT, 5)
         filebox.Add(self.kwBtn, 0, wx.ALIGN_RIGHT, 5)
+        filebox.Add(self.tmpBtn, 0, wx.ALIGN_RIGHT, 5)
         runBox.Add(self.runTime, 0, wx.ALL, 5)
         runBox.Add(self.runText, 0, wx.ALL, 5)
         leftbox.Add(filebox, 0, wx.ALL, 5)
@@ -118,20 +134,19 @@ class wxRank(wx.Panel, page):
         runtime = 0
         # 如果未选择keyworks文件, 提示错误
         if not self.keyworks:
-            self.errInfo("Failed to read keywords, please check the keywords file!")
+            self.errInfo("请选择关键字配置文件!")
             return
         self.proxyConfig = self.proxyText.GetValue().strip()
         # 如果选择了固定运行次数, 但是赋值为空, 提示错误
         if self.runTime.GetValue():
             runtime = self.runText.GetValue().strip()
             if (not runtime) or (not runtime.isdigit()) or (not int(runtime)):
-                self.errInfo("Run time is wrong!")
+                self.errInfo("运行次数配置有误!")
                 return
         # 如果代理配置为空, 提示错误
         if not self.proxyConfig:
-            self.errInfo("Please input proxy config in <Proxy Mode:>!")
+            self.errInfo("代理设置不能为空!")
             return
-        self.multiText.SetBackgroundColour("white")
         self.multiText.SetValue("")
         self.buttonRun.SetLabel("运行中")
         self.buttonStop.SetLabel("停止")
@@ -143,9 +158,12 @@ class wxRank(wx.Panel, page):
         self.rankObj = rank(drvierTyple, self.EvtRadioBox_Proxy(evt), self.proxyConfig, self.printLog, self.keyworks, int(runtime))
 
     def OnClickStop(self, evt):
-        ret = wx.MessageBox('确定要关闭吗?', 'Confirm', wx.OK|wx.CANCEL)
-        if ret == wx.OK:
-            self.rankObj.end()
+        ret = wx.MessageBox('确定要关闭吗?', '', wx.YES_NO)
+        if ret == wx.YES:
+            try:
+                self.rankObj.end()
+            except:
+                pass
             wx.GetApp().ExitMainLoop()
 
     def OnOpenFile(self, evt):
@@ -154,29 +172,40 @@ class wxRank(wx.Panel, page):
         if dlg.ShowModal() == wx.ID_OK:
             kwfilename = dlg.GetPath()
             self.kwText.SetLabel(kwfilename)
-            self.multiText.SetBackgroundColour("white")
             self.multiText.SetValue("")
             self.keyworks = self.kyFileHeadle(kwfilename)
             self.kwText.SetEditable(False)
         dlg.Destroy()
 
+    def OnCreateTmpFile(self, evt):
+        kwconf = '''{
+            '曼谷旅游':10,
+            '巴黎旅游':20,
+        }'''
+        try:
+            with open("kw.data.tmp", "w") as ff:
+                ff.write(kwconf)
+            self.errInfo("已在当前目录下创建关键字模板文件: kw.data.tmp")
+        except:
+            self.errInfo("创建关键字模板文件失败!")
+
     def kyFileHeadle(self, filename):
         name = os.path.basename(filename)
         if name != "kw.data":
-            self.errInfo("The keyworks filename must be 'kw.data'")
+            self.errInfo("关键词文件名必须为: 'kw.data'")
             return False
         try:
             with open(filename, "r") as ff:
                 kw = ff.read().decode("utf-8")
                 return eval(kw)
         except Exception, e:
-            self.errInfo("Failed to get keywords:\n%s" % str(e))
+            self.errInfo("获取关键词文件失败:%s" % str(e))
             return False
 
     def errInfo(self, log, mode=0):
             self.multiText.SetDefaultStyle(wx.TextAttr("RED"))
             if not mode:
-                self.multiText.SetValue(log)
+                self.multiText.SetValue("\n\n" + log)
             else:
                 self.multiText.AppendText(log)
             self.multiText.SetDefaultStyle(wx.TextAttr("BLACK"))
@@ -234,7 +263,7 @@ class rank(page, Thread):
         try:
             self.pageobj = page(self.driverType, self.proxyType, self.proxyConfig)
         except Exception, e:
-            self.output_testResult(info=str(e))
+            self.output_Result(info=str(e))
             exit()
 
     def end(self):
@@ -253,12 +282,12 @@ class rank(page, Thread):
                 value = kw[1]
             else:
                 value = self.Runtime
-            self.output_testResult(info="【%d/%d】：当前关键字 - %s" % (process, total, key))
+            self.output_Result(info="【%d/%d】：当前关键字 - %s" % (process, total, key))
             for click in range(value):
                 self.begin()
                 driver = self.pageobj.getDriver()
-                self.output_testResult(info="----------------------------------------------")
-                self.output_testResult(info="当前使用代理: %s" %self.pageobj.getProxyAddr())
+                self.output_Result(info="----------------------------------------------")
+                self.output_Result(info="当前使用代理: %s" %self.pageobj.getProxyAddr())
                 # 1. 打开搜索页面并使用关键词搜索
                 try:
                     self.pageobj.gotoURL(self.pageobj.baidu)
@@ -268,13 +297,13 @@ class rank(page, Thread):
                     self.pageobj.find_element(*self.baidu_submit).click()
                     time.sleep(2)
                 except Exception, e:
-                    self.output_testResult(log=str(e))
+                    self.output_Result(log=str(e))
                     self.end()
                     continue
 
                 # 2. 翻页操作
                 for page in range(self.PagesCount):
-                    self.output_testResult(info="     搜索结果页面翻到第[%d]页" % (page+1))
+                    self.output_Result(info="     搜索结果页面翻到第[%d]页" % (page+1))
                     pageButton = self.pageobj.find_elements(*self.baidu_result_pages)
                     if page == 0:
                         # 如果是第一页的话，随机从前五中随机点击若干(1-self.randomNo_firstpage)个URL
@@ -286,12 +315,12 @@ class rank(page, Thread):
                         else:
                             targets = random.sample(range(self.randomArea), random.sample(range(1, self.randomNo_firstpage+1), 1)[0])
                         for index in targets:
-                            self.output_testResult(info="     点击结果页面第[%d]个链接" % (index+1))
+                            self.output_Result(info="     点击结果页面第[%d]个链接" % (index+1))
                             try:
                                 time.sleep(2)
                                 baidu_result_items[index].click()
                             except Exception, e:
-                                self.output_testResult(log="     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
+                                self.output_Result(log="     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
                             driver.switch_to_window(window)
                     else:
                         try:
@@ -310,18 +339,18 @@ class rank(page, Thread):
                         resultURL = baidu_result_items[index].get_attribute("href")
                         for kw in self.data.URLKeywords:
                             if kw in resultTitle:
-                                self.output_testResult(info="     点击结果页面第[%d]个链接: %s" % (index+1, resultURL))
+                                self.output_Result(info="     点击结果页面第[%d]个链接: %s" % (index+1, resultURL))
                                 try:
                                     time.sleep(1)
                                     baidu_result_items[index].click()
                                 except Exception, e:
-                                    self.output_testResult(log="     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
+                                    self.output_Result(log="     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
                             driver.switch_to_window(window)
                         self.pageobj.scroll_page(100)
                 self.end()
                 runtime += 1
             process += 1
-            self.output_testResult(info="当前关键字，成功点击%d次" % runtime)
+            self.output_Result(info="当前关键字，成功点击%d次" % runtime)
 
     def rank_baidu_m(self):
         process = 1
@@ -334,12 +363,12 @@ class rank(page, Thread):
                 value = kw[1]
             else:
                 value = self.Runtime
-            self.output_testResult(info="【%d/%d】：当前关键字 - %s" % (process, total, key))
+            self.output_Result(info="【%d/%d】：当前关键字 - %s" % (process, total, key))
             for click in range(value):
                 self.begin()
                 driver = self.pageobj.getDriver()
-                self.output_testResult(info="----------------------------------------------")
-                self.output_testResult(info="当前使用代理: %s" %self.pageobj.getProxyAddr())
+                self.output_Result(info="----------------------------------------------")
+                self.output_Result(info="当前使用代理: %s" %self.pageobj.getProxyAddr())
                 # 1. 打开搜索页面并使用关键词搜索
                 try:
                     self.pageobj.gotoURL(self.pageobj.baidu_m)
@@ -349,13 +378,13 @@ class rank(page, Thread):
                     self.pageobj.find_element(*self.baidu_submit_m).click()
                     time.sleep(2)
                 except Exception, e:
-                    self.output_testResult(log=str(e))
+                    self.output_Result(log=str(e))
                     self.end()
                     continue
 
                 # 2. 翻页操作
                 for page in range(self.PagesCount):
-                    self.output_testResult(info="     搜索结果页面翻到第[%d]页" % (page+1))
+                    self.output_Result(info="     搜索结果页面翻到第[%d]页" % (page+1))
                     if page == 0:
                         # 如果是第一页的话，随机从前五中随机点击若干(1-self.randomNo_firstpage)个URL
                         baidu_result_items = self.pageobj.find_elements(*self.baidu_result_items_m)
@@ -371,7 +400,7 @@ class rank(page, Thread):
                                     isBaiduUrl = True
                                 else:
                                     isBaiduUrl = False
-                            self.output_testResult(info="     点击结果页面第[%d]个链接" % (index+1))
+                            self.output_Result(info="     点击结果页面第[%d]个链接" % (index+1))
                             try:
                                 js = "document.querySelectorAll('%s')[%d].setAttribute('target', '_blank')"
                                 driver.execute_script(js % (self.baidu_result_items_m[-1], index))
@@ -382,7 +411,7 @@ class rank(page, Thread):
                                 if isBaiduUrl:
                                     driver.back()
                             except Exception, e:
-                                self.output_testResult(log="     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
+                                self.output_Result(log="     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
                             driver.switch_to_window(window)
                     else:
                         try:
@@ -401,7 +430,7 @@ class rank(page, Thread):
                         resultURL = baidu_result_items[index].get_attribute("href")
                         for kw in self.data.URLKeywords:
                             if kw in resultTitle:
-                                self.output_testResult(info="     点击结果页面第[%d]个链接: %s" % (index+1, resultURL))
+                                self.output_Result(info="     点击结果页面第[%d]个链接: %s" % (index+1, resultURL))
                                 try:
                                     # 将结果页面中的URL修改为新页面打开
                                     js = "document.querySelectorAll('%s')[%d].setAttribute('target', '_blank')"
@@ -411,7 +440,7 @@ class rank(page, Thread):
                                     found = True
                                     break
                                 except Exception, e:
-                                    self.output_testResult(log="     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
+                                    self.output_Result(log="     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
                             if found:
                                 break
                                 driver.switch_to_window(window)
@@ -421,7 +450,7 @@ class rank(page, Thread):
                 self.end()
                 runtime += 1
             process += 1
-            self.output_testResult(info="当前关键字，成功点击%d次" % runtime)
+            self.output_Result(info="当前关键字，成功点击%d次" % runtime)
 
 if __name__ == "__main__":
     app = wx.App(False)
