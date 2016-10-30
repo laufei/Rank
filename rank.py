@@ -140,12 +140,13 @@ class wxRank(wx.Panel, page):
         drvierTyple = ""
         if self.EvtRadioBox_PF(evt).startswith('Web'): drvierTyple = "web_firefox"
         if self.EvtRadioBox_PF(evt).startswith('H5'): drvierTyple = "h5_chrome"
-        rank(drvierTyple, self.EvtRadioBox_Proxy(evt), self.proxyConfig, self.printLog, self.keyworks, int(runtime))
+        self.rankObj = rank(drvierTyple, self.EvtRadioBox_Proxy(evt), self.proxyConfig, self.printLog, self.keyworks, int(runtime))
 
     def OnClickStop(self, evt):
         ret = wx.MessageBox('确定要关闭吗?', 'Confirm', wx.OK|wx.CANCEL)
         if ret == wx.OK:
-            wx.Exit()
+            self.rankObj.end()
+            wx.GetApp().ExitMainLoop()
 
     def OnOpenFile(self, evt):
         file_wildcard = "All files(*.*)|*.*"
@@ -256,6 +257,8 @@ class rank(page, Thread):
             for click in range(value):
                 self.begin()
                 driver = self.pageobj.getDriver()
+                self.output_testResult(info="----------------------------------------------")
+                self.output_testResult(info="当前使用代理: %s" %self.pageobj.getProxyAddr())
                 # 1. 打开搜索页面并使用关键词搜索
                 try:
                     self.pageobj.gotoURL(self.pageobj.baidu)
@@ -315,9 +318,6 @@ class rank(page, Thread):
                                     self.output_testResult(log="     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
                             driver.switch_to_window(window)
                         self.pageobj.scroll_page(100)
-                self.output_testResult(info="----------------------------------------------")
-                # self.output_testResult(info=self.pageobj.getProxyAddr())
-
                 self.end()
                 runtime += 1
             process += 1
@@ -338,6 +338,8 @@ class rank(page, Thread):
             for click in range(value):
                 self.begin()
                 driver = self.pageobj.getDriver()
+                self.output_testResult(info="----------------------------------------------")
+                self.output_testResult(info="当前使用代理: %s" %self.pageobj.getProxyAddr())
                 # 1. 打开搜索页面并使用关键词搜索
                 try:
                     self.pageobj.gotoURL(self.pageobj.baidu_m)
@@ -416,8 +418,6 @@ class rank(page, Thread):
                         self.pageobj.scroll_page(100)
                     if found:
                         break
-                self.output_testResult(info="----------------------------------------------")
-                # self.output_testResult(info=self.pageobj.getProxyAddr())
                 self.end()
                 runtime += 1
             process += 1
