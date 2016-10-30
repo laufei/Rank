@@ -68,7 +68,7 @@ class config:
 
         elif driverConfig == "h5_chrome":
             if platform.system() == "Darwin":
-                chromedriver = "/Users/chromedriver/chromedriver"
+                chromedriver = "/Users/luca/chromedriver/chromedriver"
             elif platform.system() == "Windows":
                 chromedriver = "C:\chromedriver\chromedriver.exe"
             os.environ["webdriver.chrome.driver"] = chromedriver
