@@ -184,7 +184,7 @@ class wxRank(wx.Panel, page):
         drvierTyple = ""
         if self.EvtRadioBox_PF(evt).startswith('Web'): drvierTyple = "web_firefox"
         if self.EvtRadioBox_PF(evt).startswith('H5'): drvierTyple = "h5_chrome"
-        self.rankObj = rank(drvierTyple, self.EvtRadioBox_Proxy(evt), self.proxyConfig, self.printLog, self.keyworks, int(runtime))
+        self.rankObj = rank(drvierTyple, self.EvtRadioBox_Proxy(evt), self.proxyConfig, self.keyworks, int(runtime))
 
     def OnClickStop(self, evt):
         ret = wx.MessageBox('确定要关闭吗?', '', wx.YES_NO)
@@ -289,7 +289,7 @@ class wxRank(wx.Panel, page):
         pub.subscribe(self.reset, "reset")
 
 class rank(page, Thread):
-    def __init__(self, driverType, proxyType, proxyConfig, printlog, keyworks, runtime=0):
+    def __init__(self, driverType, proxyType, proxyConfig, keyworks, runtime=0):
         Thread.__init__(self)
         #搜索关键词
         self.driverType = driverType
@@ -304,8 +304,6 @@ class rank(page, Thread):
         self.randomArea = 5     # 首页随机点击URL范围
         self.radio_sorted = 0.8  # 首页正序随机点击URL比例
         self.baidu_keywords = ['百度', '_相关']
-        # 输出log方法
-        self.printlog = printlog
         # 设置线程为后台线程, 并启动线程
         self.setDaemon(True)
         self.start()
