@@ -19,7 +19,7 @@ class wxRank(wx.Panel, page):
     def initWindow(self):
         # 选择keywords文件
         fm = wx.StaticBox(self, -1, "指定搜索关键词文件路径:")
-        self.kwText = wx.TextCtrl(self, -1, size=(193, 21))
+        self.kwText = wx.TextCtrl(self, -1, size=(198, 21))
         self.kwText.SetEditable(False)
         self.kwBtn = wx.Button(self, label='...', size=(30, 21))
         self.Bind(wx.EVT_BUTTON, self.OnOpenKWFile, self.kwBtn)
@@ -28,16 +28,17 @@ class wxRank(wx.Panel, page):
         # 关键词运行次数
         rm = wx.StaticBox(self, -1, "运行次数:")
         self.runTime = wx.CheckBox(self, -1, "是否统一配置?  运行次数:")
-        self.runText = wx.TextCtrl(self, -1, size=(60, 21))
+        self.runText = wx.TextCtrl(self, -1, size=(65, 21))
         self.runText.SetEditable(False)
         self.runText.SetValue("10")
         self.Bind(wx.EVT_CHECKBOX, self.EvtCheckBox_RT, self.runTime)
         # 选择平台：web，h5
         dm = wx.StaticBox(self, -1, "运行平台:")
-        sampleList = ["H5-C", "H5-F", "Web-F"]
+        sampleList = ["H5-F", "H5-C", "Web-F"]
         self.rb_platform = wx.RadioBox(self, -1, "", wx.DefaultPosition, wx.DefaultSize, sampleList, 3)
         self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_PF, self.rb_platform)
         self.dndBtn = wx.Button(self, label='+', size=(30, 30))
+        self.dndBtn.Hide()
         self.Bind(wx.EVT_BUTTON, self.DownloadDriver, self.dndBtn)
         # 选择代理方式：dns, api，txt
         pm = wx.StaticBox(self, -1, "代理方式:")
@@ -48,7 +49,7 @@ class wxRank(wx.Panel, page):
         self.proxyTextBtn.Hide()
         self.Bind(wx.EVT_BUTTON, self.OnOpenProxyFile, self.proxyTextBtn)
         # 代理DNS，API, TXT配置输入框
-        self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_api, size=(242, 21))
+        self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_api, size=(247, 21))
 
 
         # 运行log
