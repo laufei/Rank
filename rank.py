@@ -6,6 +6,8 @@ from page import page
 from data import data
 from threading import Thread
 from wx.lib.pubsub import pub
+import requests
+
 class wxRank(wx.Panel, page):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
@@ -228,7 +230,11 @@ class wxRank(wx.Panel, page):
             return False
 
     def DownloadDriver(self, evt):
-        os.system("wget -c -P ~/chromedriver https://github.com/laufei/Rank/raw/7ea3fa5fe7852338bb64b0a66c73ceba5a99a051/chromedriver")
+        # os.system("wget -c -P ~/chromedriver https://github.com/laufei/Rank/raw/7ea3fa5fe7852338bb64b0a66c73ceba5a99a051/chromedriver")
+        url = "https://github.com/laufei/Rank/raw/7ea3fa5fe7852338bb64b0a66c73ceba5a99a051/chromedriver"
+        r = requests.get(url)
+        with open("chromedriver", "wb") as ff:
+             ff.write(r.content)
 
     def OnCreateTmpFile(self, evt):
         kwconf = '''{
