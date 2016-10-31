@@ -439,7 +439,7 @@ class rank(page, Thread):
                     self.pageobj.find_element(*self.baidu_submit_m).click()
                     time.sleep(2)
                 except Exception, e:
-                    self.output_Result(log=str(e))
+                    self.output_Result(log="Timed out waiting for page load!")
                     self.end()
                     continue
 
