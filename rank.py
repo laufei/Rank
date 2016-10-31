@@ -6,7 +6,6 @@ from page import page
 from data import data
 from threading import Thread
 from wx.lib.pubsub import pub
-import requests
 
 class wxRank(wx.Panel, page):
     def __init__(self, parent):
@@ -230,11 +229,27 @@ class wxRank(wx.Panel, page):
             return False
 
     def DownloadDriver(self, evt):
-        # os.system("wget -c -P ~/chromedriver https://github.com/laufei/Rank/raw/7ea3fa5fe7852338bb64b0a66c73ceba5a99a051/chromedriver")
-        url = "https://github.com/laufei/Rank/raw/7ea3fa5fe7852338bb64b0a66c73ceba5a99a051/chromedriver"
-        r = requests.get(url)
-        with open("chromedriver", "wb") as ff:
-             ff.write(r.content)
+        downloadurl = "http://chromedriver.storage.googleapis.com/2.25/chromedriver_mac64.zip"
+        file = "chromedriver_mac64.zip"
+        filename = "/Users/%s/chromedriver/chromedriver_mac64.zip" % os.environ["USER"]
+        dir = "/Users/%s/chromedriver/" % os.environ["USER"]
+        # 通过wget下载
+        try:
+            os.system("wget -c -P %s %s" % (dir, downloadurl))
+            self.errInfo("成功下载%s到目录: %s\n\n" % (file, dir))
+        except Exception, e:
+            self.errInfo("下载%s到目录'%s'失败 T_T, 请重试! Msg: " % (file, dir), True)
+            self.errInfo(str(e)+"\n\n", True)
+
+        # 解压下载文件
+        import zipfile
+        try:
+            zfile = zipfile.ZipFile(filename, "r")
+            zfile.extractall(dir)
+            self.errInfo("成功解压%s到目录: %s\n\n" % (file, dir), True)
+        except Exception, e:
+            self.errInfo("解压%s到目录'%s'失败 T_T, 请重试! Msg: " % (file, dir), True)
+            self.errInfo(str(e)+"\n\n", True)
 
     def OnCreateTmpFile(self, evt):
         kwconf = '''{
@@ -304,6 +319,7 @@ class rank(page, Thread):
         if self.driverType.startswith("h5"):
             self.rank_baidu_m()
         wx.CallAfter(pub.sendMessage, "reset")
+        wx.CallAfter(self.output_Result, log="[All Done]")
 
     def begin(self):
         # 实例化
