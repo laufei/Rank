@@ -34,8 +34,8 @@ class wxRank(wx.Panel, page):
         self.Bind(wx.EVT_CHECKBOX, self.EvtCheckBox_RT, self.runTime)
         # 选择平台：web，h5
         dm = wx.StaticBox(self, -1, "运行平台:")
-        sampleList = ["H5-Chrome", "Web-Firefox"]
-        self.rb_platform = wx.RadioBox(self, -1, "", wx.DefaultPosition, wx.DefaultSize, sampleList, 2)
+        sampleList = ["H5-C", "H5-F", "Web-F"]
+        self.rb_platform = wx.RadioBox(self, -1, "", wx.DefaultPosition, wx.DefaultSize, sampleList, 3)
         self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_PF, self.rb_platform)
         self.dndBtn = wx.Button(self, label='+', size=(30, 30))
         self.Bind(wx.EVT_BUTTON, self.DownloadDriver, self.dndBtn)
@@ -123,10 +123,10 @@ class wxRank(wx.Panel, page):
 
     def EvtRadioBox_PF(self, evt):
         selected = self.rb_platform.GetItemLabel(self.rb_platform.GetSelection())
-        if selected == "Web-Firefox":
-            self.dndBtn.Hide()
-        else:
+        if selected == "H5-C":
             self.dndBtn.Show()
+        else:
+            self.dndBtn.Hide()
         self.Layout()
         return self.rb_platform.GetItemLabel(self.rb_platform.GetSelection())
 
@@ -183,7 +183,8 @@ class wxRank(wx.Panel, page):
         from rank import rank
         drvierTyple = ""
         if self.EvtRadioBox_PF(evt).startswith('Web'): drvierTyple = "web_firefox"
-        if self.EvtRadioBox_PF(evt).startswith('H5'): drvierTyple = "h5_chrome"
+        if self.EvtRadioBox_PF(evt).startswith('H5-C'): drvierTyple = "h5_chrome"
+        if self.EvtRadioBox_PF(evt).startswith('H5-F'): drvierTyple = "h5_firefox"
         self.rankObj = rank(drvierTyple, self.EvtRadioBox_Proxy(evt), self.proxyConfig, self.keyworks, int(runtime))
 
     def OnClickStop(self, evt):
