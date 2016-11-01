@@ -38,7 +38,6 @@ class wxRank(wx.Panel, page):
         self.rb_platform = wx.RadioBox(self, -1, "", wx.DefaultPosition, wx.DefaultSize, sampleList, 3)
         self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_PF, self.rb_platform)
         self.dndBtn = wx.Button(self, label='+', size=(30, 30))
-        self.dndBtn.Hide()
         self.Bind(wx.EVT_BUTTON, self.DownloadDriver, self.dndBtn)
         # 选择代理方式：dns, api，txt
         pm = wx.StaticBox(self, -1, "代理方式:")
@@ -123,12 +122,12 @@ class wxRank(wx.Panel, page):
         self.SetSizer(mbox)
 
     def EvtRadioBox_PF(self, evt):
-        selected = self.rb_platform.GetItemLabel(self.rb_platform.GetSelection())
-        if selected == "H5-C":
-            self.dndBtn.Show()
-        else:
-            self.dndBtn.Hide()
-        self.Layout()
+        # selected = self.rb_platform.GetItemLabel(self.rb_platform.GetSelection())
+        # if selected == "H5-C":
+        #     self.dndBtn.Show()
+        #     self.Layout()
+        # else:
+        #     self.dndBtn.Hide()
         return self.rb_platform.GetItemLabel(self.rb_platform.GetSelection())
 
     def EvtCheckBox_RT(self, evt):
@@ -147,12 +146,10 @@ class wxRank(wx.Panel, page):
     def OnClickDNS(self, evt):
         self.proxyText.SetLabel(self.data.proxy_dns)
         self.proxyTextBtn.Hide()
-        self.Layout()
 
     def OnClickAPI(self, evt):
         self.proxyText.SetLabel(self.data.proxy_api)
         self.proxyTextBtn.Hide()
-        self.Layout()
 
     def OnClickTXT(self, evt):
         self.proxyText.SetLabel("")
@@ -183,6 +180,7 @@ class wxRank(wx.Panel, page):
         evt.GetEventObject().Disable()
         from rank import rank
         drvierTyple = ""
+
         if self.EvtRadioBox_PF(evt).startswith('Web'): drvierTyple = "web_firefox"
         if self.EvtRadioBox_PF(evt).startswith('H5-C'): drvierTyple = "h5_chrome"
         if self.EvtRadioBox_PF(evt).startswith('H5-F'): drvierTyple = "h5_firefox"
@@ -231,27 +229,52 @@ class wxRank(wx.Panel, page):
             return False
 
     def DownloadDriver(self, evt):
-        downloadurl = "http://chromedriver.storage.googleapis.com/2.25/chromedriver_mac64.zip"
-        file = "chromedriver_mac64.zip"
-        filename = "/Users/%s/chromedriver/chromedriver_mac64.zip" % os.environ["USER"]
-        dir = "/Users/%s/chromedriver/" % os.environ["USER"]
-        # 通过wget下载
-        try:
-            os.system("wget -c -P %s %s" % (dir, downloadurl))
-            self.errInfo("成功下载%s到目录: %s\n\n" % (file, dir))
-        except Exception, e:
-            self.errInfo("下载%s到目录'%s'失败 T_T, 请重试! Msg: " % (file, dir), True)
-            self.errInfo(str(e)+"\n\n", True)
+        # 创建drivers文件夹, 并添加drivers到环境变量
+        dir = "/Users/%s/drivers/" % os.environ["USER"]
+        os.system("mkdir %s" % dir)
+        os.system("export PATH=$PATH:%s" % dir)
 
-        # 解压下载文件
-        import zipfile
-        try:
-            zfile = zipfile.ZipFile(filename, "r")
-            zfile.extractall(dir)
-            self.errInfo("成功解压%s到目录: %s\n\n" % (file, dir), True)
-        except Exception, e:
-            self.errInfo("解压%s到目录'%s'失败 T_T, 请重试! Msg: " % (file, dir), True)
-            self.errInfo(str(e)+"\n\n", True)
+        if self.EvtRadioBox_PF(evt) == "H5-C":
+            downloadurl = "http://chromedriver.storage.googleapis.com/2.25/chromedriver_mac64.zip"
+            file = "chromedriver_mac64.zip"
+            filename = "/Users/%s/drivers/chromedriver_mac64.zip" % os.environ["USER"]
+            # 通过wget下载
+            try:
+                os.system("wget -c -P %s %s" % (dir, downloadurl))
+                self.errInfo("成功下载%s到目录: %s\n\n" % (file, dir))
+            except Exception, e:
+                self.errInfo("下载%s到目录'%s'失败 T_T, 请重试! Msg: " % (file, dir), True)
+                self.errInfo(str(e)+"\n\n", True)
+            # 解压下载文件
+            import zipfile
+            try:
+                zfile = zipfile.ZipFile(filename)
+                zfile.extractall(path=dir)
+                self.errInfo("成功解压%s到目录: %s\n\n" % (file, dir), True)
+            except Exception, e:
+                self.errInfo("解压%s到目录'%s'失败 T_T, 请重试! Msg: " % (file, dir), True)
+                self.errInfo(str(e)+"\n\n", True)
+        else:
+            downloadurl = "https://github.com/mozilla/geckodriver/releases/download/v0.11.1/geckodriver-v0.11.1-macos.tar.gz"
+            file = "geckodriver-v0.11.1-macos.tar.gz"
+            filename = "/Users/%s/drivers/geckodriver-v0.11.1-macos.tar.gz" % os.environ["USER"]
+            # 通过wget下载
+            try:
+                os.system("wget -c -P %s %s" % (dir, downloadurl))
+                self.errInfo("成功下载%s到目录: %s\n\n" % (file, dir))
+            except Exception, e:
+                self.errInfo("下载%s到目录'%s'失败 T_T, 请重试! Msg: " % (file, dir), True)
+                self.errInfo(str(e)+"\n\n", True)
+
+            # 解压下载文件
+            import tarfile
+            try:
+                tfile = tarfile.open(filename)
+                tfile.extractall(path=dir)
+                self.errInfo("成功解压%s到目录: %s\n\n" % (file, dir), True)
+            except Exception, e:
+                self.errInfo("解压%s到目录'%s'失败 T_T, 请重试! Msg: " % (file, dir), True)
+                self.errInfo(str(e)+"\n\n", True)
 
     def OnCreateTmpFile(self, evt):
         kwconf = '''{

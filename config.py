@@ -29,7 +29,10 @@ class config:
             profile.set_preference("network.proxy.http_port", port)
             profile.update_preferences()
             try:
-                self.driver = webdriver.Firefox(firefox_profile=profile)
+                self.driver = webdriver.Firefox(
+                    # executable_path="/Users/%s/driver/geckodriver" % os.environ["USER"],
+                    firefox_profile=profile,
+                    )
             except Exception, e:
                 assert False, e
 
@@ -58,17 +61,20 @@ class config:
             profile.set_preference("network.proxy.http_port", port)
             profile.set_preference(
                 "general.useragent.override",
-                "Mozilla/5.0 (Linux; Android 5.1.1; Mi-4c Build/LMY47V) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.83 Mobile Safari/537.36"
+                "Mozilla/5.0 (iPhone; CPU iPhone OS 8_0 like Mac OS X) AppleWebKit/600.1.3 (KHTML, like Gecko) Version/8.0 Mobile/12A4345d Safari/600.1.4"
             )
             profile.update_preferences()
             try:
-                self.driver = webdriver.Firefox(firefox_profile=profile)
+                self.driver = webdriver.Firefox(
+                    # executable_path="/Users/%s/driver/geckodriver" % os.environ["USER"],
+                    firefox_profile=profile,
+                    )
             except Exception, e:
                 assert False, e
 
         elif driverConfig == "h5_chrome":
             if platform.system() == "Darwin":
-                chromedriver = "/Users/%s/chromedriver/chromedriver" % os.environ["USER"]
+                chromedriver = "/Users/%s/driver/chromedriver" % os.environ["USER"]
             elif platform.system() == "Windows":
                 chromedriver = "C:\chromedriver\chromedriver.exe"
             os.environ["webdriver.chrome.driver"] = chromedriver
@@ -78,7 +84,7 @@ class config:
             option.add_argument('--proxy-server=%s' % proxy)
             try:
                 self.driver = webdriver.Chrome(
-                    executable_path=chromedriver,
+                    # executable_path=chromedriver,
                     chrome_options=option)
             except Exception, e:
                 assert False, e
