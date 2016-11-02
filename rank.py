@@ -12,6 +12,7 @@ class wxRank(wx.Panel, page):
         wx.Panel.__init__(self, parent)
         self.data = data()
         self.keyworks = ""
+        self.proxyType = ""
         self.proxyConfig = ""
         self.initWindow()
         self.update()
@@ -49,7 +50,6 @@ class wxRank(wx.Panel, page):
         self.Bind(wx.EVT_BUTTON, self.OnOpenProxyFile, self.proxyTextBtn)
         # 代理DNS，API, TXT配置输入框
         self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_api, size=(247, 21))
-
 
         # 运行log
         om = wx.StaticBox(self, 0, "运行日志:")
@@ -137,22 +137,23 @@ class wxRank(wx.Panel, page):
             self.runText.SetEditable(False)
 
     def EvtRadioBox_Proxy(self, evt):
-        selected = self.rb_proxy.GetItemLabel(self.rb_proxy.GetSelection())
-        if selected == "API": self.OnClickAPI(evt)
-        if selected == "DNS": self.OnClickDNS(evt)
-        if selected == "TXT": self.OnClickTXT(evt)
-        return selected
-
-    def OnClickDNS(self, evt):
-        self.proxyText.SetLabel(self.data.proxy_dns)
-        self.proxyTextBtn.Hide()
+        self.proxyType = self.rb_proxy.GetItemLabel(self.rb_proxy.GetSelection())
+        if self.proxyType == "API": self.OnClickAPI(evt)
+        if self.proxyType == "DNS": self.OnClickDNS(evt)
+        if self.proxyType == "TXT": self.OnClickTXT(evt)
 
     def OnClickAPI(self, evt):
-        self.proxyText.SetLabel(self.data.proxy_api)
+        self.proxyText.SetValue(self.data.proxy_api)
+        self.proxyText.SetEditable(True)
+        self.proxyTextBtn.Hide()
+
+    def OnClickDNS(self, evt):
+        self.proxyText.SetValue(self.data.proxy_dns)
+        self.proxyText.SetEditable(True)
         self.proxyTextBtn.Hide()
 
     def OnClickTXT(self, evt):
-        self.proxyText.SetLabel("")
+        self.proxyText.SetValue("")
         self.proxyText.SetEditable(False)
         self.proxyTextBtn.Show()
         self.Layout()
@@ -184,7 +185,7 @@ class wxRank(wx.Panel, page):
         if self.EvtRadioBox_PF(evt).startswith('Web'): drvierTyple = "web_firefox"
         if self.EvtRadioBox_PF(evt).startswith('H5-C'): drvierTyple = "h5_chrome"
         if self.EvtRadioBox_PF(evt).startswith('H5-F'): drvierTyple = "h5_firefox"
-        self.rankObj = rank(drvierTyple, self.EvtRadioBox_Proxy(evt), self.proxyConfig, self.keyworks, int(runtime))
+        self.rankObj = rank(drvierTyple, self.proxyType, self.proxyConfig, self.keyworks, int(runtime))
 
     def OnClickStop(self, evt):
         ret = wx.MessageBox('确定要关闭吗?', '', wx.YES_NO)
@@ -350,6 +351,7 @@ class rank(page, Thread):
             self.pageobj = page(self.driverType, self.proxyType, self.proxyConfig)
         except Exception, e:
             self.output_Result(info=str(e))
+            wx.CallAfter(pub.sendMessage, "reset")
             exit()
 
     def end(self):

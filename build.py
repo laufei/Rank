@@ -1,3 +1,4 @@
 __author__ = 'liufei'
 import os
-os.system("pyinstaller -F -w --windowed --noconsole rank.py")
+# os.system("pyinstaller --windowed --onefile --icon='src/icon.ico' rank.py")
+os.system("pyinstaller rank.spec")
