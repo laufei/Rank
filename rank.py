@@ -14,13 +14,14 @@ class wxRank(wx.Panel, page):
         self.keyworks = ""
         self.proxyType = ""
         self.proxyConfig = ""
+        self.dir = "/Users/%s/drivers/" % os.environ["USER"]
         self.initWindow()
         self.update()
 
     def initWindow(self):
         # 选择keywords文件
         fm = wx.StaticBox(self, -1, "指定搜索关键词文件路径:")
-        self.kwText = wx.TextCtrl(self, -1, size=(198, 21))
+        self.kwText = wx.TextCtrl(self, -1, value="点击右侧按钮选择文件...", size=(198, 21))
         self.kwText.SetEditable(False)
         self.kwBtn = wx.Button(self, label='...', size=(30, 21))
         self.Bind(wx.EVT_BUTTON, self.OnOpenKWFile, self.kwBtn)
@@ -39,11 +40,12 @@ class wxRank(wx.Panel, page):
         self.rb_platform = wx.RadioBox(self, -1, "", wx.DefaultPosition, wx.DefaultSize, sampleList, 3)
         self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_PF, self.rb_platform)
         self.dndBtn = wx.Button(self, label='+', size=(30, 30))
-        self.Bind(wx.EVT_BUTTON, self.DownloadDriver, self.dndBtn)
+        self.Bind(wx.EVT_BUTTON, self.cpDriver, self.dndBtn)
         # 选择代理方式：dns, api，txt
         pm = wx.StaticBox(self, -1, "代理方式:")
         sampleList = ["API", "DNS", "TXT"]
         self.rb_proxy = wx.RadioBox(self, 0, "", wx.DefaultPosition, wx.DefaultSize, sampleList, 3)
+        self.proxyType = self.rb_proxy.GetItemLabel(self.rb_proxy.GetSelection())
         self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_Proxy, self.rb_proxy)
         self.proxyTextBtn = wx.Button(self, label='...', size=(30, 30))
         self.proxyTextBtn.Hide()
@@ -122,12 +124,6 @@ class wxRank(wx.Panel, page):
         self.SetSizer(mbox)
 
     def EvtRadioBox_PF(self, evt):
-        # selected = self.rb_platform.GetItemLabel(self.rb_platform.GetSelection())
-        # if selected == "H5-C":
-        #     self.dndBtn.Show()
-        #     self.Layout()
-        # else:
-        #     self.dndBtn.Hide()
         return self.rb_platform.GetItemLabel(self.rb_platform.GetSelection())
 
     def EvtCheckBox_RT(self, evt):
@@ -153,12 +149,15 @@ class wxRank(wx.Panel, page):
         self.proxyTextBtn.Hide()
 
     def OnClickTXT(self, evt):
-        self.proxyText.SetValue("")
+        self.proxyText.SetValue("点击右侧按钮选择文件...")
         self.proxyText.SetEditable(False)
         self.proxyTextBtn.Show()
         self.Layout()
 
     def OnClickRun(self, evt):
+        # 添加drivers到环境变量
+        os.system("export PATH=$PATH:%s" % self.dir)
+
         runtime = 0
         # 如果未选择keyworks文件, 提示错误
         if not self.keyworks:
@@ -229,53 +228,23 @@ class wxRank(wx.Panel, page):
             self.errInfo("获取关键词文件失败:%s" % str(e))
             return False
 
-    def DownloadDriver(self, evt):
-        # 创建drivers文件夹, 并添加drivers到环境变量
-        dir = "/Users/%s/drivers/" % os.environ["USER"]
-        os.system("mkdir %s" % dir)
-        os.system("export PATH=$PATH:%s" % dir)
-
-        if self.EvtRadioBox_PF(evt) == "H5-C":
-            downloadurl = "http://chromedriver.storage.googleapis.com/2.25/chromedriver_mac64.zip"
-            file = "chromedriver_mac64.zip"
-            filename = "/Users/%s/drivers/chromedriver_mac64.zip" % os.environ["USER"]
-            # 通过wget下载
-            try:
-                os.system("wget -c -P %s %s" % (dir, downloadurl))
-                self.errInfo("成功下载%s到目录: %s\n\n" % (file, dir))
-            except Exception, e:
-                self.errInfo("下载%s到目录'%s'失败 T_T, 请重试! Msg: " % (file, dir), True)
-                self.errInfo(str(e)+"\n\n", True)
-            # 解压下载文件
-            import zipfile
-            try:
-                zfile = zipfile.ZipFile(filename)
-                zfile.extractall(path=dir)
-                self.errInfo("成功解压%s到目录: %s\n\n" % (file, dir), True)
-            except Exception, e:
-                self.errInfo("解压%s到目录'%s'失败 T_T, 请重试! Msg: " % (file, dir), True)
-                self.errInfo(str(e)+"\n\n", True)
-        else:
-            downloadurl = "https://github.com/mozilla/geckodriver/releases/download/v0.11.1/geckodriver-v0.11.1-macos.tar.gz"
-            file = "geckodriver-v0.11.1-macos.tar.gz"
-            filename = "/Users/%s/drivers/geckodriver-v0.11.1-macos.tar.gz" % os.environ["USER"]
-            # 通过wget下载
-            try:
-                os.system("wget -c -P %s %s" % (dir, downloadurl))
-                self.errInfo("成功下载%s到目录: %s\n\n" % (file, dir))
-            except Exception, e:
-                self.errInfo("下载%s到目录'%s'失败 T_T, 请重试! Msg: " % (file, dir), True)
-                self.errInfo(str(e)+"\n\n", True)
-
-            # 解压下载文件
-            import tarfile
-            try:
-                tfile = tarfile.open(filename)
-                tfile.extractall(path=dir)
-                self.errInfo("成功解压%s到目录: %s\n\n" % (file, dir), True)
-            except Exception, e:
-                self.errInfo("解压%s到目录'%s'失败 T_T, 请重试! Msg: " % (file, dir), True)
-                self.errInfo(str(e)+"\n\n", True)
+    def cpDriver(self, evt):
+        os.system("mkdir %s" % self.dir)
+        try:
+            import sys
+            # 获取package中文件路径: https://docs.python.org/2/library/pkgutil.html
+            cd = os.path.join(os.path.dirname(__file__), 'chromedriver')
+            gd = os.path.join(os.path.dirname(__file__), 'geckodriver')
+            self.errInfo(cd, True)
+            self.errInfo(gd, True)
+            if self.EvtRadioBox_PF(evt) == "H5-C":
+                os.system("cp %s %s" % (cd, self.dir))
+                print self.errInfo("成功复制chromedriver到: %s" % self.dir, True)
+            else:
+                os.system("cp %s %s" % (gd, self.dir))
+                print self.errInfo("成功复制geckodriver到: %s" % self.dir, True)
+        except Exception, e:
+            self.errInfo(str(e))
 
     def OnCreateTmpFile(self, evt):
         kwconf = '''{
@@ -542,7 +511,7 @@ class rank(page, Thread):
 
 if __name__ == "__main__":
     app = wx.App(False)
-    frame = wx.Frame(None, title='刷百度排名小工具', size=(800, 420), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
+    frame = wx.Frame(None, title='刷百度排名小工具 v1.0', size=(800, 420), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
     panel = wxRank(frame)
     frame.Show(True)
     app.MainLoop()
