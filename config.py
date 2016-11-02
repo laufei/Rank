@@ -30,7 +30,7 @@ class config:
             profile.update_preferences()
             try:
                 self.driver = webdriver.Firefox(
-                    # executable_path="/Users/%s/driver/geckodriver" % os.environ["USER"],
+                    executable_path="/Users/%s/driver/geckodriver" % os.environ["USER"],
                     firefox_profile=profile,
                     )
             except Exception, e:
@@ -66,7 +66,7 @@ class config:
             profile.update_preferences()
             try:
                 self.driver = webdriver.Firefox(
-                    # executable_path="/Users/%s/driver/geckodriver" % os.environ["USER"],
+                    executable_path="/Users/%s/driver/geckodriver" % os.environ["USER"],
                     firefox_profile=profile,
                     )
             except Exception, e:
@@ -84,7 +84,7 @@ class config:
             option.add_argument('--proxy-server=%s' % proxy)
             try:
                 self.driver = webdriver.Chrome(
-                    # executable_path=chromedriver,
+                    executable_path=chromedriver,
                     chrome_options=option)
             except Exception, e:
                 assert False, e

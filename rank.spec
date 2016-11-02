@@ -4,7 +4,8 @@ block_cipher = None
 
 added_files = [
             ('drivers/geckodriver-v0.11.1-macos.tar.gz', '.'),
-            ('drivers/chromedriver_mac64.zip', '.'),
+            ('drivers/chromedriver_mac64.tar.gz', '.'),
+            ('src/icon.ico', 'src')
             ]
 a = Analysis(['rank.py'],
              pathex=['/Users/luca/PycharmProjects/Rank'],
