@@ -124,6 +124,12 @@ class wxRank(wx.Panel, page):
         self.SetSizer(mbox)
 
     def EvtRadioBox_PF(self, evt):
+        # selected = self.rb_platform.GetItemLabel(self.rb_platform.GetSelection())
+        # if selected == "H5-C":
+        #     self.dndBtn.Show()
+        #     self.Layout()
+        # else:
+        #     self.dndBtn.Hide()
         return self.rb_platform.GetItemLabel(self.rb_platform.GetSelection())
 
     def EvtCheckBox_RT(self, evt):
@@ -229,20 +235,69 @@ class wxRank(wx.Panel, page):
             return False
 
     def cpDriver(self, evt):
+        #下载并解压driver
+        '''
+        if self.EvtRadioBox_PF(evt) == "H5-C":
+            downloadurl = "http://chromedriver.storage.googleapis.com/2.25/chromedriver_mac64.zip"
+            file = "chromedriver_mac64.zip"
+            filename = "/Users/%s/drivers/chromedriver_mac64.zip" % os.environ["USER"]
+            # 通过wget下载
+            try:
+                os.system("wget -c -P %s %s" % (dir, downloadurl))
+                self.errInfo("成功下载%s到目录: %s\n\n" % (file, dir))
+            except Exception, e:
+                self.errInfo("下载%s到目录'%s'失败 T_T, 请重试! Msg: " % (file, dir), True)
+                self.errInfo(str(e)+"\n\n", True)
+            # 解压下载文件
+            import zipfile
+            try:
+                zfile = zipfile.ZipFile(filename)
+                zfile.extractall(path=dir)
+                self.errInfo("成功解压%s到目录: %s\n\n" % (file, dir), True)
+            except Exception, e:
+                self.errInfo("解压%s到目录'%s'失败 T_T, 请重试! Msg: " % (file, dir), True)
+                self.errInfo(str(e)+"\n\n", True)
+        else:
+            downloadurl = "https://github.com/mozilla/geckodriver/releases/download/v0.11.1/geckodriver-v0.11.1-macos.tar.gz"
+            file = "geckodriver-v0.11.1-macos.tar.gz"
+            filename = "/Users/%s/drivers/geckodriver-v0.11.1-macos.tar.gz" % os.environ["USER"]
+            # 通过wget下载
+            try:
+                os.system("wget -c -P %s %s" % (dir, downloadurl))
+                self.errInfo("成功下载%s到目录: %s\n\n" % (file, dir))
+            except Exception, e:
+                self.errInfo("下载%s到目录'%s'失败 T_T, 请重试! Msg: " % (file, dir), True)
+                self.errInfo(str(e)+"\n\n", True)
+
+            # 解压下载文件
+            import tarfile
+            try:
+                tfile = tarfile.open(filename)
+                tfile.extractall(path=dir)
+                self.errInfo("成功解压%s到目录: %s\n\n" % (file, dir), True)
+            except Exception, e:
+                self.errInfo("解压%s到目录'%s'失败 T_T, 请重试! Msg: " % (file, dir), True)
+                self.errInfo(str(e)+"\n\n", True)
+                '''
         os.system("mkdir %s" % self.dir)
         try:
-            import sys
-            # 获取package中文件路径: https://docs.python.org/2/library/pkgutil.html
-            cd = os.path.join(os.path.dirname(__file__), 'chromedriver')
-            gd = os.path.join(os.path.dirname(__file__), 'geckodriver')
-            self.errInfo(cd, True)
-            self.errInfo(gd, True)
+            import pkgutil, tarfile
+            gdname = "geckodriver-v0.11.1-macos.tar.gz"
+            cdname = "chromedriver_mac64.zip"
+            cd = pkgutil.get_data('rank', gdname)
+            gd = pkgutil.get_data('rank', cdname)
             if self.EvtRadioBox_PF(evt) == "H5-C":
-                os.system("cp %s %s" % (cd, self.dir))
-                print self.errInfo("成功复制chromedriver到: %s" % self.dir, True)
+                with open(self.dir+cdname, 'wb') as ff:
+                    ff.write(cd)
+                tfile = tarfile.open(cdname)
+                tfile.extractall(path=self.dir)
+                self.errInfo("成功解压%s到目录: %s\n\n" % (cdname, self.dir))
             else:
-                os.system("cp %s %s" % (gd, self.dir))
-                print self.errInfo("成功复制geckodriver到: %s" % self.dir, True)
+                with open(self.dir+gdname, 'wb') as ff:
+                    ff.write(gd)
+                tfile = tarfile.open(gdname)
+                tfile.extractall(path=self.dir)
+                self.errInfo("成功解压%s到目录: %s\n\n" % (gdname, self.dir))
         except Exception, e:
             self.errInfo(str(e))
 
