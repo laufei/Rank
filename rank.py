@@ -359,7 +359,6 @@ class rank(page, Thread):
                 value = self.Runtime
             self.output_Result(info="【%d/%d】：当前关键词 - %s" % (process, total, key))
             for click in range(value):
-                wx.CallAfter(pub.sendMessage, "process", value=(click+1)*100/(value*total))
                 self.begin()
                 driver = self.pageobj.getDriver()
                 self.output_Result(info="----------------------------------------------")
@@ -425,6 +424,7 @@ class rank(page, Thread):
                         self.pageobj.scroll_page(100)
                 self.end()
                 runtime += 1
+                wx.CallAfter(pub.sendMessage, "process", value=(runtime)*100/value)
             process += 1
             self.output_Result(info="当前关键词，成功点击%d次" % runtime)
 
@@ -441,7 +441,7 @@ class rank(page, Thread):
                 value = self.Runtime
             self.output_Result(info="【%d/%d】：当前关键词 - %s" % (process, total, key))
             for click in range(value):
-                wx.CallAfter(pub.sendMessage, "process", value=(click+1)*100/(value*total))
+                wx.CallAfter(pub.sendMessage, "process", value=(click+1)*100/value)
                 self.begin()
                 driver = self.pageobj.getDriver()
                 self.output_Result(info="----------------------------------------------")
@@ -526,6 +526,7 @@ class rank(page, Thread):
                         break
                 self.end()
                 runtime += 1
+                wx.CallAfter(pub.sendMessage, "process", value=(runtime)*100/value)
             process += 1
             self.output_Result(info="当前关键词，成功点击%d次" % runtime)
 
