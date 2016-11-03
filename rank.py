@@ -19,7 +19,7 @@ class wxRank(wx.Panel, page):
 
         # 添加drivers到环境变量
         self.dir = "%s/drivers/" % os.environ["HOME"]
-        os.system("export PATH=$PATH:%s" % self.dir)
+        os.environ["PATH"] += ':' + self.dir
 
     def initWindow(self):
         # 选择keywords文件
