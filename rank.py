@@ -359,7 +359,7 @@ class rank(page, Thread):
                 value = self.Runtime
             self.output_Result(info="【%d/%d】：当前关键词 - %s" % (process, total, key))
             for click in range(value):
-                wx.CallAfter(pub.sendMessage, "process", value=click*100/value)
+                wx.CallAfter(pub.sendMessage, "process", value=(click+1)*100/(value*total))
                 self.begin()
                 driver = self.pageobj.getDriver()
                 self.output_Result(info="----------------------------------------------")
@@ -441,7 +441,7 @@ class rank(page, Thread):
                 value = self.Runtime
             self.output_Result(info="【%d/%d】：当前关键词 - %s" % (process, total, key))
             for click in range(value):
-                wx.CallAfter(pub.sendMessage, "process", value=click*100/value)
+                wx.CallAfter(pub.sendMessage, "process", value=(click+1)*100/(value*total))
                 self.begin()
                 driver = self.pageobj.getDriver()
                 self.output_Result(info="----------------------------------------------")
