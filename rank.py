@@ -14,9 +14,12 @@ class wxRank(wx.Panel, page):
         self.keyworks = ""
         self.proxyType = ""
         self.proxyConfig = ""
-        self.dir = "/Users/%s/drivers/" % os.environ["USER"]
         self.initWindow()
         self.update()
+
+        # 添加drivers到环境变量
+        self.dir = "%s/drivers/" % os.environ["HOME"]
+        os.system("export PATH=$PATH:%s" % self.dir)
 
     def initWindow(self):
         # 选择keywords文件
@@ -161,9 +164,6 @@ class wxRank(wx.Panel, page):
         self.Layout()
 
     def OnClickRun(self, evt):
-        # 添加drivers到环境变量
-        os.system("export PATH=$PATH:%s" % self.dir)
-
         runtime = 0
         # 如果未选择keyworks文件, 提示错误
         if not self.keyworks:
@@ -334,7 +334,7 @@ class rank(page, Thread):
         except Exception, e:
             self.output_Result(info=str(e))
             wx.CallAfter(pub.sendMessage, "reset")
-            exit()
+            exit("Failed to run~!")
 
     def end(self):
         try:
