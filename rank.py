@@ -14,6 +14,7 @@ class wxRank(wx.Panel, page):
         self.keyworks = ""
         self.proxyType = ""
         self.proxyConfig = ""
+        self.proValue = 0
         self.initWindow()
         self.update()
 
@@ -22,8 +23,15 @@ class wxRank(wx.Panel, page):
         os.environ["PATH"] += ':' + self.dir
 
     def initWindow(self):
+        # 选择平台：web，h5
+        dm = wx.StaticBox(self, -1, "运行平台:")
+        sampleList = ["H5-F", "H5-C", "Web-F"]
+        self.rb_platform = wx.RadioBox(self, -1, "", wx.DefaultPosition, wx.DefaultSize, sampleList, 3)
+        self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_PF, self.rb_platform)
+        self.dndBtn = wx.Button(self, label='+', size=(30, 30))
+        self.Bind(wx.EVT_BUTTON, self.cpDriver, self.dndBtn)
         # 选择keywords文件
-        fm = wx.StaticBox(self, -1, "指定搜索关键词文件路径:")
+        fm = wx.StaticBox(self, -1, "关键词文件路径:")
         self.kwText = wx.TextCtrl(self, -1, value="点击右侧按钮选择文件...", size=(198, 21))
         self.kwText.SetEditable(False)
         self.kwBtn = wx.Button(self, label='...', size=(30, 21))
@@ -37,13 +45,6 @@ class wxRank(wx.Panel, page):
         self.runText.SetEditable(False)
         self.runText.SetValue("10")
         self.Bind(wx.EVT_CHECKBOX, self.EvtCheckBox_RT, self.runTime)
-        # 选择平台：web，h5
-        dm = wx.StaticBox(self, -1, "运行平台:")
-        sampleList = ["H5-F", "H5-C", "Web-F"]
-        self.rb_platform = wx.RadioBox(self, -1, "", wx.DefaultPosition, wx.DefaultSize, sampleList, 3)
-        self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_PF, self.rb_platform)
-        self.dndBtn = wx.Button(self, label='+', size=(30, 30))
-        self.Bind(wx.EVT_BUTTON, self.cpDriver, self.dndBtn)
         # 选择代理方式：dns, api，txt
         pm = wx.StaticBox(self, -1, "代理方式:")
         sampleList = ["API", "DNS", "TXT"]
@@ -59,24 +60,27 @@ class wxRank(wx.Panel, page):
         # 运行log
         om = wx.StaticBox(self, 0, "运行日志:")
         note = '''
-
-        NOTE:
-                1. 选择搜索关键词文件, 文件名必须为'kw.data';
-                    点击生成模板按钮"+", 查看具体文件格式.
-                2. 每个关键词可统一设置运行次数, 需先勾选该复选框.
-                3. 选择H5执行方式, 需要点击按钮"+"来下载chromerdriver.
-                    或者自行下载chromerdriver到文件夹: ~/chromerdriver
-                4. 对于每个代理方式需配置对应请求地址或文件路径;
-                    选择TXT方式, 需要点击按钮"..."来选择代理文件.
-                5. 程序会在该app所在路径下生成日志文件: Result.txt
-
-                                                                                                By: Liu Fei
+    Note:
+        1. 运行平台:
+            需安装对应浏览器(F=Firefox, C=Chrome);
+            第一次使用需人肉点击"+"按钮配置必须的driver及环境变量.
+        2. 关键词文件路径:
+            文件名须为'kw.data'; 点击生成模板按钮"+", 查看具体文件格式.
+        3. 运行次数:
+            勾选了该复选框, 每个关键词运行次数被统一配置.
+        4. 代理方式:
+            对于每个代理方式需配置对应请求地址或文件路径;
+            如选择TXT方式, 需要点击按钮"..."来选择代理文件.
+        5. 运行日志:
+            程序执行过程中会输入log信息, 包括各种报错及提示信息
+            程序会在该app所在路径下生成日志文件: Result.txt
         '''
         self.multiText = wx.TextCtrl(self, 0, value=note, size=(480, 275), style=wx.TE_MULTILINE|wx.TE_READONLY) #创建一个文本控件
         self.multiText.SetInsertionPoint(0)
         # 版权模块
-        self.copyRight = wx.StaticText(self, 0, "©️LiuFei ┃ ✉️ lucaliufei@gmail.com")
-        self.process = wx.StaticText(self, 0, "                                                                   ")
+        self.copyRight = wx.StaticText(self, 0, "©️LiuFei ┃ ✉️ lucaliufei@gmail.com           ")
+        self.process = wx.Gauge(self, 0, size=(200, 20), style=wx.GA_HORIZONTAL)
+        self.Bind(wx.EVT_IDLE, self.Onprocess)
         # 运行按钮
         self.buttonRun = wx.Button(self, label="运行")
         self.Bind(wx.EVT_BUTTON, self.OnClickRun, self.buttonRun)
@@ -90,17 +94,17 @@ class wxRank(wx.Panel, page):
         leftbox = wx.BoxSizer(wx.VERTICAL)
         filebox = wx.StaticBoxSizer(fm, wx.HORIZONTAL)
         runBox = wx.StaticBoxSizer(rm, wx.HORIZONTAL)
+        driverbox = wx.StaticBoxSizer(dm, wx.HORIZONTAL)
+        driverbox.Add(self.rb_platform, 0, wx.ALIGN_LEFT, 5)
+        driverbox.Add(self.dndBtn, 0, wx.ALIGN_RIGHT, 5)
         filebox.Add(self.kwText, 0, wx.ALIGN_LEFT, 5)
         filebox.Add(self.kwBtn, 0, wx.ALIGN_RIGHT, 5)
         filebox.Add(self.tmpBtn, 0, wx.ALIGN_RIGHT, 5)
         runBox.Add(self.runTime, 0, wx.ALL, 5)
         runBox.Add(self.runText, 0, wx.ALL, 5)
+        leftbox.Add(driverbox, 0, wx.ALL, 5)
         leftbox.Add(filebox, 0, wx.ALL, 5)
         leftbox.Add(runBox, 0, wx.ALL, 5)
-        driverbox = wx.StaticBoxSizer(dm, wx.HORIZONTAL)
-        driverbox.Add(self.rb_platform, 0, wx.ALIGN_LEFT, 5)
-        driverbox.Add(self.dndBtn, 0, wx.ALIGN_RIGHT, 5)
-        leftbox.Add(driverbox, 0, wx.ALL, 5)
         proxyBox = wx.StaticBoxSizer(pm, wx.VERTICAL)
         proxymodBox = wx.BoxSizer(wx.HORIZONTAL)
         proxymodBox.Add(self.rb_proxy, 0, wx.ALIGN_LEFT, 5)
@@ -115,8 +119,8 @@ class wxRank(wx.Panel, page):
         rightBox.Add(logBox, 0, wx.ALL, 5)
         # 底部布局
         btnBox = wx.BoxSizer(wx.HORIZONTAL)
-        btnBox.Add(self.copyRight, 0, wx.CENTER|wx.ALIGN_LEFT, 5)
-        btnBox.Add(self.process, 0, wx.CENTER|wx.ALIGN_LEFT, 5)
+        btnBox.Add(self.copyRight, 0, wx.ALL|wx.ALIGN_LEFT, 5)
+        btnBox.Add(self.process, 0, wx.ALL|wx.ALIGN_RIGHT, 5)
         btnBox.Add(self.buttonRun, 0, wx.ALL, 5)
         btnBox.Add(self.buttonStop, 0, wx.ALL, 5)
         # 整体布局
@@ -127,12 +131,6 @@ class wxRank(wx.Panel, page):
         self.SetSizer(mbox)
 
     def EvtRadioBox_PF(self, evt):
-        # selected = self.rb_platform.GetItemLabel(self.rb_platform.GetSelection())
-        # if selected == "H5-C":
-        #     self.dndBtn.Show()
-        #     self.Layout()
-        # else:
-        #     self.dndBtn.Hide()
         return self.rb_platform.GetItemLabel(self.rb_platform.GetSelection())
 
     def EvtCheckBox_RT(self, evt):
@@ -146,6 +144,12 @@ class wxRank(wx.Panel, page):
         if self.proxyType == "API": self.OnClickAPI(evt)
         if self.proxyType == "DNS": self.OnClickDNS(evt)
         if self.proxyType == "TXT": self.OnClickTXT(evt)
+
+    def getProcess(self, value):
+        self.proValue = value
+
+    def Onprocess(self, evt):
+        self.process.SetValue(self.proValue)
 
     def OnClickAPI(self, evt):
         self.proxyText.SetValue(self.data.proxy_api)
@@ -295,6 +299,7 @@ class wxRank(wx.Panel, page):
         pub.subscribe(self.errInfo, "log")
         pub.subscribe(self.printLog, "info")
         pub.subscribe(self.reset, "reset")
+        pub.subscribe(self.getProcess, "process")
 
 class rank(page, Thread):
     def __init__(self, driverType, proxyType, proxyConfig, keyworks, runtime=0):
@@ -354,6 +359,7 @@ class rank(page, Thread):
                 value = self.Runtime
             self.output_Result(info="【%d/%d】：当前关键词 - %s" % (process, total, key))
             for click in range(value):
+                wx.CallAfter(pub.sendMessage, "process", value=click*100/value)
                 self.begin()
                 driver = self.pageobj.getDriver()
                 self.output_Result(info="----------------------------------------------")
@@ -435,6 +441,7 @@ class rank(page, Thread):
                 value = self.Runtime
             self.output_Result(info="【%d/%d】：当前关键词 - %s" % (process, total, key))
             for click in range(value):
+                wx.CallAfter(pub.sendMessage, "process", value=click*100/value)
                 self.begin()
                 driver = self.pageobj.getDriver()
                 self.output_Result(info="----------------------------------------------")
