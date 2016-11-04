@@ -471,7 +471,7 @@ class rank(page, Thread):
                 self.output_Result(info="当前使用代理: %s" %self.pageobj.getProxyAddr())
                 # 1. 打开搜索页面并使用关键词搜索
                 try:
-                    self.pageobj.gotoURL(self.pageobj.baidu_m)
+                    self.pageobj.gotoURL(self.pageobj.baidu)
                     window = driver.current_window_handle
                     self.pageobj.find_element(*self.baidu_kw_m).send_keys(unicode(key))
                     time.sleep(2)

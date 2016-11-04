@@ -87,6 +87,8 @@ class config:
             option.add_argument('--disable-web-security')
             option.add_argument('--no-referrers')
             option.add_argument('--proxy-server=%s' % proxy)
+            option.add_experimental_option( "prefs", {'profile.default_content_settings.images': 2})       # disable images in chromedriver
+
             try:
                 self.driver = webdriver.Chrome(
                     # executable_path=chromedriver,
@@ -101,7 +103,6 @@ class config:
             profile.set_preference("network.proxy.http_port", port)
             profile.set_preference("network.proxy.share_proxy_settings", True);
             profile.set_preference("network.proxy.no_proxies_on", "localhost");
-            profile.add_experimental_option( "prefs", {'profile.default_content_settings.images': 2})       # disable images in chromedriver
             profile.set_preference(
                 "general.useragent.override",
                 "Mozilla/5.0 (Linux; Android 5.1.1; Mi-4c Build/LMY47V) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.83 Mobile Safari/537.36"
@@ -120,6 +121,10 @@ class config:
             options = webdriver.ChromeOptions()
             options.add_argument('--proxy-server=%s' % proxy)
             options.add_experimental_option("mobileEmulation", mobile_emulation)
+            options.add_argument('--allow-running-insecure-content')
+            options.add_argument('--disable-web-security')
+            options.add_argument('--no-referrers')
+            options.add_experimental_option( "prefs", {'profile.default_content_settings.images': 2})       # disable images in chromedriver
             try:
                 self.driver = webdriver.Remote(
                     command_executor="http://192.168.56.101:4444/wd/hub",
@@ -129,4 +134,4 @@ class config:
 
         self.driver.implicitly_wait(30)
         self.driver.set_script_timeout(30)
-        self.driver.set_page_load_timeout(100)
+        self.driver.set_page_load_timeout(30)
