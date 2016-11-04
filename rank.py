@@ -7,9 +7,9 @@ from data import data
 from threading import Thread
 from wx.lib.pubsub import pub
 
-class wxRank(wx.Panel, page):
-    def __init__(self, parent):
-        wx.Panel.__init__(self, parent)
+class wxRank(wx.Frame, page):
+    def __init__(self):
+        wx.Frame.__init__(self, parent=None, title='刷百度排名小工具 v1.0', size=(800, 420), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
         self.data = data()
         self.keyworks = ""
         self.proxyType = ""
@@ -17,6 +17,7 @@ class wxRank(wx.Panel, page):
         self.proValue = 0
         self.initWindow()
         self.update()
+        self.Bind(wx.EVT_CLOSE, self.OnClickStop)
 
         # 添加drivers到环境变量
         self.dir = "%s/drivers/" % os.environ["HOME"]
@@ -78,7 +79,7 @@ class wxRank(wx.Panel, page):
         self.multiText = wx.TextCtrl(self, 0, value=note, size=(480, 275), style=wx.TE_MULTILINE|wx.TE_READONLY) #创建一个文本控件
         self.multiText.SetInsertionPoint(0)
         # 版权模块
-        self.copyRight = wx.StaticText(self, 0, "©️LiuFei ┃ ✉️ lucaliufei@gmail.com           ")
+        self.copyRight = wx.StaticText(self, 0, "©️LiuFei ┃ ✉️ lucaliufei@gmail.com")
         self.process = wx.Gauge(self, 0, size=(200, 20), style=wx.GA_HORIZONTAL)
         self.Bind(wx.EVT_IDLE, self.Onprocess)
         # 运行按钮
@@ -129,6 +130,7 @@ class wxRank(wx.Panel, page):
         mbox.Add(vbox, 0, wx.ALL|wx.ALL, 5)
         mbox.Add(btnBox, 0, wx.CENTER|wx.CENTER, 5)
         self.SetSizer(mbox)
+        self.Show()
 
     def EvtRadioBox_PF(self, evt):
         return self.rb_platform.GetItemLabel(self.rb_platform.GetSelection())
@@ -203,7 +205,10 @@ class wxRank(wx.Panel, page):
                 self.rankObj.end()
             except:
                 pass
+            self.Destroy()
             wx.GetApp().ExitMainLoop()
+        else:
+            evt.Veto()
 
     def OnOpenKWFile(self, evt):
         file_wildcard = "All files(*.*)|*.*"
@@ -424,7 +429,7 @@ class rank(page, Thread):
                         self.pageobj.scroll_page(100)
                 self.end()
                 runtime += 1
-                wx.CallAfter(pub.sendMessage, "process", value=(runtime)*100/value)
+                wx.CallAfter(pub.sendMessage, "process", value=runtime*100/(total*value))
             process += 1
             self.output_Result(info="当前关键词，成功点击%d次" % runtime)
 
@@ -441,7 +446,6 @@ class rank(page, Thread):
                 value = self.Runtime
             self.output_Result(info="【%d/%d】：当前关键词 - %s" % (process, total, key))
             for click in range(value):
-                wx.CallAfter(pub.sendMessage, "process", value=(click+1)*100/value)
                 self.begin()
                 driver = self.pageobj.getDriver()
                 self.output_Result(info="----------------------------------------------")
@@ -526,13 +530,11 @@ class rank(page, Thread):
                         break
                 self.end()
                 runtime += 1
-                wx.CallAfter(pub.sendMessage, "process", value=(runtime)*100/value)
+                wx.CallAfter(pub.sendMessage, "process", value=runtime*100/(total*value))
             process += 1
             self.output_Result(info="当前关键词，成功点击%d次" % runtime)
 
 if __name__ == "__main__":
-    app = wx.App(False)
-    frame = wx.Frame(None, title='刷百度排名小工具 v1.0', size=(800, 420), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
-    panel = wxRank(frame)
-    frame.Show(True)
+    app = wx.App()
+    wxRank()
     app.MainLoop()
