@@ -9,21 +9,20 @@ from wx.lib.pubsub import pub
 
 class wxRank(wx.Frame, page):
     def __init__(self):
-        wx.Frame.__init__(self, parent=None, title='刷百度排名小工具 v1.0', size=(800, 420), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
+        wx.Frame.__init__(self, parent=None, title='刷百度排名小工具 v1.0', size=(840, 420), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
         self.data = data()
-        self.keyworks = ""
-        self.proxyType = ""
-        self.proxyConfig = ""
-        self.proValue = 0
+        self.keyworks, self.proxyType, self.proxyConfig = "", "", ""
+        self.proValue, self.spend = 0, 0
         self.update()
         self.Bind(wx.EVT_CLOSE, self.OnClickStop)
-
+        # 创建定时器
+        self.timer = wx.Timer(self)
+        self.Bind(wx.EVT_TIMER, self.OnTimer, self.timer)
         # 添加drivers到环境变量
         self.dir = "%s/drivers/" % os.environ["HOME"]
         os.environ["PATH"] += ':' + self.dir
 
         self.note = '''
-    Note:
         1. 运行平台:
             需安装对应浏览器(F=Firefox, C=Chrome);
             第一次使用需人肉点击"+"按钮配置必须的driver及环境变量.
@@ -58,14 +57,14 @@ class wxRank(wx.Frame, page):
         self.tmpBtn = wx.Button(self, label='+', size=(30, 21))
         self.Bind(wx.EVT_BUTTON, self.OnCreateTmpFile, self.tmpBtn)
         # 关键词运行次数
-        rm = wx.StaticBox(self, -1, "运行次数:")
-        self.runTime = wx.CheckBox(self, -1, "是否统一配置?  运行次数:")
-        self.runText = wx.TextCtrl(self, -1, size=(65, 21))
+        rm = wx.StaticBox(self, 0, "运行次数:")
+        self.runTime = wx.CheckBox(self, 0, "是否统一配置?  运行次数:")
+        self.runText = wx.TextCtrl(self, 0, size=(65, 21))
         self.runText.SetEditable(False)
         self.runText.SetValue("10")
         self.Bind(wx.EVT_CHECKBOX, self.EvtCheckBox_RT, self.runTime)
         # 选择代理方式：dns, api，txt
-        pm = wx.StaticBox(self, -1, "代理方式:")
+        pm = wx.StaticBox(self, 0, "代理方式:")
         sampleList = ["API", "DNS", "TXT"]
         self.rb_proxy = wx.RadioBox(self, 0, "", wx.DefaultPosition, wx.DefaultSize, sampleList, 3)
         self.proxyType = self.rb_proxy.GetItemLabel(self.rb_proxy.GetSelection())
@@ -74,7 +73,7 @@ class wxRank(wx.Frame, page):
         self.proxyTextBtn.Hide()
         self.Bind(wx.EVT_BUTTON, self.OnOpenProxyFile, self.proxyTextBtn)
         # 代理DNS，API, TXT配置输入框
-        self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_api, size=(247, 21))
+        self.proxyText = wx.TextCtrl(self, 0, value=self.data.proxy_api, size=(247, 21))
         self.proxyText.SetFont(font)
 
         # 运行log
@@ -82,9 +81,11 @@ class wxRank(wx.Frame, page):
         self.multiText = wx.TextCtrl(self, 0, value=self.note, size=(480, 275), style=wx.TE_MULTILINE|wx.TE_READONLY) #创建一个文本控件
         self.multiText.SetInsertionPoint(0)
         # 版权模块
-        self.copyRight = wx.StaticText(self, 0, "©️LiuFei ┃ ✉️ lucaliufei@gmail.com             ")
+        self.copyRight = wx.StaticText(self, 0, "©️LiuFei ┃ lucaliufei@gmail.com", style=1)
+        self.copyRight.SetBackgroundColour("#B5B5B5")
+        self.spendTime = wx.StaticText(self, 0, "耗时: [--:--:--]")
         self.proText = wx.StaticText(self, 0, "进度:")
-        self.process = wx.Gauge(self, 0, size=(200, 20), style=wx.GA_HORIZONTAL)
+        self.process = wx.Gauge(self, 0, size=(250, 20), style=wx.GA_HORIZONTAL)
         self.Bind(wx.EVT_IDLE, self.Onprocess)
         # 运行按钮
         self.buttonRun = wx.Button(self, label="运行")
@@ -124,19 +125,37 @@ class wxRank(wx.Frame, page):
         rightBox.Add(logBox, 0, wx.ALL, 5)
         # 底部布局
         btnBox = wx.BoxSizer(wx.HORIZONTAL)
-        btnBox.Add(self.copyRight, 0, wx.ALL|wx.ALIGN_LEFT, 5)
-        btnBox.Add(self.proText, 0, wx.ALL|wx.ALIGN_LEFT, 5)
-        btnBox.Add(self.process, 0, wx.ALL|wx.ALIGN_LEFT, 5)
+        btnBox.Add(self.copyRight, 0, wx.ALL, 5)
+        btnBox.Add(self.spendTime, 0, wx.ALL, 5)
+        btnBox.Add(self.proText, 0, wx.ALL, 5)
+        btnBox.Add(self.process, 0, wx.ALL, 5)
         btnBox.Add(self.buttonRun, 0, wx.ALL, 5)
         btnBox.Add(self.buttonStop, 0, wx.ALL, 5)
         # 整体布局
         vbox.Add(leftbox, 0, wx.ALL|wx.ALL, 5)
         vbox.Add(rightBox, 0, wx.ALL|wx.ALL, 5)
         mbox.Add(vbox, 0, wx.ALL|wx.ALL, 5)
-        mbox.Add(btnBox, 0, wx.CENTER|wx.CENTER, 5)
+        mbox.Add(btnBox, 0, wx.CENTER|wx.ALL, 5)
         self.SetFont(font)
         self.SetSizer(mbox)
         self.Show()
+
+    def OnStart(self):
+        self.timer.Start(1000)
+
+    def OnStop(self):
+        self.timer.Stop()
+
+    def OnTimer(self, evt):
+        self.spend += 1
+        hour = str(self.spend/3600)
+        min = str((self.spend % 3600)/60)
+        sec = str(self.spend % 3600 % 60)
+        self.spendTime.SetLabel("耗时: [%s:%s:%s]" % (
+            "".join(["0", hour]) if int(hour) < 10 else hour,
+            min if int(min) >= 10 else "".join(["0", min]),
+            sec if int(sec) >= 10 else "".join(["0", sec])
+        ))
 
     def EvtRadioBox_PF(self, evt):
         return self.rb_platform.GetItemLabel(self.rb_platform.GetSelection())
@@ -170,6 +189,17 @@ class wxRank(wx.Frame, page):
         self.proxyTextBtn.Disable()
         self.proxyText.Disable()
 
+    def EnableOnStop(self):
+        self.rb_platform.Enable()
+        self.dndBtn.Enable()
+        self.kwBtn.Enable()
+        self.tmpBtn.Enable()
+        self.runTime.Enable()
+        self.runText.Enable()
+        self.rb_proxy.Enable()
+        self.proxyTextBtn.Enable()
+        self.proxyText.Enable()
+
     def OnClickAPI(self, evt):
         self.proxyText.Enable()
         self.proxyText.SetValue(self.data.proxy_api)
@@ -202,7 +232,7 @@ class wxRank(wx.Frame, page):
                 self.errInfo("运行次数配置有误!")
                 return
         # 如果代理配置为空, 提示错误
-        if  self.proxyConfig == "" or self.proxyConfig == "点击右侧按钮选择文件...":
+        if self.proxyConfig == "" or self.proxyConfig == "点击右侧按钮选择文件...":
             self.errInfo("代理设置不能为空!")
             return
         self.multiText.SetValue("")
@@ -210,6 +240,7 @@ class wxRank(wx.Frame, page):
         self.buttonStop.SetLabel("停止")
         evt.GetEventObject().Disable()
         self.DisableOnRun()
+        self.OnStart()
 
         from rank import rank
         drvierTyple = ""
@@ -315,9 +346,11 @@ class wxRank(wx.Frame, page):
             self.multiText.AppendText(str(e))
 
     def reset(self):
+        self.EnableOnStop()
         self.buttonRun.Enable(True)
         self.buttonRun.SetLabel("运行")
         self.buttonStop.SetLabel("关闭")
+        self.OnStop()
 
     def update(self):
         pub.subscribe(self.errInfo, "log")
@@ -377,10 +410,7 @@ class rank(page, Thread):
             total = len(self.SearchKeywords)
             runtime = 0
             key = kw[0]
-            if not self.Runtime:
-                value = kw[1]
-            else:
-                value = self.Runtime
+            value = (kw[1] if not self.Runtime else self.Runtime)
             self.output_Result(info="【%d/%d】：当前关键词 - %s" % (process, total, key))
             for click in range(value):
                 self.begin()
@@ -448,7 +478,7 @@ class rank(page, Thread):
                         self.pageobj.scroll_page(100)
                 self.end()
                 runtime += 1
-                wx.CallAfter(pub.sendMessage, "process", value=runtime*100/(total*value))
+                wx.CallAfter(pub.sendMessage, "process", value=((((process-1)*value)+runtime)*100)/(total*value))
             process += 1
             self.output_Result(info="当前关键词，成功点击%d次" % runtime)
 
@@ -459,10 +489,7 @@ class rank(page, Thread):
             total = len(self.SearchKeywords)
             runtime = 0
             key = kw[0]
-            if not self.Runtime:
-                value = kw[1]
-            else:
-                value = self.Runtime
+            value = (kw[1] if not self.Runtime else self.Runtime)
             self.output_Result(info="【%d/%d】：当前关键词 - %s" % (process, total, key))
             for click in range(value):
                 self.begin()
@@ -549,7 +576,7 @@ class rank(page, Thread):
                         break
                 self.end()
                 runtime += 1
-                wx.CallAfter(pub.sendMessage, "process", value=runtime*100/(total*value))
+                wx.CallAfter(pub.sendMessage, "process", value=((((process-1)*value)+runtime)*100)/(total*value))
             process += 1
             self.output_Result(info="当前关键词，成功点击%d次" % runtime)
 
