@@ -101,6 +101,7 @@ class config:
             profile.set_preference("network.proxy.http_port", port)
             profile.set_preference("network.proxy.share_proxy_settings", True);
             profile.set_preference("network.proxy.no_proxies_on", "localhost");
+            profile.add_experimental_option( "prefs", {'profile.default_content_settings.images': 2})       # disable images in chromedriver
             profile.set_preference(
                 "general.useragent.override",
                 "Mozilla/5.0 (Linux; Android 5.1.1; Mi-4c Build/LMY47V) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.83 Mobile Safari/537.36"
