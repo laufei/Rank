@@ -59,6 +59,8 @@ class config:
             profile.set_preference("network.proxy.type", 1)
             profile.set_preference("network.proxy.http", ip)
             profile.set_preference("network.proxy.http_port", port)
+            profile.set_preference("network.proxy.share_proxy_settings", True);
+            profile.set_preference("network.proxy.no_proxies_on", "localhost");
             profile.set_preference(
                 "general.useragent.override",
                 "Mozilla/5.0 (iPhone; CPU iPhone OS 8_0 like Mac OS X) AppleWebKit/600.1.3 (KHTML, like Gecko) Version/8.0 Mobile/12A4345d Safari/600.1.4"
@@ -81,6 +83,9 @@ class config:
             mobile_emulation = {"deviceName": "Google Nexus 5"}
             option = webdriver.ChromeOptions()
             option.add_experimental_option("mobileEmulation", mobile_emulation)
+            option.add_argument('--allow-running-insecure-content')
+            option.add_argument('--disable-web-security')
+            option.add_argument('--no-referrers')
             option.add_argument('--proxy-server=%s' % proxy)
             try:
                 self.driver = webdriver.Chrome(
@@ -94,6 +99,8 @@ class config:
             profile.set_preference("network.proxy.type", 1)
             profile.set_preference("network.proxy.http", ip)
             profile.set_preference("network.proxy.http_port", port)
+            profile.set_preference("network.proxy.share_proxy_settings", True);
+            profile.set_preference("network.proxy.no_proxies_on", "localhost");
             profile.set_preference(
                 "general.useragent.override",
                 "Mozilla/5.0 (Linux; Android 5.1.1; Mi-4c Build/LMY47V) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.83 Mobile Safari/537.36"
