@@ -15,7 +15,6 @@ class wxRank(wx.Frame, page):
         self.proxyType = ""
         self.proxyConfig = ""
         self.proValue = 0
-        self.initWindow()
         self.update()
         self.Bind(wx.EVT_CLOSE, self.OnClickStop)
 
@@ -23,18 +22,37 @@ class wxRank(wx.Frame, page):
         self.dir = "%s/drivers/" % os.environ["HOME"]
         os.environ["PATH"] += ':' + self.dir
 
-    def initWindow(self):
+        self.note = '''
+    Note:
+        1. 运行平台:
+            需安装对应浏览器(F=Firefox, C=Chrome);
+            第一次使用需人肉点击"+"按钮配置必须的driver及环境变量.
+        2. 关键词文件路径:
+            文件名须为'kw.data'; 点击生成模板按钮"+", 查看具体文件格式.
+        3. 运行次数:
+            勾选了该复选框, 每个关键词运行次数被统一配置.
+        4. 代理方式:
+            对于每个代理方式需配置对应请求地址或文件路径;
+            如选择TXT方式, 需要点击按钮"..."来选择代理文件.
+        5. 运行日志:
+            程序执行过程中会输入log信息, 包括各种报错及提示信息
+            程序会在该app所在路径下生成日志文件: Result.txt
+        '''
+
+        font = wx.Font(12, wx.SWISS, wx.SWISS, wx.NORMAL, False)
         # 选择平台：web，h5
-        dm = wx.StaticBox(self, -1, "运行平台:")
+        dm = wx.StaticBox(self, 0, "运行平台:")
         sampleList = ["H5-F", "H5-C", "Web-F"]
         self.rb_platform = wx.RadioBox(self, -1, "", wx.DefaultPosition, wx.DefaultSize, sampleList, 3)
         self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_PF, self.rb_platform)
         self.dndBtn = wx.Button(self, label='+', size=(30, 30))
         self.Bind(wx.EVT_BUTTON, self.cpDriver, self.dndBtn)
         # 选择keywords文件
-        fm = wx.StaticBox(self, -1, "关键词文件路径:")
+        fm = wx.StaticBox(self, 0, "关键词文件路径:")
         self.kwText = wx.TextCtrl(self, -1, value="点击右侧按钮选择文件...", size=(198, 21))
-        self.kwText.SetEditable(False)
+        self.kwText.Disable()
+        self.kwText.SetFont(font)
+        # self.kwText.SetEditable(False)
         self.kwBtn = wx.Button(self, label='...', size=(30, 21))
         self.Bind(wx.EVT_BUTTON, self.OnOpenKWFile, self.kwBtn)
         self.tmpBtn = wx.Button(self, label='+', size=(30, 21))
@@ -57,29 +75,15 @@ class wxRank(wx.Frame, page):
         self.Bind(wx.EVT_BUTTON, self.OnOpenProxyFile, self.proxyTextBtn)
         # 代理DNS，API, TXT配置输入框
         self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_api, size=(247, 21))
+        self.proxyText.SetFont(font)
 
         # 运行log
         om = wx.StaticBox(self, 0, "运行日志:")
-        note = '''
-    Note:
-        1. 运行平台:
-            需安装对应浏览器(F=Firefox, C=Chrome);
-            第一次使用需人肉点击"+"按钮配置必须的driver及环境变量.
-        2. 关键词文件路径:
-            文件名须为'kw.data'; 点击生成模板按钮"+", 查看具体文件格式.
-        3. 运行次数:
-            勾选了该复选框, 每个关键词运行次数被统一配置.
-        4. 代理方式:
-            对于每个代理方式需配置对应请求地址或文件路径;
-            如选择TXT方式, 需要点击按钮"..."来选择代理文件.
-        5. 运行日志:
-            程序执行过程中会输入log信息, 包括各种报错及提示信息
-            程序会在该app所在路径下生成日志文件: Result.txt
-        '''
-        self.multiText = wx.TextCtrl(self, 0, value=note, size=(480, 275), style=wx.TE_MULTILINE|wx.TE_READONLY) #创建一个文本控件
+        self.multiText = wx.TextCtrl(self, 0, value=self.note, size=(480, 275), style=wx.TE_MULTILINE|wx.TE_READONLY) #创建一个文本控件
         self.multiText.SetInsertionPoint(0)
         # 版权模块
-        self.copyRight = wx.StaticText(self, 0, "©️LiuFei ┃ ✉️ lucaliufei@gmail.com")
+        self.copyRight = wx.StaticText(self, 0, "©️LiuFei ┃ ✉️ lucaliufei@gmail.com             ")
+        self.proText = wx.StaticText(self, 0, "进度:")
         self.process = wx.Gauge(self, 0, size=(200, 20), style=wx.GA_HORIZONTAL)
         self.Bind(wx.EVT_IDLE, self.Onprocess)
         # 运行按钮
@@ -121,7 +125,8 @@ class wxRank(wx.Frame, page):
         # 底部布局
         btnBox = wx.BoxSizer(wx.HORIZONTAL)
         btnBox.Add(self.copyRight, 0, wx.ALL|wx.ALIGN_LEFT, 5)
-        btnBox.Add(self.process, 0, wx.ALL|wx.ALIGN_RIGHT, 5)
+        btnBox.Add(self.proText, 0, wx.ALL|wx.ALIGN_LEFT, 5)
+        btnBox.Add(self.process, 0, wx.ALL|wx.ALIGN_LEFT, 5)
         btnBox.Add(self.buttonRun, 0, wx.ALL, 5)
         btnBox.Add(self.buttonStop, 0, wx.ALL, 5)
         # 整体布局
@@ -129,6 +134,7 @@ class wxRank(wx.Frame, page):
         vbox.Add(rightBox, 0, wx.ALL|wx.ALL, 5)
         mbox.Add(vbox, 0, wx.ALL|wx.ALL, 5)
         mbox.Add(btnBox, 0, wx.CENTER|wx.CENTER, 5)
+        self.SetFont(font)
         self.SetSizer(mbox)
         self.Show()
 
@@ -153,19 +159,32 @@ class wxRank(wx.Frame, page):
     def Onprocess(self, evt):
         self.process.SetValue(self.proValue)
 
+    def DisableOnRun(self):
+        self.rb_platform.Disable()
+        self.dndBtn.Disable()
+        self.kwBtn.Disable()
+        self.tmpBtn.Disable()
+        self.runTime.Disable()
+        self.runText.Disable()
+        self.rb_proxy.Disable()
+        self.proxyTextBtn.Disable()
+        self.proxyText.Disable()
+
     def OnClickAPI(self, evt):
+        self.proxyText.Enable()
         self.proxyText.SetValue(self.data.proxy_api)
         self.proxyText.SetEditable(True)
         self.proxyTextBtn.Hide()
 
     def OnClickDNS(self, evt):
+        self.proxyText.Enable()
         self.proxyText.SetValue(self.data.proxy_dns)
         self.proxyText.SetEditable(True)
         self.proxyTextBtn.Hide()
 
     def OnClickTXT(self, evt):
+        self.proxyText.Disable()
         self.proxyText.SetValue("点击右侧按钮选择文件...")
-        self.proxyText.SetEditable(False)
         self.proxyTextBtn.Show()
         self.Layout()
 
@@ -175,7 +194,6 @@ class wxRank(wx.Frame, page):
         if not self.keyworks:
             self.errInfo("请选择关键词配置文件!")
             return
-        self.proxyConfig = self.proxyText.GetValue().strip()
         # 如果选择了固定运行次数, 但是赋值为空, 提示错误
         if self.runTime.GetValue():
             runtime = self.runText.GetValue().strip()
@@ -186,13 +204,14 @@ class wxRank(wx.Frame, page):
         if not self.proxyConfig:
             self.errInfo("代理设置不能为空!")
             return
-        self.multiText.SetValue("")
+        self.multiText.SetValue(self.note)
         self.buttonRun.SetLabel("运行中")
         self.buttonStop.SetLabel("停止")
         evt.GetEventObject().Disable()
+        self.DisableOnRun()
+
         from rank import rank
         drvierTyple = ""
-
         if self.EvtRadioBox_PF(evt).startswith('Web'): drvierTyple = "web_firefox"
         if self.EvtRadioBox_PF(evt).startswith('H5-C'): drvierTyple = "h5_chrome"
         if self.EvtRadioBox_PF(evt).startswith('H5-F'): drvierTyple = "h5_firefox"
@@ -207,8 +226,6 @@ class wxRank(wx.Frame, page):
                 pass
             self.Destroy()
             wx.GetApp().ExitMainLoop()
-        else:
-            evt.Veto()
 
     def OnOpenKWFile(self, evt):
         file_wildcard = "All files(*.*)|*.*"
@@ -216,7 +233,7 @@ class wxRank(wx.Frame, page):
         if dlg.ShowModal() == wx.ID_OK:
             kwfilename = dlg.GetPath()
             self.kwText.SetLabel(kwfilename)
-            self.multiText.SetValue("")
+            self.multiText.SetValue(self.note)
             self.keyworks = self.kyFileHeadle(kwfilename)
             self.kwText.SetEditable(False)
         dlg.Destroy()
@@ -227,7 +244,8 @@ class wxRank(wx.Frame, page):
         if dlg.ShowModal() == wx.ID_OK:
             kwfilename = dlg.GetPath()
             self.proxyText.SetLabel(kwfilename)
-            self.multiText.SetValue("")
+            self.proxyConfig = kwfilename
+            self.multiText.SetValue(self.note)
         dlg.Destroy()
 
     def kyFileHeadle(self, filename):

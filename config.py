@@ -30,7 +30,7 @@ class config:
             profile.update_preferences()
             try:
                 self.driver = webdriver.Firefox(
-                    # executable_path="/Users/%s/drivers/" % os.environ["USER"],
+                    # executable_path="%s/drivers/" % os.environ["HOME"],
                     firefox_profile=profile,
                     )
             except Exception, e:
@@ -66,7 +66,7 @@ class config:
             profile.update_preferences()
             try:
                 self.driver = webdriver.Firefox(
-                    # executable_path="/Users/%s/drivers/" % os.environ["USER"],
+                    # executable_path= "%s/drivers/" % os.environ["HOME"],
                     firefox_profile=profile,
                     )
             except Exception, e:
@@ -74,7 +74,7 @@ class config:
 
         elif driverConfig == "h5_chrome":
             if platform.system() == "Darwin":
-                chromedriver = "/Users/%s/drivers/" % os.environ["USER"]
+                chromedriver = "%s/drivers/" % os.environ["HOME"]
             elif platform.system() == "Windows":
                 chromedriver = "C:\chromedriver\chromedriver.exe"
             os.environ["webdriver.chrome.driver"] = chromedriver
