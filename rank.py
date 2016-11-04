@@ -194,6 +194,7 @@ class wxRank(wx.Frame, page):
         if not self.keyworks:
             self.errInfo("请选择关键词配置文件!")
             return
+        self.proxyConfig = self.proxyText.GetValue().strip()
         # 如果选择了固定运行次数, 但是赋值为空, 提示错误
         if self.runTime.GetValue():
             runtime = self.runText.GetValue().strip()
@@ -201,10 +202,10 @@ class wxRank(wx.Frame, page):
                 self.errInfo("运行次数配置有误!")
                 return
         # 如果代理配置为空, 提示错误
-        if not self.proxyConfig:
+        if  self.proxyConfig == "" or self.proxyConfig == "点击右侧按钮选择文件...":
             self.errInfo("代理设置不能为空!")
             return
-        self.multiText.SetValue(self.note)
+        self.multiText.SetValue("")
         self.buttonRun.SetLabel("运行中")
         self.buttonStop.SetLabel("停止")
         evt.GetEventObject().Disable()
