@@ -7,7 +7,7 @@ added_files = [
             ('drivers/chromedriver_mac64.tar.gz', '.'),
             ('src/icon.ico', 'src')
             ]
-a = Analysis(['rank.py'],
+a = Analysis(['wxrank.py'],
              pathex=['/Users/luca/PycharmProjects/Rank'],
              binaries=None,
              datas=added_files,
