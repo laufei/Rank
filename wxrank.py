@@ -25,6 +25,8 @@ class wxRank(wx.Frame, page):
         os.environ["PATH"] += ':' + self.dir
 
         self.note = u'''
+
+
         1. 运行平台:
             需安装对应浏览器(F=Firefox, C=Chrome);
             第一次使用需人肉点击"+"按钮配置必须的driver及环境变量.
@@ -41,19 +43,18 @@ class wxRank(wx.Frame, page):
         '''
         self.font = wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL, False)
         # 选择搜索引擎: baidu, sm, sogou
-        sm = wx.StaticBox(self, 0, u"搜索平台:")
+        sm = wx.StaticBox(self, -1, u"搜索平台:")
+        # self.runType = wx.ToggleButton(self, -1, "读", size=(30, 21))
         spfList = ["Baidu", "SM", "Sogou"]
         self.rb_splatform = wx.RadioBox(self, -1, "", wx.DefaultPosition, wx.DefaultSize, spfList, 3)
-        self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_SPF, self.rb_splatform)
         # 选择平台：web，h5
-        dm = wx.StaticBox(self, 0, u"运行平台:")
+        dm = wx.StaticBox(self, -1, u"运行平台:")
         pfList = ["H5-F", "H5-C", "Web-F"]
         self.rb_platform = wx.RadioBox(self, -1, "", wx.DefaultPosition, wx.DefaultSize, pfList, 3)
-        self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_PF, self.rb_platform)
         self.dndBtn = wx.Button(self, label='+', size=(30, 30))
         self.Bind(wx.EVT_BUTTON, self.cpDriver, self.dndBtn)
         # 选择keywords文件
-        fm = wx.StaticBox(self, 0, u"关键词文件路径:")
+        fm = wx.StaticBox(self, -1, u"关键词文件路径:")
         self.kwText = wx.TextCtrl(self, -1, value=u"点击右侧按钮选择文件...", size=(198, 21))
         self.kwText.Disable()
         self.kwText.SetFont(self.font)
@@ -63,34 +64,34 @@ class wxRank(wx.Frame, page):
         self.tmpBtn = wx.Button(self, label='+', size=(30, 21))
         self.Bind(wx.EVT_BUTTON, self.OnCreateTmpFile, self.tmpBtn)
         # 关键词运行次数
-        rm = wx.StaticBox(self, 0, u"运行次数:")
-        self.runTime = wx.CheckBox(self, 0, u"是否统一配置?  运行次数:")
-        self.runText = wx.TextCtrl(self, 0, size=(65, 21))
+        rm = wx.StaticBox(self, -1, u"运行次数:")
+        self.runTime = wx.CheckBox(self, -1, u"是否统一配置?  运行次数:")
+        self.runText = wx.TextCtrl(self, -1, size=(65, 21))
         self.runText.SetEditable(False)
         self.runText.SetValue("10")
         self.Bind(wx.EVT_CHECKBOX, self.EvtCheckBox_RT, self.runTime)
         # 选择代理方式：dns, api，txt
-        pm = wx.StaticBox(self, 0, u"代理方式:")
+        pm = wx.StaticBox(self, -1, u"代理方式:")
         sampleList = ["API", "DNS", "TXT"]
-        self.rb_proxy = wx.RadioBox(self, 0, "", wx.DefaultPosition, wx.DefaultSize, sampleList, 3)
+        self.rb_proxy = wx.RadioBox(self, -1, "", wx.DefaultPosition, wx.DefaultSize, sampleList, 3)
         self.proxyType = self.rb_proxy.GetItemLabel(self.rb_proxy.GetSelection())
         self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_Proxy, self.rb_proxy)
         self.proxyTextBtn = wx.Button(self, label='...', size=(30, 30))
         self.proxyTextBtn.Hide()
         self.Bind(wx.EVT_BUTTON, self.OnOpenProxyFile, self.proxyTextBtn)
         # 代理DNS，API, TXT配置输入框
-        self.proxyText = wx.TextCtrl(self, 0, value=self.data.proxy_api, size=(247, 21))
+        self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_api, size=(247, 21))
         self.proxyText.SetFont(self.font)
 
         # 运行log
-        om = wx.StaticBox(self, 0, u"运行日志:")
-        self.multiText = wx.TextCtrl(self, 0, value=self.note, size=(480, 360), style=wx.TE_MULTILINE|wx.TE_READONLY)
+        om = wx.StaticBox(self, -1, u"运行日志:")
+        self.multiText = wx.TextCtrl(self, -1, value=self.note, size=(480, 360), style=wx.TE_MULTILINE|wx.TE_READONLY)
         self.multiText.SetInsertionPoint(0)
         # 版权模块
-        self.copyRight = wx.StaticText(self, 0, u"©️LiuFei ┃ lucaliufei@gmail.com", style=1)
-        self.spendTime = wx.StaticText(self, 0, u"耗时: [--:--:--]")
-        self.proText = wx.StaticText(self, 0, u"进度:")
-        self.process = wx.Gauge(self, 0, size=(200, 20), style=wx.GA_HORIZONTAL)
+        self.copyRight = wx.StaticText(self, -1, u"©️LiuFei ┃ lucaliufei@gmail.com", style=1)
+        self.spendTime = wx.StaticText(self, -1, u"耗时: [--:--:--]  ")
+        self.proText = wx.StaticText(self, -1, u"进度:")
+        self.process = wx.Gauge(self, -1, size=(200, 20), style=wx.GA_HORIZONTAL)
         self.Bind(wx.EVT_IDLE, self.Onprocess)
         # 运行按钮
         self.buttonRun = wx.Button(self, label=u"运行")
@@ -104,6 +105,7 @@ class wxRank(wx.Frame, page):
         vbox = wx.BoxSizer(wx.HORIZONTAL)
         leftbox = wx.BoxSizer(wx.VERTICAL)
         searchbox = wx.StaticBoxSizer(sm, wx.HORIZONTAL)
+        # searchbox.Add(self.runType, 0, wx.ALL|wx.CENTER, 1)
         searchbox.Add(self.rb_splatform, 0, wx.ALL, 5)
         driverbox = wx.StaticBoxSizer(dm, wx.HORIZONTAL)
         driverbox.Add(self.rb_platform, 0, wx.ALIGN_LEFT, 5)
@@ -194,6 +196,7 @@ class wxRank(wx.Frame, page):
         self.process.SetValue(self.proValue)
 
     def DisableOnRun(self):
+        self.rb_splatform.Disable()
         self.rb_platform.Disable()
         self.dndBtn.Disable()
         self.kwBtn.Disable()
@@ -205,6 +208,7 @@ class wxRank(wx.Frame, page):
         self.proxyText.Disable()
 
     def EnableOnStop(self):
+        self.rb_splatform.Enable()
         self.rb_platform.Enable()
         self.dndBtn.Enable()
         self.kwBtn.Enable()

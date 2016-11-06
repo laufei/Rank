@@ -259,6 +259,3 @@ class rank(page, Thread):
 
     def rank_sogou_m(self):
         wx.CallAfter(self.output_Result, log="该功能尚未支持!")
-
-if __name__ == "__main__":
-    print dir(rank)

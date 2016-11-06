@@ -12,7 +12,7 @@ sys.setdefaultencoding('utf8')
 
 class page():
     def __init__(self):
-        self.baidu_m = "http://m.baidu.com/"
+        self.baidu_m = "https://www.baidu.com/"
         self.baidu_kw_m = (By.ID, 'index-kw')  # 百度首页输入框
         self.baidu_se_kw_m = (By.ID, 'kw')  # 百度搜索结果页输入框
         self.baidu_submit_m = (By.ID, 'index-bn')  # 百度首页搜索button
