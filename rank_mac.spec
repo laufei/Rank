@@ -1,11 +1,11 @@
 # -*- mode: python -*-
 
 block_cipher = None
-
+APP_NAME = 'rank'
 added_files = [
             ('drivers/geckodriver-v0.11.1-macos.tar.gz', '.'),
             ('drivers/chromedriver_mac64.tar.gz', '.'),
-            ('src/icon.ico', 'src')
+            ('src', 'src')
             ]
 a = Analysis(['wxrank.py'],
              pathex=['/Users/luca/PycharmProjects/Rank'],
@@ -29,12 +29,20 @@ exe = EXE(pyz,
           debug=False,
           strip=False,
           upx=True,
-          console=False , icon='src/icon.ico')
+          console=False,
+          icon='src/icon.ico')
+
 app = BUNDLE(exe,
              name='rank.app',
              icon='src/icon.ico',
              bundle_identifier=None,
              info_plist={
-                    'NSHighResolutionCapable': 'True'
-                    },
+                'CFBundleName': APP_NAME,
+                'CFBundleDisplayName': APP_NAME,
+                'CFBundleGetInfoString': "Making rank",
+                'CFBundleVersion': "1.0",
+                'CFBundleShortVersionString': "1.0",
+                'NSHumanReadableCopyright': "Copyright © 2016, liufei, All Rights Reserved",
+                'NSHighResolutionCapable': 'True',
+                }
              )
