@@ -153,7 +153,6 @@ class rank(page, Thread):
     def rank_baidu_m(self):
         process = 1
         for kw in self.SearchKeywords.items():
-            found = False   # 定位到关键词排名后，跳出循环标志位
             total = len(self.SearchKeywords)
             runtime = 0
             key = kw[0]
@@ -179,6 +178,7 @@ class rank(page, Thread):
 
                 # 2. 翻页操作
                 for page in range(self.PagesCount):
+                    found = False   # 定位到关键词排名后，跳出循环标志位
                     self.output_Result(info="     搜索结果页面翻到第[%d]页" % (page+1))
                     if page == 0:
                         # 如果是第一页的话，随机从前五中随机点击若干(1-self.randomNo_firstpage)个URL
