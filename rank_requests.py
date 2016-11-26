@@ -8,7 +8,7 @@ from threading import Thread
 from wx.lib.pubsub import pub
 
 
-class rank_request(base, Thread):
+class rank_requests(base, Thread):
     def __init__(self, searcher, platform, proxyType, proxyConfig, keyworks, runtime=0):
         Thread.__init__(self)
         #搜索关键词

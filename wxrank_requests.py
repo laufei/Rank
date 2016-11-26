@@ -245,10 +245,10 @@ class wxRank(wx.Frame):
         self.DisableOnRun()
         self.OnStart()
 
-        from rank_request import rank_request
+        from rank_requests import rank_requests
         searcher = self.EvtRadioBox_SPF(evt)
         platform = self.EvtRadioBox_PF(evt)
-        self.rankObj = rank_request(searcher, platform, self.proxyType, self.proxyConfig, self.keyworks, int(runtime))
+        self.rankObj = rank_requests(searcher, platform, self.proxyType, self.proxyConfig, self.keyworks, int(runtime))
 
     def OnClickStop(self, evt):
         ret = wx.MessageBox(u"确定要关闭吗?", "", wx.YES_NO)
