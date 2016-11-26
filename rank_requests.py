@@ -84,10 +84,11 @@ class rank_requests(base, Thread):
                 self.output_Result(info="----------------------------------------------")
                 self.output_Result(info="当前使用代理: %s" %self.baseobj.getProxyAddr())
                 # 1. 打开搜索页面并使用关键词搜索
-                baiduPage = self.baseobj.requests_url("M", self.data.baidu_url_request % (key, 0))
+                baiduPage = self.baseobj.requests_url("M", self.data.baidu_url_request_m % (key, 0))
 
                 # 2. 翻页操作
                 for page in range(self.PagesCount):
+                    found = False   # 定位到关键词排名后，跳出循环标志位
                     self.output_Result(info="     搜索结果页面翻到第[%d]页" % (page+1))
                     if page == 0:
                         # 如果是第一页的话，随机从前五中随机点击若干(1-self.randomNo_firstpage)个URL
@@ -108,8 +109,9 @@ class rank_requests(base, Thread):
                                 self.output_Result(log="     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
                     else:
                         try:
-                            baiduPage = self.baseobj.requests_url("M", self.data.baidu_url_request % (key, page*10))
-                        except:
+                            baiduPage = self.baseobj.requests_url("M", self.data.baidu_url_request_m % (key, page*10))
+                        except Exception, e:
+                            self.output_Result(log="     Oops，翻页失败...... T_T, %s" % str(e))
                             self.end()
                             continue
 
@@ -117,15 +119,24 @@ class rank_requests(base, Thread):
                     soup = BS(baiduPage)
                     searchResult = soup.findAll(name="div", attrs={"class": "c-container"})
                     for index in range(len(searchResult)):
-                        resultTitle = BS(str(searchResult[index])).findAll("h3")[0].getText()
-                        resultURL = BS(str(searchResult[index])).findAll("a")[0]["href"]
+                        try:
+                            resultTitle = BS(str(searchResult[index])).findAll("h3")[0].getText()
+                            resultURL = BS(str(searchResult[index])).findAll("a")[0]["href"]
+                        except Exception:
+                            continue
                         for kw in self.data.URLKeywords:
                             if kw in resultTitle:
                                 self.output_Result(info="     点击结果页面第[%d]个链接: %s" % (index+1, resultURL))
                                 try:
                                     self.baseobj.requests_url("M", resultURL)
+                                    found = True
+                                    break
                                 except Exception, e:
                                     self.output_Result(log="     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
+                            if found:
+                                break
+                    if found:
+                        break
                 self.end()
                 runtime += 1
                 wx.CallAfter(pub.sendMessage, "process", value=((((process-1)*value)+runtime)*100)/(total*value))
