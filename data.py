@@ -13,5 +13,5 @@ class data:
         self.sm_url = "http://m.sm.cn/"
         self.sogou_url = "https://www.sogou.com/"
         self.proxy_dns = "d.conn.run:32804"
-        self.proxy_api = "http://url.cn/412TnYr"
+        self.proxy_api = "http://api.xicidaili.com/free2016.txt"
         self.URLKeywords = [u'穷游网']
