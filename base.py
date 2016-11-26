@@ -2,7 +2,6 @@
 __author__ = 'liufei'
 
 import wx
-import sys
 import time
 import requests
 import random
@@ -14,11 +13,21 @@ from wx.lib.pubsub import pub
 
 class base():
 
-    def __init__(self, platform, proxyType, proxyConfig, rand=True):
+    def __init__(self, platform, proxyType, proxyConfig, isDriver=True, rand=True):
         self.proxy = self.getProxy(proxyType, proxyConfig, rand)
-        self.config = config(platform, self.proxy)
+        if self.proxy:
+            try:
+                self.proxy.split(":")
+            except:
+                self.proxy = "获取代理失败, 请检查代理配置!"
+        else:
+            self.proxy = "获取代理失败, 请检查代理配置!"
+
+        print "当前使用的代理服务器：%s" % self.proxy
         self.data = data()
-        self.driver = self.config.driver
+        if isDriver:
+            self.config = config(platform, self.proxy)
+            self.driver = self.config.driver
 
     def getProxyAddr(self):
         return self.proxy
@@ -48,6 +57,15 @@ class base():
         if rand:
             return proxyaddr[random.randint(0, len(proxyaddr)-1)]
         return proxyaddr
+
+    def requests_url(self, platform, url):
+        headers = ""
+        proxy = {}
+        proxy["http"] = "http://"+self.proxy
+        print "proxy = ", proxy
+        if platform == "M":
+            headers = {"User-Agent": "Mozilla/5.0 (Linux; Android 5.1.1; Mi-4c Build/LMY47V) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.83 Mobile Safari/537.36"}
+        return requests.get(url, headers=headers, proxies=proxy).text
 
     def getDriver(self):
         return self.driver

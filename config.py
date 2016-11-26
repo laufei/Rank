@@ -21,7 +21,6 @@ class config:
         else:
             proxy, ip, port = "获取代理失败, 请检查代理配置!", "", ""
 
-        print "当前使用的代理服务器：%s" % proxy
         if driverConfig == "web_firefox":
             profile = webdriver.FirefoxProfile()
             profile.set_preference("network.proxy.type", 1)

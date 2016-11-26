@@ -8,6 +8,7 @@ sys.setdefaultencoding('utf8')
 class data:
     def __init__(self):
         self.baidu_url = "https://www.baidu.com/"
+        self.baidu_url_request = "https://www.baidu.com/s?word=%s&pn=%d"
         self.sm_url = "http://m.sm.cn/"
         self.sogou_url = "https://www.sogou.com/"
         self.proxy_dns = "d.conn.run:32804"
