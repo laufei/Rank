@@ -15,7 +15,7 @@ class base():
 
     def __init__(self, platform, proxyType, proxyConfig, isDriver=True, rand=True):
         self.proxy = self.getProxy(proxyType, proxyConfig, rand)
-        if self.proxy:
+        if self.proxy and not "ERR" in self.proxy:
             try:
                 self.proxy.split(":")
             except:
@@ -62,7 +62,6 @@ class base():
         headers = ""
         proxy = {}
         proxy["http"] = "http://"+self.proxy
-        print "proxy = ", proxy
         if platform == "M":
             headers = {"User-Agent": "Mozilla/5.0 (Linux; Android 5.1.1; Mi-4c Build/LMY47V) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.83 Mobile Safari/537.36"}
         return requests.get(url, headers=headers, proxies=proxy).text

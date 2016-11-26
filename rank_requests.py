@@ -1,6 +1,6 @@
 # coding: utf-8
 __author__ = 'liufei'
-import random, wx, re
+import random, wx
 from BeautifulSoup import BeautifulSoup as BS
 from base import base
 from data import data
