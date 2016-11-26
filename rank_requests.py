@@ -136,9 +136,9 @@ class rank_requests(base, Thread):
                             if found:
                                 break
                     if found:
+                        runtime += 1
                         break
                 self.end()
-                runtime += 1
                 wx.CallAfter(pub.sendMessage, "process", value=((((process-1)*value)+runtime)*100)/(total*value))
             process += 1
             self.output_Result(info="当前关键词，成功点击%d次" % runtime)
