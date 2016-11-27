@@ -136,8 +136,8 @@ class rank_requests(base, Thread):
                                     self.output_Result(log="     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
                             if found:
                                 break
+                    runtime += 1
                     if found:
-                        runtime += 1
                         self.succTime += 1
                         wx.CallAfter(pub.sendMessage, "succTime", value=(self.succTime))
                         break

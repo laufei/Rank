@@ -227,7 +227,8 @@ class wxRank(wx.Frame):
 
     def OnClickTXT(self, evt):
         self.proxyText.Disable()
-        self.proxyText.SetValue(u"点击右侧按钮选择文件...")
+        # self.proxyText.SetValue(u"点击右侧按钮选择文件...")
+        self.proxyText.SetValue(self.data.proxy_txt)
         self.proxyTextBtn.Show()
         self.Layout()
 
