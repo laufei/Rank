@@ -11,7 +11,6 @@ from wx.lib.pubsub import pub
 class rank_requests(base, Thread):
     def __init__(self, searcher, platform, proxyType, proxyConfig, keyworks, runtime=0):
         Thread.__init__(self)
-        #搜索关键词
         self.data = data()
         self.searcher = searcher
         self.platform = platform
@@ -20,12 +19,14 @@ class rank_requests(base, Thread):
         self.proxyConfig = proxyConfig
         self.SearchKeywords = keyworks
         self.Runtime = runtime
+        self.succTime, self.succRatio = 0, 0
 
         # 常量设置
         self.PagesCount = 4     # 搜索结果页面中，遍历结果页面数量
         self.randomNo_firstpage = 2  # 首页最大随机点击URL数量
         self.randomArea = 5     # 首页随机点击URL范围
         self.radio_sorted = 0.8  # 首页正序随机点击URL比例
+
         # 设置线程为后台线程, 并启动线程
         self.setDaemon(True)
         self.start()
@@ -137,9 +138,16 @@ class rank_requests(base, Thread):
                                 break
                     if found:
                         runtime += 1
+                        self.succTime += 1
+                        wx.CallAfter(pub.sendMessage, "succTime", value=(self.succTime))
                         break
                 self.end()
                 wx.CallAfter(pub.sendMessage, "process", value=((((process-1)*value)+runtime)*100)/(total*value))
+                try:
+                    self.succRatio = '%.2f' % (self.succTime/((process-1)*value+runtime))
+                    wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
+                except ZeroDivisionError:
+                    pass
             process += 1
             self.output_Result(info="当前关键词，成功点击%d次" % runtime)
 

@@ -75,9 +75,11 @@ class wxRank(wx.Frame):
         self.multiText = wx.TextCtrl(self, -1, value=self.note, size=(480, 360), style=wx.TE_MULTILINE|wx.TE_READONLY)
         self.multiText.SetInsertionPoint(0)
         # 版权模块
-        self.copyRight = wx.StaticText(self, -1, u"©️LiuFei ┃ lucaliufei@gmail.com", style=1)
-        self.spendTime = wx.StaticText(self, -1, u"耗时: [--:--:--]  ")
-        self.proText = wx.StaticText(self, -1, u"进度:")
+        self.copyRight = wx.StaticText(self, -1, u"©️LiuFei", style=1)
+        self.spendTime = wx.StaticText(self, -1, u"[耗时]: 00:00:00  ")
+        self.succTime = wx.StaticText(self, -1, u"[成功次数]: 0  ")
+        self.succRatio = wx.StaticText(self, -1, u"[成功率]: 0.0  ")
+        self.proText = wx.StaticText(self, -1, u"[进度]:")
         self.process = wx.Gauge(self, -1, size=(200, 20), style=wx.GA_HORIZONTAL)
         self.Bind(wx.EVT_IDLE, self.Onprocess)
         # 运行按钮
@@ -125,6 +127,8 @@ class wxRank(wx.Frame):
         btnBox = wx.BoxSizer(wx.HORIZONTAL)
         processBox.Add(self.copyRight, 0, wx.ALL, 5)
         processBox.Add(self.spendTime, 0, wx.ALL, 5)
+        processBox.Add(self.succTime, 0, wx.ALL, 5)
+        processBox.Add(self.succRatio, 0, wx.ALL, 5)
         processBox.Add(self.proText, 0, wx.ALL, 5)
         processBox.Add(self.process, 0, wx.ALL, 5)
         btnBox.Add(self.buttonRun, 0, wx.ALL, 5)
@@ -151,7 +155,7 @@ class wxRank(wx.Frame):
         hour = str(self.spend/3600)
         min = str((self.spend % 3600)/60)
         sec = str(self.spend % 3600 % 60)
-        self.spendTime.SetLabel(u"耗时: [%s:%s:%s]" % (
+        self.spendTime.SetLabel(u"[耗时]: %s:%s:%s" % (
             "".join(["0", hour]) if int(hour) < 10 else hour,
             min if int(min) >= 10 else "".join(["0", min]),
             sec if int(sec) >= 10 else "".join(["0", sec])
@@ -177,6 +181,12 @@ class wxRank(wx.Frame):
 
     def getProcess(self, value):
         self.proValue = value
+
+    def setSuccTime(self, value):
+        self.succTime.SetLabel(u"[成功次数]: %d  " % value)
+
+    def setSuccRatio(self, value):
+        self.succRatio.SetLabel(u"[成功率]: %s  " % str(value))
 
     def Onprocess(self, evt):
         self.process.SetValue(self.proValue)
@@ -329,6 +339,8 @@ class wxRank(wx.Frame):
         pub.subscribe(self.printLog, "info")
         pub.subscribe(self.reset, "reset")
         pub.subscribe(self.getProcess, "process")
+        pub.subscribe(self.setSuccTime, "succTime")
+        pub.subscribe(self.setSuccRatio, "succRatio")
 
 if __name__ == "__main__":
     app = wx.App()

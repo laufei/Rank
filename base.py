@@ -64,7 +64,7 @@ class base():
         proxy["http"] = "http://"+self.proxy
         if platform == "M":
             headers = {"User-Agent": "Mozilla/5.0 (Linux; Android 5.1.1; Mi-4c Build/LMY47V) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.83 Mobile Safari/537.36"}
-        return requests.get(url, headers=headers, proxies=proxy).text
+        return requests.get(url, headers=headers, proxies=proxy, timeout=30).text
 
     def getDriver(self):
         return self.driver
