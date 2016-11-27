@@ -7,7 +7,6 @@ from data import data
 from threading import Thread
 from wx.lib.pubsub import pub
 
-
 class rank_requests(base, Thread):
     def __init__(self, searcher, platform, proxyType, proxyConfig, keyworks, runtime=0):
         Thread.__init__(self)
@@ -19,7 +18,7 @@ class rank_requests(base, Thread):
         self.proxyConfig = proxyConfig
         self.SearchKeywords = keyworks
         self.Runtime = runtime
-        self.succTime, self.succRatio = 0, 0
+        self.succTimeAll, self.succRatio = 0, 0
 
         # 常量设置
         self.PagesCount = 4     # 搜索结果页面中，遍历结果页面数量
@@ -73,14 +72,15 @@ class rank_requests(base, Thread):
         print self.baseobj.requests_url("Web", self.data.baidu_url)
 
     def rank_baidu_m(self):
-        process = 1
+        process = 1         # process: 记录已执行到第几个关键词
         for kw in self.SearchKeywords.items():
+            succtime, runtime = 0, 0         # succtime: 记录当前关键字下成功请求次数;     runtime: 记录当前关键字下所有请求次数
             total = len(self.SearchKeywords)
-            runtime = 0
             key = kw[0]
             value = (kw[1] if not self.Runtime else self.Runtime)
             self.output_Result(info="【%d/%d】：当前关键词 - %s" % (process, total, key))
             for click in range(value):
+                runtime += 1
                 self.begin()
                 self.output_Result(info="----------------------------------------------")
                 self.output_Result(info="当前使用代理: %s" %self.baseobj.getProxyAddr())
@@ -131,25 +131,25 @@ class rank_requests(base, Thread):
                                 try:
                                     self.baseobj.requests_url("M", resultURL)
                                     found = True
+                                    succtime += 1
                                     break
                                 except Exception, e:
                                     self.output_Result(log="     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
                             if found:
                                 break
-                    runtime += 1
                     if found:
-                        self.succTime += 1
-                        wx.CallAfter(pub.sendMessage, "succTime", value=(self.succTime))
+                        self.succTimeAll += 1   #总的成功执行数增1
+                        wx.CallAfter(pub.sendMessage, "succTime", value=(self.succTimeAll))
                         break
                 self.end()
                 wx.CallAfter(pub.sendMessage, "process", value=((((process-1)*value)+runtime)*100)/(total*value))
                 try:
-                    self.succRatio = '%.2f' % (self.succTime/((process-1)*value+runtime))
+                    self.succRatio = '%.2f' % (self.succTimeAll/float((process-1)*value+runtime))
                     wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
                 except ZeroDivisionError:
                     pass
             process += 1
-            self.output_Result(info="当前关键词，成功点击%d次" % runtime)
+            self.output_Result(info="当前关键词，成功点击%d次" % succtime)
 
     def rank_sm_web(self):
         wx.CallAfter(self.output_Result, log="该功能尚未支持!")
