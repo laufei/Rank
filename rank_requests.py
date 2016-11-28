@@ -127,6 +127,7 @@ class rank_requests(base, Thread):
                             continue
                         for kw in self.data.URLKeywords:
                             if kw in resultTitle:
+                                print "穷游URL: ", resultURL
                                 self.output_Result(info="     点击结果页面第[%d]个链接: %s" % (index+1, resultURL))
                                 try:
                                     self.baseobj.requests_url("M", resultURL)
