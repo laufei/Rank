@@ -177,6 +177,7 @@ class rank_requests(base, Thread):
                 self.output_Result(info="当前使用代理: %s" %self.baseobj.getProxyAddr())
                 # 1. 打开搜索页面并使用关键词搜索
                 baiduPage = self.baseobj.requests_url("M", self.data.baidu_url_request_m % (key, 0))
+                print baiduPage
                 if self.runType:
                     self.succTimeAll += 1   #总的成功执行数增1
                     wx.CallAfter(pub.sendMessage, "succTime", value=(self.succTimeAll))
