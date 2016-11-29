@@ -5,6 +5,7 @@ import wx
 import time
 import requests
 import random
+import json
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from config import config
@@ -47,10 +48,14 @@ class base():
     def getProxy(self, type, config, rand):
         # type 0: api接口获取，1: 文件获取
         # rand False: 返回全部，True: 随机返回一个
-        proxyaddr = ""
-        if type == "DNS":
-            proxyaddr = config
-            return proxyaddr
+        proxyaddr = []
+        if type == "Local":
+            r = requests.get(config)
+            ip_ports = json.loads(r.text)
+            for i in ip_ports:
+                ip = i['ip']
+                port = i['port']
+                proxyaddr.append(ip+":"+str(port))
         if type == "API":
             reqURL = config
             try:

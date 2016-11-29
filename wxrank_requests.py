@@ -7,9 +7,9 @@ from wx.lib.pubsub import pub
 
 class wxRank(wx.Frame):
     def __init__(self):
-        wx.Frame.__init__(self, parent=None, title='刷搜索排名小工具 v2.0', size=(840, 520), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
+        wx.Frame.__init__(self, parent=None, title='刷搜索排名小工具 v2.0', size=(840, 560), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
         self.data = data()
-        self.keyworks, self.proxyType, self.proxyConfig = "", "", ""
+        self.keyworks, self.urlkw, self.proxyType, self.proxyConfig = "", "", "", ""
         self.proValue, self.spend = 0, 0
         self.update()
         self.Bind(wx.EVT_CLOSE, self.OnClickStop)
@@ -19,15 +19,18 @@ class wxRank(wx.Frame):
         self.note = u'''
 
 
-
-        1. 关键词文件路径:
+        1. 目标页面标题包含关键词:
+            输入的关键词用于判断结果页面中目标URL;
+            如果是多个关键词, 使用英文半角","分隔;
+            如果"刷指数"按钮状态为ON, 则只会刷指数, 不会刷排名.
+        2. 关键词文件路径:
             文件名须为'kw.data'; 点击生成模板按钮"+", 查看具体文件格式.
-        2. 运行次数:
+        3. 运行次数:
             勾选了该复选框, 每个关键词运行次数被统一配置.
-        3. 代理方式:
+        4. 代理方式:
             对于每个代理方式需配置对应请求地址或文件路径;
             如选择TXT方式, 需要点击按钮"..."来选择代理文件.
-        4. 运行日志:
+        5. 运行日志:
             程序执行过程中会输入log信息, 包括各种报错及提示信息
             程序会在该app所在路径下生成日志文件: Result.txt
         '''
@@ -35,17 +38,20 @@ class wxRank(wx.Frame):
         # 选择搜索引擎: baidu, sm, sogou
         sm = wx.StaticBox(self, -1, u"搜索平台:")
         spfList = ["Baidu", "SM", "Sogou"]
-        self.rb_splatform = wx.RadioBox(self, -1, "", wx.DefaultPosition, wx.DefaultSize, spfList, 3)
+        self.rb_splatform = wx.RadioBox(self, -1, "", wx.DefaultPosition, (110,80), spfList, 3, wx.SL_VERTICAL)
         # 选择平台：web，h5
         dm = wx.StaticBox(self, -1, u"运行平台:")
         pfList = ["H5", "Web"]
-        self.rb_platform = wx.RadioBox(self, -1, "", wx.DefaultPosition, wx.DefaultSize, pfList, 3)
+        self.rb_platform = wx.RadioBox(self, -1, "", wx.DefaultPosition, (110,80), pfList, 3, wx.SL_VERTICAL)
+        # 配置目标页面关键词
+        tm = wx.StaticBox(self, -1, u"目标页面标题包含关键词:")
+        self.runTypeBtn = wx.ToggleButton(self, -1, label=u'只刷指数', size=(80, 21))
+        self.target_kw = wx.TextCtrl(self, -1, value=u"穷游网", size=(160, 21))
         # 选择keywords文件
         fm = wx.StaticBox(self, -1, u"关键词文件路径:")
         self.kwText = wx.TextCtrl(self, -1, value=u"点击右侧按钮选择文件...", size=(198, 21))
         self.kwText.Disable()
         self.kwText.SetFont(self.font)
-        # self.kwText.SetEditable(False)
         self.kwBtn = wx.Button(self, label='...', size=(30, 21))
         self.Bind(wx.EVT_BUTTON, self.OnOpenKWFile, self.kwBtn)
         self.tmpBtn = wx.Button(self, label='+', size=(30, 21))
@@ -59,7 +65,7 @@ class wxRank(wx.Frame):
         self.Bind(wx.EVT_CHECKBOX, self.EvtCheckBox_RT, self.runTime)
         # 选择代理方式：dns, api，txt
         pm = wx.StaticBox(self, -1, u"代理方式:")
-        sampleList = ["API", "DNS", "TXT"]
+        sampleList = ["Local", "API", "TXT"]
         self.rb_proxy = wx.RadioBox(self, -1, "", wx.DefaultPosition, wx.DefaultSize, sampleList, 3)
         self.proxyType = self.rb_proxy.GetItemLabel(self.rb_proxy.GetSelection())
         self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_Proxy, self.rb_proxy)
@@ -67,20 +73,20 @@ class wxRank(wx.Frame):
         self.proxyTextBtn.Hide()
         self.Bind(wx.EVT_BUTTON, self.OnOpenProxyFile, self.proxyTextBtn)
         # 代理DNS，API, TXT配置输入框
-        self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_api, size=(247, 21))
+        self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_dns, size=(247, 21))
         self.proxyText.SetFont(self.font)
 
         # 运行log
         om = wx.StaticBox(self, -1, u"运行日志:")
-        self.multiText = wx.TextCtrl(self, -1, value=self.note, size=(480, 360), style=wx.TE_MULTILINE|wx.TE_READONLY)
+        self.multiText = wx.TextCtrl(self, -1, value=self.note, size=(480, 400), style=wx.TE_MULTILINE|wx.TE_READONLY)
         self.multiText.SetInsertionPoint(0)
         # 版权模块
         self.copyRight = wx.StaticText(self, -1, u"©️LiuFei", style=1)
-        self.spendTime = wx.StaticText(self, -1, u"[耗时]: 00:00:00  ")
-        self.succTime = wx.StaticText(self, -1, u"[成功次数]: 0  ")
-        self.succRatio = wx.StaticText(self, -1, u"[成功率]: 0.0  ")
-        self.proText = wx.StaticText(self, -1, u"[进度]:")
-        self.process = wx.Gauge(self, -1, size=(200, 20), style=wx.GA_HORIZONTAL)
+        self.spendTime = wx.StaticText(self, -1, u"▶ 耗时: 00:00:00  ")
+        self.succTime = wx.StaticText(self, -1, u"▶ 成功次数: 0  ")
+        self.succRatio = wx.StaticText(self, -1, u"▶ 成功率: 0.0  ")
+        self.proText = wx.StaticText(self, -1, u"▶ 进度:")
+        self.process = wx.Gauge(self, -1, size=(160, 20), style=wx.GA_HORIZONTAL)
         self.Bind(wx.EVT_IDLE, self.Onprocess)
         # 运行按钮
         self.buttonRun = wx.Button(self, label=u"运行")
@@ -93,11 +99,14 @@ class wxRank(wx.Frame):
         mbox = wx.BoxSizer(wx.VERTICAL)
         vbox = wx.BoxSizer(wx.HORIZONTAL)
         leftbox = wx.BoxSizer(wx.VERTICAL)
+        sbmbox = wx.BoxSizer(wx.HORIZONTAL)
         searchbox = wx.StaticBoxSizer(sm, wx.HORIZONTAL)
-        # searchbox.Add(self.runType, 0, wx.ALL|wx.CENTER, 1)
         searchbox.Add(self.rb_splatform, 0, wx.ALL, 5)
         driverbox = wx.StaticBoxSizer(dm, wx.HORIZONTAL)
-        driverbox.Add(self.rb_platform, 0, wx.ALIGN_LEFT, 5)
+        driverbox.Add(self.rb_platform, 0, wx.ALL, 5)
+        targetbox = wx.StaticBoxSizer(tm, wx.HORIZONTAL)
+        targetbox.Add(self.runTypeBtn, 0, wx.ALL, 5)
+        targetbox.Add(self.target_kw, 0, wx.ALL, 5)
         filebox = wx.StaticBoxSizer(fm, wx.HORIZONTAL)
         filebox.Add(self.kwText, 0, wx.ALIGN_LEFT, 5)
         filebox.Add(self.kwBtn, 0, wx.ALIGN_RIGHT, 5)
@@ -105,8 +114,10 @@ class wxRank(wx.Frame):
         runBox = wx.StaticBoxSizer(rm, wx.HORIZONTAL)
         runBox.Add(self.runTime, 0, wx.ALL, 5)
         runBox.Add(self.runText, 0, wx.ALL, 5)
-        leftbox.Add(searchbox, 0, wx.ALL, 5)
-        leftbox.Add(driverbox, 0, wx.ALL, 5)
+        sbmbox.Add(searchbox, 0, wx.ALIGN_LEFT, 5)
+        sbmbox.Add(driverbox, 0, wx.ALIGN_RIGHT, 5)
+        leftbox.Add(sbmbox, 0, wx.ALL, 5)
+        leftbox.Add(targetbox, 0, wx.ALL, 5)
         leftbox.Add(filebox, 0, wx.ALL, 5)
         leftbox.Add(runBox, 0, wx.ALL, 5)
         proxyBox = wx.StaticBoxSizer(pm, wx.VERTICAL)
@@ -155,7 +166,7 @@ class wxRank(wx.Frame):
         hour = str(self.spend/3600)
         min = str((self.spend % 3600)/60)
         sec = str(self.spend % 3600 % 60)
-        self.spendTime.SetLabel(u"[耗时]: %s:%s:%s" % (
+        self.spendTime.SetLabel(u"▶ 耗时: %s:%s:%s" % (
             "".join(["0", hour]) if int(hour) < 10 else hour,
             min if int(min) >= 10 else "".join(["0", min]),
             sec if int(sec) >= 10 else "".join(["0", sec])
@@ -176,17 +187,17 @@ class wxRank(wx.Frame):
     def EvtRadioBox_Proxy(self, evt):
         self.proxyType = self.rb_proxy.GetItemLabel(self.rb_proxy.GetSelection())
         if self.proxyType == "API": self.OnClickAPI(evt)
-        if self.proxyType == "DNS": self.OnClickDNS(evt)
+        if self.proxyType == "Local": self.OnClickDNS(evt)
         if self.proxyType == "TXT": self.OnClickTXT(evt)
 
     def getProcess(self, value):
         self.proValue = value
 
     def setSuccTime(self, value):
-        self.succTime.SetLabel(u"[成功次数]: %d  " % value)
+        self.succTime.SetLabel(u"▶ 成功次数: %d  " % value)
 
     def setSuccRatio(self, value):
-        self.succRatio.SetLabel(u"[成功率]: %s  " % str(value))
+        self.succRatio.SetLabel(u"▶ 成功率: %s  " % str(value))
 
     def Onprocess(self, evt):
         self.process.SetValue(self.proValue)
@@ -194,6 +205,8 @@ class wxRank(wx.Frame):
     def DisableOnRun(self):
         self.rb_splatform.Disable()
         self.rb_platform.Disable()
+        self.target_kw.Disable()
+        self.runTypeBtn.Disable()
         self.kwBtn.Disable()
         self.tmpBtn.Disable()
         self.runTime.Disable()
@@ -205,6 +218,8 @@ class wxRank(wx.Frame):
     def EnableOnStop(self):
         self.rb_splatform.Enable()
         self.rb_platform.Enable()
+        self.target_kw.Enable()
+        self.runTypeBtn.Enable()
         self.kwBtn.Enable()
         self.tmpBtn.Enable()
         self.runTime.Enable()
@@ -234,6 +249,14 @@ class wxRank(wx.Frame):
 
     def OnClickRun(self, evt):
         runtime = 0
+        # 如果未填写targetURLkw, 提示错误
+        self.urlkw = self.target_kw.GetValue().strip()
+        self.runType = self.runTypeBtn.GetValue()
+        if (not self.urlkw and not self.runType):
+            self.errInfo(u"请填写目标页面标题关键字, 并以半角英文分隔!")
+            return
+        else:
+            self.urlkw = self.urlkw.split(",")
         # 如果未选择keyworks文件, 提示错误
         if not self.keyworks:
             self.errInfo(u"请选择关键词配置文件!")
@@ -259,7 +282,7 @@ class wxRank(wx.Frame):
         from rank_requests import rank_requests
         searcher = self.EvtRadioBox_SPF(evt)
         platform = self.EvtRadioBox_PF(evt)
-        self.rankObj = rank_requests(searcher, platform, self.proxyType, self.proxyConfig, self.keyworks, int(runtime))
+        self.rankObj = rank_requests(searcher, platform, self.proxyType, self.proxyConfig, self.keyworks, self.urlkw, self.runType, int(runtime))
 
     def OnClickStop(self, evt):
         ret = wx.MessageBox(u"确定要关闭吗?", "", wx.YES_NO)
@@ -302,17 +325,19 @@ class wxRank(wx.Frame):
             return False
 
     def OnCreateTmpFile(self, evt):
-        kwconf = u'''{
-            #格式: {关键词:点击次数, 关键词:点击次数, ...}
-            '曼谷旅游':10,
-            '巴黎旅游':20,
-        }'''
-        try:
-            with open("kw.data", "w") as ff:
-                ff.write(kwconf)
-            self.errInfo(u"已在当前目录下创建关键词模板文件: kw.data")
-        except:
-            self.errInfo(u"创建关键词模板文件失败!")
+        ret = wx.MessageBox(u"点击确定会覆盖当前已存在的配置文件, 确定要创建模板文件吗?", "", wx.YES_NO)
+        if ret == wx.YES:
+            kwconf = u'''{
+                #格式: {关键词:点击次数, 关键词:点击次数, ...}
+                '曼谷旅游':10,
+                '巴黎旅游':20,
+            }'''
+            try:
+                with open("kw.data", "w") as ff:
+                    ff.write(kwconf)
+                self.errInfo(u"已在当前目录下创建关键词模板文件: kw.data")
+            except:
+                self.errInfo(u"创建关键词模板文件失败!")
 
     def errInfo(self, log, mode=0):
             self.multiText.SetDefaultStyle(wx.TextAttr("RED"))
