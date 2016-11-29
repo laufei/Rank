@@ -138,7 +138,7 @@ class rank_requests(base, Thread):
                             print "resultURL: ", resultURL
                         except Exception:
                             continue
-                        for kw in self.data.URLKeywords:
+                        for kw in self.URLKeywords:
                             if kw in resultTitle:
                                 print "穷游URL: ", resultURL
                                 self.output_Result(info="     点击结果页面第[%d]个链接: %s" % (index+1, resultURL))
@@ -229,7 +229,7 @@ class rank_requests(base, Thread):
                             resultURL = BS(str(searchResult[index])).findAll("a")[0]["href"]
                         except Exception:
                             continue
-                        for kw in self.data.URLKeywords:
+                        for kw in self.URLKeywords:
                             if kw in resultTitle:
                                 print "穷游URL: ", resultURL
                                 self.output_Result(info="     点击结果页面第[%d]个链接: %s" % (index+1, resultURL))

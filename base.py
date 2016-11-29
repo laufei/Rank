@@ -15,7 +15,7 @@ from wx.lib.pubsub import pub
 class base():
 
     def __init__(self, platform, proxyType, proxyConfig, isDriver=True, rand=True):
-        USER_AGENTS = [
+        USER_AGENTS_H5 = [
                 "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30",
                 "Mozilla/5.0 (iPhone; CPU iPhone OS 8_0 like Mac OS X) AppleWebKit/600.1.3 (KHTML, like Gecko) Version/8.0 Mobile/12A4345d Safari/600.1.4",
                 "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2725.0 Mobile Safari/537.36",
@@ -26,7 +26,13 @@ class base():
                 "Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/1.0 Mobile/12F69 Safari/600.1.4",
                 "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B137 Safari/601.1",
         ]
-        self.ua = USER_AGENTS[random.randint(0, len(USER_AGENTS)-1)]
+        USER_AGENTS_WEB = [
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.98 Safari/537.36",
+                "User-Agent,Mozilla/5.0 (Windows; U; Windows NT 6.1; en-us) AppleWebKit/534.50 (KHTML, like Gecko) Version/5.1 Safari/534.50",
+                "Mozilla/5.0 (compatible; WOW64; MSIE 10.0; Windows NT 6.2)",
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0.1 Safari/602.2.14",
+        ]
+        self.ua = USER_AGENTS_H5[random.randint(0, len(USER_AGENTS_H5)-1)] if platform == "M" else USER_AGENTS_WEB[random.randint(0, len(USER_AGENTS_WEB)-1)]
         self.proxy = self.getProxy(proxyType, proxyConfig, rand)
         if self.proxy and not "ERR" in self.proxy:
             try:
@@ -79,8 +85,7 @@ class base():
         headers = ""
         proxy = {}
         proxy["http"] = "http://"+self.proxy
-        if platform == "M":
-            headers = {"User-Agent": self.ua}
+        headers = {"User-Agent": self.ua}
         return requests.get(url, headers=headers, proxies=proxy, timeout=30).text
 
     def getDriver(self):
