@@ -85,7 +85,6 @@ class rank_requests(base, Thread):
                 self.output_Result(info="当前使用代理: %s" %self.baseobj.getProxyAddr())
                 # 1. 打开搜索页面并使用关键词搜索
                 baiduPage = self.baseobj.requests_url("Web", self.data.baidu_url_request_web % (key, 0))
-                print "baiduPage", baiduPage
                 if self.runType:
                     self.succTimeAll += 1   #总的成功执行数增1
                     wx.CallAfter(pub.sendMessage, "succTime", value=(self.succTimeAll))
@@ -105,7 +104,6 @@ class rank_requests(base, Thread):
                         # 如果是第一页的话，随机从前五中随机点击若干(1-self.randomNo_firstpage)个URL
                         soup = BS(baiduPage)
                         searchResult = soup.findAll(name="h3", attrs={"class": "t"}, limit=self.randomArea)
-                        print "searchResult", searchResult
                         # 按照比例随机点击URL，正序80%，乱序20%
                         ra = random.random()
                         if ra < self.radio_sorted:
@@ -133,14 +131,12 @@ class rank_requests(base, Thread):
                     for index in range(len(searchResult)):
                         try:
                             resultTitle = BS(str(searchResult[index])).findAll("a")[0].getText()
-                            print "resultTitle: ", resultTitle
                             resultURL = BS(str(searchResult[index])).findAll("a")[0]["href"]
-                            print "resultURL: ", resultURL
                         except Exception:
                             continue
                         for kw in self.URLKeywords:
                             if kw in resultTitle:
-                                print "穷游URL: ", resultURL
+                                # print "穷游URL: ", resultURL
                                 self.output_Result(info="     点击结果页面第[%d]个链接: %s" % (index+1, resultURL))
                                 try:
                                     self.baseobj.requests_url("Web", resultURL)
@@ -231,7 +227,7 @@ class rank_requests(base, Thread):
                             continue
                         for kw in self.URLKeywords:
                             if kw in resultTitle:
-                                print "穷游URL: ", resultURL
+                                # print "穷游URL: ", resultURL
                                 self.output_Result(info="     点击结果页面第[%d]个链接: %s" % (index+1, resultURL))
                                 try:
                                     self.baseobj.requests_url("M", resultURL)
