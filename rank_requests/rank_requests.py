@@ -89,9 +89,8 @@ class rank_requests(base, Thread):
                 self.output_Result(info="----------------------------------------------")
                 self.output_Result(info="当前使用代理: %s" %self.baseobj.getProxyAddr())
                 # 1. 打开搜索页面并使用关键词搜索
-                baiduPage = self.baseobj.requests_url("Web", self.data.baidu_url_request_web % (key, 0))
-                # print baiduPage
-                if self.runType:
+                baiduPage = self.baseobj.requests_url(self.data.baidu_url_request_web % (key, 0))
+                if 1 == self.runType:
                     self.succTimeAll += 1   #总的成功执行数增1
                     wx.CallAfter(pub.sendMessage, "succTime", value=(self.succTimeAll))
                     wx.CallAfter(pub.sendMessage, "process", value=((((process-1)*value)+runtime)*100)/(total*value))
@@ -120,12 +119,12 @@ class rank_requests(base, Thread):
                             self.output_Result(info="     点击结果页面第[%d]个链接" % (index+1))
                             try:
                                 resultURL = BS(str(searchResult[index])).findAll("a")[0]["href"]
-                                self.baseobj.requests_url("Web", resultURL)
+                                self.baseobj.requests_url(resultURL)
                             except Exception, e:
                                 self.output_Result(log="     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
                     else:
                         try:
-                            baiduPage = self.baseobj.requests_url("Web", self.data.baidu_url_request_web % (key, page*10))
+                            baiduPage = self.baseobj.requests_url(self.data.baidu_url_request_web % (key, page*10))
                         except Exception, e:
                             self.output_Result(log="     Oops，翻页失败...... T_T, %s" % str(e))
                             self.end()
@@ -145,7 +144,7 @@ class rank_requests(base, Thread):
                                 # print "穷游URL: ", resultURL
                                 self.output_Result(info="     点击结果页面第[%d]个链接: %s" % (index+1, resultURL))
                                 try:
-                                    self.baseobj.requests_url("Web", resultURL)
+                                    self.baseobj.requests_url(resultURL)
                                     found = True
                                     succtime += 1
                                     break
@@ -181,9 +180,8 @@ class rank_requests(base, Thread):
                 self.output_Result(info="----------------------------------------------")
                 self.output_Result(info="当前使用代理: %s" %self.baseobj.getProxyAddr())
                 # 1. 打开搜索页面并使用关键词搜索
-                baiduPage = self.baseobj.requests_url("M", self.data.baidu_url_request_m % (key, 0))
-                # print baiduPage
-                if self.runType:
+                baiduPage = self.baseobj.requests_url(self.data.baidu_url_request_m % (key, 0))
+                if 1 == self.runType:
                     self.succTimeAll += 1   #总的成功执行数增1
                     wx.CallAfter(pub.sendMessage, "succTime", value=(self.succTimeAll))
                     wx.CallAfter(pub.sendMessage, "process", value=((((process-1)*value)+runtime)*100)/(total*value))
@@ -212,12 +210,12 @@ class rank_requests(base, Thread):
                             self.output_Result(info="     点击结果页面第[%d]个链接" % (index+1))
                             try:
                                 resultURL = BS(str(searchResult[index])).findAll("a")[0]["href"]
-                                self.baseobj.requests_url("M", resultURL)
+                                self.baseobj.requests_url(resultURL)
                             except Exception, e:
                                 self.output_Result(log="     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
                     else:
                         try:
-                            baiduPage = self.baseobj.requests_url("M", self.data.baidu_url_request_m % (key, page*10))
+                            baiduPage = self.baseobj.requests_url(self.data.baidu_url_request_m % (key, page*10))
                         except Exception, e:
                             self.output_Result(log="     Oops，翻页失败...... T_T, %s" % str(e))
                             self.end()
@@ -237,7 +235,7 @@ class rank_requests(base, Thread):
                                 # print "穷游URL: ", resultURL
                                 self.output_Result(info="     点击结果页面第[%d]个链接: %s" % (index+1, resultURL))
                                 try:
-                                    self.baseobj.requests_url("M", resultURL)
+                                    self.baseobj.requests_url(resultURL)
                                     found = True
                                     succtime += 1
                                     break

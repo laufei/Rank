@@ -11,10 +11,10 @@ from data.data import data
 
 class wxRank(wx.Frame):
     def __init__(self):
-        wx.Frame.__init__(self, parent=None, title='刷搜索排名小工具 v2.0', size=(840, 560), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
+        wx.Frame.__init__(self, parent=None, title='刷搜索排名小工具 v2.0', size=(840, 640), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
         self.data = data()
         self.keyworks, self.urlkw, self.proxyType, self.proxyConfig = "", "", "", ""
-        self.proValue, self.spend = 0, 0
+        self.func, self.proValue, self.spend = 0, 0, 0
         self.update()
         self.Bind(wx.EVT_CLOSE, self.OnClickStop)
         # 创建定时器
@@ -39,20 +39,23 @@ class wxRank(wx.Frame):
             程序会在该app所在路径下生成日志文件: Result.txt
         '''
         self.font = wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL, False)
+        # 功能选择
+        fcm = wx.StaticBox(self, -1, u"▼ 功能选择:")
+        self.runTypeBtn = wx.ToggleButton(self, -1, label=u'只刷指数', size=(120, 21))
+        self.getRankBtn = wx.ToggleButton(self, -1, label=u'获取排名', size=(120, 21))
         # 选择搜索引擎: baidu, sm, sogou
-        sm = wx.StaticBox(self, -1, u"搜索平台:")
+        sm = wx.StaticBox(self, -1, u"▼ 搜索平台:")
         spfList = ["Baidu", "SM", "Sogou"]
         self.rb_splatform = wx.RadioBox(self, -1, "", wx.DefaultPosition, (110,80), spfList, 3, wx.SL_VERTICAL)
         # 选择平台：web，h5
-        dm = wx.StaticBox(self, -1, u"运行平台:")
+        dm = wx.StaticBox(self, -1, u"▼ 运行平台:")
         pfList = ["H5", "Web"]
         self.rb_platform = wx.RadioBox(self, -1, "", wx.DefaultPosition, (110,80), pfList, 3, wx.SL_VERTICAL)
         # 配置目标页面关键词
-        tm = wx.StaticBox(self, -1, u"目标页面标题包含关键词:")
-        self.runTypeBtn = wx.ToggleButton(self, -1, label=u'只刷指数', size=(80, 21))
-        self.target_kw = wx.TextCtrl(self, -1, value=u"穷游网", size=(160, 21))
+        tm = wx.StaticBox(self, -1, u"▼ 目标页面标题包含关键词:")
+        self.target_kw = wx.TextCtrl(self, -1, value=u"穷游网", size=(250, 21))
         # 选择keywords文件
-        fm = wx.StaticBox(self, -1, u"关键词文件路径:")
+        fm = wx.StaticBox(self, -1, u"▼ 关键词文件路径:")
         self.kwText = wx.TextCtrl(self, -1, value=u"点击右侧按钮选择文件...", size=(198, 21))
         self.kwText.Disable()
         self.kwText.SetFont(self.font)
@@ -61,14 +64,14 @@ class wxRank(wx.Frame):
         self.tmpBtn = wx.Button(self, label='+', size=(30, 21))
         self.Bind(wx.EVT_BUTTON, self.OnCreateTmpFile, self.tmpBtn)
         # 关键词运行次数
-        rm = wx.StaticBox(self, -1, u"运行次数:")
+        rm = wx.StaticBox(self, -1, u"▼ 运行次数:")
         self.runTime = wx.CheckBox(self, -1, u"是否统一配置?  运行次数:")
         self.runText = wx.TextCtrl(self, -1, size=(65, 21))
         self.runText.SetEditable(False)
         self.runText.SetValue("10")
         self.Bind(wx.EVT_CHECKBOX, self.EvtCheckBox_RT, self.runTime)
         # 选择代理方式：dns, api，txt
-        pm = wx.StaticBox(self, -1, u"代理方式:")
+        pm = wx.StaticBox(self, -1, u"▼ 代理方式:")
         sampleList = ["Local", "API", "TXT"]
         self.rb_proxy = wx.RadioBox(self, -1, "", wx.DefaultPosition, wx.DefaultSize, sampleList, 3)
         self.proxyType = self.rb_proxy.GetItemLabel(self.rb_proxy.GetSelection())
@@ -81,8 +84,8 @@ class wxRank(wx.Frame):
         self.proxyText.SetFont(self.font)
 
         # 运行log
-        om = wx.StaticBox(self, -1, u"运行日志:")
-        self.multiText = wx.TextCtrl(self, -1, value=self.note, size=(480, 400), style=wx.TE_MULTILINE|wx.TE_READONLY)
+        om = wx.StaticBox(self, -1, u"▼ 运行日志:")
+        self.multiText = wx.TextCtrl(self, -1, value=self.note, size=(480, 480), style=wx.TE_MULTILINE|wx.TE_READONLY)
         self.multiText.SetInsertionPoint(0)
         # 版权模块
         self.copyRight = wx.StaticText(self, -1, u"©️LiuFei", style=1)
@@ -104,12 +107,14 @@ class wxRank(wx.Frame):
         vbox = wx.BoxSizer(wx.HORIZONTAL)
         leftbox = wx.BoxSizer(wx.VERTICAL)
         sbmbox = wx.BoxSizer(wx.HORIZONTAL)
+        funcbox = wx.StaticBoxSizer(fcm, wx.HORIZONTAL)
+        funcbox.Add(self.runTypeBtn, 0, wx.ALL, 5)
+        funcbox.Add(self.getRankBtn, 0, wx.ALL, 5)
         searchbox = wx.StaticBoxSizer(sm, wx.HORIZONTAL)
         searchbox.Add(self.rb_splatform, 0, wx.ALL, 5)
         driverbox = wx.StaticBoxSizer(dm, wx.HORIZONTAL)
         driverbox.Add(self.rb_platform, 0, wx.ALL, 5)
         targetbox = wx.StaticBoxSizer(tm, wx.HORIZONTAL)
-        targetbox.Add(self.runTypeBtn, 0, wx.ALL, 5)
         targetbox.Add(self.target_kw, 0, wx.ALL, 5)
         filebox = wx.StaticBoxSizer(fm, wx.HORIZONTAL)
         filebox.Add(self.kwText, 0, wx.ALIGN_LEFT, 5)
@@ -120,6 +125,7 @@ class wxRank(wx.Frame):
         runBox.Add(self.runText, 0, wx.ALL, 5)
         sbmbox.Add(searchbox, 0, wx.ALIGN_LEFT, 5)
         sbmbox.Add(driverbox, 0, wx.ALIGN_RIGHT, 5)
+        leftbox.Add(funcbox, 0, wx.ALL, 5)
         leftbox.Add(sbmbox, 0, wx.ALL, 5)
         leftbox.Add(targetbox, 0, wx.ALL, 5)
         leftbox.Add(filebox, 0, wx.ALL, 5)
@@ -211,6 +217,7 @@ class wxRank(wx.Frame):
         self.rb_platform.Disable()
         self.target_kw.Disable()
         self.runTypeBtn.Disable()
+        self.getRankBtn.Disable()
         self.kwBtn.Disable()
         self.tmpBtn.Disable()
         self.runTime.Disable()
@@ -224,6 +231,7 @@ class wxRank(wx.Frame):
         self.rb_platform.Enable()
         self.target_kw.Enable()
         self.runTypeBtn.Enable()
+        self.getRankBtn.Enable()
         self.kwBtn.Enable()
         self.tmpBtn.Enable()
         self.runTime.Enable()
@@ -246,16 +254,25 @@ class wxRank(wx.Frame):
 
     def OnClickTXT(self, evt):
         self.proxyText.Disable()
-        # self.proxyText.SetValue(u"点击右侧按钮选择文件...")
-        self.proxyText.SetValue(self.data.proxy_txt)
+        self.proxyText.SetValue(u"点击右侧按钮选择文件...")
         self.proxyTextBtn.Show()
         self.Layout()
 
     def OnClickRun(self, evt):
-        runtime = 0
+        self.spend, runtime = 0, 0
+        # 如果功能按钮: 只刷指数和获取排名同时开启的话, 提示错误
+        runType = self.runTypeBtn.GetValue()
+        getRank = self.getRankBtn.GetValue()
+        if runType and getRank:
+            self.errInfo(u'功能选择中, "只刷指数"和"获取排名"只能选择其中之一. ')
+            return
+        self.func = (1 if runType else 2 if getRank else 0)
+        # TODO: 支持获取排名
+        if 2 == self.func:
+            self.errInfo(u"目前还不支持获取排名功能, 咳咳~!")
+            return
         # 如果未填写targetURLkw, 提示错误
         self.urlkw = self.target_kw.GetValue().strip()
-        self.runType = self.runTypeBtn.GetValue()
         if (not self.urlkw and not self.runType):
             self.errInfo(u"请填写目标页面标题关键字, 并以半角英文分隔!")
             return
@@ -286,7 +303,7 @@ class wxRank(wx.Frame):
         from rank_requests import rank_requests
         searcher = self.EvtRadioBox_SPF(evt)
         platform = self.EvtRadioBox_PF(evt)
-        self.rankObj = rank_requests(searcher, platform, self.proxyType, self.proxyConfig, self.keyworks, self.urlkw, self.runType, int(runtime))
+        self.rankObj = rank_requests(searcher, platform, self.proxyType, self.proxyConfig, self.keyworks, self.urlkw, self.func, int(runtime))
 
     def OnClickStop(self, evt):
         ret = wx.MessageBox(u"确定要关闭吗?", "", wx.YES_NO)

@@ -52,6 +52,11 @@ class base():
             self.config = config(platform, self.proxy)
             self.driver = self.config.driver
 
+        self.session = requests.session()
+
+    def getSession(self):
+        return self.session
+
     def getProxyAddr(self):
         return self.proxy
 
@@ -85,12 +90,11 @@ class base():
             return proxyaddr[random.randint(0, len(proxyaddr)-1)]
         return proxyaddr
 
-    def requests_url(self, platform, url):
-        headers = ""
+    def requests_url(self, url):
         proxy = {}
         proxy["http"] = "http://"+self.proxy
         headers = {"User-Agent": self.ua}
-        return requests.get(url, headers=headers, proxies=proxy, timeout=30).text
+        return self.getSession().get(url, headers=headers, proxies=proxy, timeout=20).text
 
     def getDriver(self):
         return self.driver

@@ -1,10 +1,10 @@
 # -*- mode: python -*-
 
 block_cipher = None
-APP_NAME = 'rank'
+APP_NAME = 'Ranker'
 
 a = Analysis(['wxrank_requests.py'],
-             pathex=['/Users/luca/PycharmProjects/Rank'],
+             pathex=['/Users/luca/PycharmProjects/Rank/rank_requests'],
              binaries=None,
              datas=None,
              hiddenimports=["BeautifulSoup", "requests"],
@@ -26,7 +26,7 @@ exe = EXE(pyz,
           strip=False,
           upx=True,
           console=False,
-          icon='src/icon.ico')
+          icon='../src/icon.ico')
 
 app = BUNDLE(exe,
              name='rank.app',
