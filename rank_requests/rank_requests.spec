@@ -29,8 +29,8 @@ exe = EXE(pyz,
           icon='../src/icon.ico')
 
 app = BUNDLE(exe,
-             name='rank.app',
-             icon='src/icon.ico',
+             name='Ranker.app',
+             icon='../src/icon.ico',
              bundle_identifier=None,
              info_plist={
                 'CFBundleName': APP_NAME,

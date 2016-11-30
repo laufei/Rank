@@ -1,14 +1,14 @@
 # -*- mode: python -*-
 
 block_cipher = None
-APP_NAME = 'rank'
+APP_NAME = 'Ranker'
 added_files = [
-            ('drivers/geckodriver-v0.11.1-macos.tar.gz', '.'),
-            ('drivers/chromedriver_mac64.tar.gz', '.'),
+            ('../drivers/geckodriver-v0.11.1-macos.tar.gz', '.'),
+            ('../drivers/chromedriver_mac64.tar.gz', '.'),
             ('src', 'src')
             ]
 a = Analysis(['wxrank.py'],
-             pathex=['/Users/luca/PycharmProjects/Rank'],
+             pathex=['/Users/luca/PycharmProjects/Rank/rank'],
              binaries=None,
              datas=added_files,
              hiddenimports=["selenium", "requests"],
@@ -30,11 +30,11 @@ exe = EXE(pyz,
           strip=False,
           upx=True,
           console=False,
-          icon='src/icon.ico')
+          icon='../src/icon.ico')
 
 app = BUNDLE(exe,
-             name='rank.app',
-             icon='src/icon.ico',
+             name='Ranker.app',
+             icon='../src/icon.ico',
              bundle_identifier=None,
              info_plist={
                 'CFBundleName': APP_NAME,
