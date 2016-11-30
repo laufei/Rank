@@ -4,7 +4,7 @@ block_cipher = None
 APP_NAME = 'Ranker'
 
 a = Analysis(['wxrank_requests.py'],
-             pathex=['/Users/luca/PycharmProjects/Rank/rank_requests'],
+             pathex=['/Users/luca/PycharmProjects/Rank/rank_req'],
              binaries=None,
              datas=None,
              hiddenimports=["BeautifulSoup", "requests"],

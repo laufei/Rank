@@ -5,16 +5,15 @@ import os
 
 import wx
 from wx.lib.pubsub import pub
-
 from data.data import data
-
+from rank_req.rank_requests import rank_requests
 
 class wxRank(wx.Frame):
     def __init__(self):
         wx.Frame.__init__(self, parent=None, title='刷搜索排名小工具 v2.0', size=(840, 640), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
         self.data = data()
         self.keyworks, self.urlkw, self.proxyType, self.proxyConfig = "", "", "", ""
-        self.func, self.proValue, self.spend = 0, 0, 0
+        self.proValue, self.spend = 0, 0
         self.update()
         self.Bind(wx.EVT_CLOSE, self.OnClickStop)
         # 创建定时器
@@ -266,9 +265,9 @@ class wxRank(wx.Frame):
         if runType and getRank:
             self.errInfo(u'功能选择中, "只刷指数"和"获取排名"只能选择其中之一. ')
             return
-        self.func = (1 if runType else 2 if getRank else 0)
+        func = (1 if runType else 2 if getRank else 0)
         # TODO: 支持获取排名
-        if 2 == self.func:
+        if 2 == func:
             self.errInfo(u"目前还不支持获取排名功能, 咳咳~!")
             return
         # 如果未填写targetURLkw, 提示错误
@@ -299,11 +298,9 @@ class wxRank(wx.Frame):
         evt.GetEventObject().Disable()
         self.DisableOnRun()
         self.OnStart()
-
-        from rank_requests import rank_requests
         searcher = self.EvtRadioBox_SPF(evt)
         platform = self.EvtRadioBox_PF(evt)
-        self.rankObj = rank_requests(searcher, platform, self.proxyType, self.proxyConfig, self.keyworks, self.urlkw, self.func, int(runtime))
+        self.rankObj = rank_requests(searcher, platform, self.proxyType, self.proxyConfig, self.keyworks, self.urlkw, func, int(runtime))
 
     def OnClickStop(self, evt):
         ret = wx.MessageBox(u"确定要关闭吗?", "", wx.YES_NO)

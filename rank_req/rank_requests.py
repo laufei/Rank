@@ -5,9 +5,7 @@ from threading import Thread
 
 import wx
 from BeautifulSoup import BeautifulSoup as BS
-
 from wx.lib.pubsub import pub
-
 from lib.base import base
 from data.data import data
 
