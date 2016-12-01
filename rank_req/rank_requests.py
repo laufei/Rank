@@ -38,7 +38,7 @@ class rank_requests(base, Thread):
     def run(self):
         self.getMethod(self.searcher, self.platform)
         wx.CallAfter(pub.sendMessage, "reset")
-        wx.CallAfter(self.output_Result, log="[All Done]")
+        wx.CallAfter(self.output_Result, log="[All Done] 运行结果请查看日志文件: Result.txt")
 
     def getPlatform(self):
         return "h5" if self.platform == 0 else "web"
@@ -62,8 +62,11 @@ class rank_requests(base, Thread):
 
     def begin(self):
         # 实例化
+        isProxy = True
+        if 2 == self.runType:
+            isProxy = False
         try:
-            self.baseobj = base(self.getPlatform(), self.proxyType, self.proxyConfig, False)
+            self.baseobj = base(self.getPlatform(), self.proxyType, self.proxyConfig, self.runType, isProxy, False)
         except Exception, e:
             self.output_Result(info=str(e))
             wx.CallAfter(pub.sendMessage, "reset")
@@ -85,7 +88,8 @@ class rank_requests(base, Thread):
                 runtime += 1
                 self.begin()
                 self.output_Result(info="----------------------------------------------")
-                self.output_Result(info="当前使用代理: %s" %self.baseobj.getProxyAddr())
+                if 2 != self.runType:
+                    self.output_Result(info="当前使用代理: %s" %self.baseobj.getProxyAddr())
                 # 1. 打开搜索页面并使用关键词搜索
                 baiduPage = self.baseobj.requests_url(self.data.baidu_url_request_web % (key, 0))
                 if 1 == self.runType:
@@ -103,7 +107,7 @@ class rank_requests(base, Thread):
                 for page in range(self.PagesCount):
                     found = False   # 定位到关键词排名后，跳出循环标志位
                     self.output_Result(info="     搜索结果页面翻到第[%d]页" % (page+1))
-                    if page == 0:
+                    if page == 0 and self.runType == 0:
                         # 如果是第一页的话，随机从前五中随机点击若干(1-self.randomNo_firstpage)个URL
                         soup = BS(baiduPage)
                         searchResult = soup.findAll(name="h3", attrs={"class": "t"}, limit=self.randomArea)
@@ -121,12 +125,13 @@ class rank_requests(base, Thread):
                             except Exception, e:
                                 self.output_Result(log="     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
                     else:
-                        try:
-                            baiduPage = self.baseobj.requests_url(self.data.baidu_url_request_web % (key, page*10))
-                        except Exception, e:
-                            self.output_Result(log="     Oops，翻页失败...... T_T, %s" % str(e))
-                            self.end()
-                            continue
+                        if page > 0:
+                            try:
+                                baiduPage = self.baseobj.requests_url(self.data.baidu_url_request_web % (key, page*10))
+                            except Exception, e:
+                                self.output_Result(log="     Oops，翻页失败...... T_T, %s" % str(e))
+                                self.end()
+                                continue
 
                     # 3. 遍历结果页面中的跳转URL，并点击结果URL
                     soup = BS(baiduPage)
@@ -140,6 +145,11 @@ class rank_requests(base, Thread):
                         for kw in self.URLKeywords:
                             if kw in resultTitle:
                                 # print "穷游URL: ", resultURL
+                                if self.runType == 2:       # 如果只是查询排名, 执行到这里结束
+                                    self.output_Result(info="     关键字位于第[%d]页，第[%d]个链接" % (page+1, index+1))
+                                    found = True
+                                    succtime += 1
+                                    break
                                 self.output_Result(info="     点击结果页面第[%d]个链接: %s" % (index+1, resultURL))
                                 try:
                                     self.baseobj.requests_url(resultURL)
@@ -161,7 +171,8 @@ class rank_requests(base, Thread):
                     wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
                 except ZeroDivisionError:
                     pass
-            self.output_Result(info="当前关键词，成功点击%d次" % succtime)
+            if self.runType == 0:
+                self.output_Result(info="当前关键词，成功点击%d次" % succtime)
 
     def rank_baidu_m(self):
         process = 0         # process: 记录已执行到第几个关键词
@@ -176,7 +187,8 @@ class rank_requests(base, Thread):
                 runtime += 1
                 self.begin()
                 self.output_Result(info="----------------------------------------------")
-                self.output_Result(info="当前使用代理: %s" %self.baseobj.getProxyAddr())
+                if 2 != self.runType:
+                    self.output_Result(info="当前使用代理: %s" %self.baseobj.getProxyAddr())
                 # 1. 打开搜索页面并使用关键词搜索
                 baiduPage = self.baseobj.requests_url(self.data.baidu_url_request_m % (key, 0))
                 if 1 == self.runType:
@@ -194,7 +206,7 @@ class rank_requests(base, Thread):
                 for page in range(self.PagesCount):
                     found = False   # 定位到关键词排名后，跳出循环标志位
                     self.output_Result(info="     搜索结果页面翻到第[%d]页" % (page+1))
-                    if page == 0:
+                    if page == 0 and self.runType == 0:
                         # 如果是第一页的话，随机从前五中随机点击若干(1-self.randomNo_firstpage)个URL
                         soup = BS(baiduPage)
                         searchResult = soup.findAll(name="div", attrs={"class": "c-container"}, limit=self.randomArea)
@@ -212,12 +224,13 @@ class rank_requests(base, Thread):
                             except Exception, e:
                                 self.output_Result(log="     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
                     else:
-                        try:
-                            baiduPage = self.baseobj.requests_url(self.data.baidu_url_request_m % (key, page*10))
-                        except Exception, e:
-                            self.output_Result(log="     Oops，翻页失败...... T_T, %s" % str(e))
-                            self.end()
-                            continue
+                        if page > 0:
+                            try:
+                                baiduPage = self.baseobj.requests_url(self.data.baidu_url_request_m % (key, page*10))
+                            except Exception, e:
+                                self.output_Result(log="     Oops，翻页失败...... T_T, %s" % str(e))
+                                self.end()
+                                continue
 
                     # 3. 遍历结果页面中的跳转URL，并点击结果URL
                     soup = BS(baiduPage)
@@ -231,6 +244,11 @@ class rank_requests(base, Thread):
                         for kw in self.URLKeywords:
                             if kw in resultTitle:
                                 # print "穷游URL: ", resultURL
+                                if self.runType == 2:       # 如果只是查询排名, 执行到这里结束
+                                    self.output_Result(info="     关键字位于第[%d]页，第[%d]个链接" % (page+1, index+1))
+                                    found = True
+                                    succtime += 1
+                                    break
                                 self.output_Result(info="     点击结果页面第[%d]个链接: %s" % (index+1, resultURL))
                                 try:
                                     self.baseobj.requests_url(resultURL)
@@ -252,7 +270,8 @@ class rank_requests(base, Thread):
                     wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
                 except ZeroDivisionError:
                     pass
-            self.output_Result(info="当前关键词，成功点击%d次" % succtime)
+            if self.runType == 0:
+                self.output_Result(info="当前关键词，成功点击%d次" % succtime)
 
     def rank_sm_web(self):
         wx.CallAfter(self.output_Result, log="该功能尚未支持!")
