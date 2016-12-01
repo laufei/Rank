@@ -18,7 +18,7 @@ from data.data import data
 
 class base():
 
-    def __init__(self, platform, proxyType, proxyConfig, isDriver=True, rand=True):
+    def __init__(self, platform, proxyType, proxyConfig, runType, isDriver=True, rand=True):
         USER_AGENTS_H5 = [
                 "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30",
                 "Mozilla/5.0 (iPhone; CPU iPhone OS 8_0 like Mac OS X) AppleWebKit/600.1.3 (KHTML, like Gecko) Version/8.0 Mobile/12A4345d Safari/600.1.4",
@@ -56,11 +56,11 @@ class base():
             self.proxy = "获取代理失败, 请检查代理配置!"
 
         print "当前使用的代理服务器：%s" % self.proxy
+        self.runType = runType
         self.data = data()
         if isDriver:
             self.config = config(platform, self.proxy)
             self.driver = self.config.driver
-
         self.session = requests.session()
 
     def getSession(self):
@@ -99,11 +99,14 @@ class base():
             return proxyaddr[random.randint(0, len(proxyaddr)-1)]
         return proxyaddr
 
-    def requests_url(self, url):
+    def requests_url(self, url, timeout=20):
         proxy = {}
         proxy["http"] = "http://"+self.proxy
         headers = {"User-Agent": self.ua}
-        return self.getSession().get(url, headers=headers, proxies=proxy, timeout=20).text
+        if 0 == self.runType:
+            return self.getSession().get(url, headers=headers, proxies=proxy, timeout=timeout).text
+        else:
+            return requests.get(url, headers=headers, proxies=proxy, timeout=timeout).text
 
     def getDriver(self):
         return self.driver

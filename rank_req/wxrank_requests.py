@@ -266,10 +266,6 @@ class wxRank(wx.Frame):
             self.errInfo(u'功能选择中, "只刷指数"和"获取排名"只能选择其中之一. ')
             return
         func = (1 if runType else 2 if getRank else 0)
-        # TODO: 支持获取排名
-        if 2 == func:
-            self.errInfo(u"目前还不支持获取排名功能, 咳咳~!")
-            return
         # 如果未填写targetURLkw, 提示错误
         self.urlkw = self.target_kw.GetValue().strip()
         if (not self.urlkw and not self.runType):
@@ -288,6 +284,8 @@ class wxRank(wx.Frame):
             if (not runtime) or (not runtime.isdigit()) or (not int(runtime)):
                 self.errInfo(u"运行次数配置有误!")
                 return
+        if func == 2:       # 如果选择获取排名功能, 执行次数固定设置为1
+            runtime = 1
         # 如果代理配置为空, 提示错误
         if self.proxyConfig == "" or self.proxyConfig == u"点击右侧按钮选择文件...":
             self.errInfo(u"代理设置不能为空!")
