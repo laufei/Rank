@@ -38,7 +38,7 @@ class rank_requests(base, Thread):
     def run(self):
         self.getMethod(self.searcher, self.platform)
         wx.CallAfter(pub.sendMessage, "reset")
-        wx.CallAfter(self.output_Result, log="[All Done]")
+        wx.CallAfter(self.output_Result, log="[All Done] 运行结果请查看日志文件: Result.txt")
 
     def getPlatform(self):
         return "h5" if self.platform == 0 else "web"
@@ -62,8 +62,11 @@ class rank_requests(base, Thread):
 
     def begin(self):
         # 实例化
+        isProxy = True
+        if 2 == self.runType:
+            isProxy = False
         try:
-            self.baseobj = base(self.getPlatform(), self.proxyType, self.proxyConfig, self.runType, False)
+            self.baseobj = base(self.getPlatform(), self.proxyType, self.proxyConfig, self.runType, isProxy, False)
         except Exception, e:
             self.output_Result(info=str(e))
             wx.CallAfter(pub.sendMessage, "reset")
@@ -85,7 +88,8 @@ class rank_requests(base, Thread):
                 runtime += 1
                 self.begin()
                 self.output_Result(info="----------------------------------------------")
-                self.output_Result(info="当前使用代理: %s" %self.baseobj.getProxyAddr())
+                if 2 != self.runType:
+                    self.output_Result(info="当前使用代理: %s" %self.baseobj.getProxyAddr())
                 # 1. 打开搜索页面并使用关键词搜索
                 baiduPage = self.baseobj.requests_url(self.data.baidu_url_request_web % (key, 0))
                 if 1 == self.runType:
@@ -183,7 +187,8 @@ class rank_requests(base, Thread):
                 runtime += 1
                 self.begin()
                 self.output_Result(info="----------------------------------------------")
-                self.output_Result(info="当前使用代理: %s" %self.baseobj.getProxyAddr())
+                if 2 != self.runType:
+                    self.output_Result(info="当前使用代理: %s" %self.baseobj.getProxyAddr())
                 # 1. 打开搜索页面并使用关键词搜索
                 baiduPage = self.baseobj.requests_url(self.data.baidu_url_request_m % (key, 0))
                 if 1 == self.runType:

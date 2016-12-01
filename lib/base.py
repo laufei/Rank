@@ -18,7 +18,7 @@ from data.data import data
 
 class base():
 
-    def __init__(self, platform, proxyType, proxyConfig, runType, isDriver=True, rand=True):
+    def __init__(self, platform, proxyType, proxyConfig, runType, isProxy=True, isDriver=True, rand=True):
         USER_AGENTS_H5 = [
                 "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30",
                 "Mozilla/5.0 (iPhone; CPU iPhone OS 8_0 like Mac OS X) AppleWebKit/600.1.3 (KHTML, like Gecko) Version/8.0 Mobile/12A4345d Safari/600.1.4",
@@ -46,16 +46,18 @@ class base():
                 "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0.1 Safari/602.2.14",
         ]
         self.ua = USER_AGENTS_H5[random.randint(0, len(USER_AGENTS_H5)-1)] if platform == "M" else USER_AGENTS_WEB[random.randint(0, len(USER_AGENTS_WEB)-1)]
-        self.proxy = self.getProxy(proxyType, proxyConfig, rand)
-        if self.proxy and not "ERR" in self.proxy:
-            try:
-                self.proxy.split(":")
-            except:
+        self.isProxy = isProxy
+        if self.isProxy:
+            self.proxy = self.getProxy(proxyType, proxyConfig, rand)
+            if self.proxy and not "ERR" in self.proxy:
+                try:
+                    self.proxy.split(":")
+                except:
+                    self.proxy = "获取代理失败, 请检查代理配置!"
+            else:
                 self.proxy = "获取代理失败, 请检查代理配置!"
-        else:
-            self.proxy = "获取代理失败, 请检查代理配置!"
+            print "当前使用的代理服务器：%s" % self.proxy
 
-        print "当前使用的代理服务器：%s" % self.proxy
         self.runType = runType
         self.data = data()
         if isDriver:
@@ -101,7 +103,8 @@ class base():
 
     def requests_url(self, url, timeout=20):
         proxy = {}
-        proxy["http"] = "http://"+self.proxy
+        if self.isProxy:
+            proxy["http"] = "http://"+self.proxy
         headers = {"User-Agent": self.ua}
         if 0 == self.runType:
             return self.getSession().get(url, headers=headers, proxies=proxy, timeout=timeout).text
