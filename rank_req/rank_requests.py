@@ -38,7 +38,7 @@ class rank_requests(base, Thread):
     def run(self):
         self.getMethod(self.searcher, self.platform)
         wx.CallAfter(pub.sendMessage, "reset")
-        wx.CallAfter(self.output_Result, log="[All Done] 运行结果请查看日志文件: Result.txt")
+        wx.CallAfter(self.output_Result, log=u"[All Done] 运行结果请查看日志文件: Result.txt")
 
     def getPlatform(self):
         return "h5" if self.platform == 0 else "web"
@@ -83,13 +83,13 @@ class rank_requests(base, Thread):
             total = len(self.SearchKeywords)
             key = kw[0]
             value = (kw[1] if not self.Runtime else self.Runtime)
-            self.output_Result(info="【%d/%d】：当前关键词 - %s" % (process, total, key))
+            self.output_Result(info=u"【%d/%d】：当前关键词 - %s" % (process, total, key))
             for click in range(value):
                 runtime += 1
                 self.begin()
                 self.output_Result(info="----------------------------------------------")
                 if 2 != self.runType:
-                    self.output_Result(info="当前使用代理: %s" %self.baseobj.getProxyAddr())
+                    self.output_Result(info=u"当前使用代理: %s" %self.baseobj.getProxyAddr())
                 # 1. 打开搜索页面并使用关键词搜索
                 baiduPage = self.baseobj.requests_url(self.data.baidu_url_request_web % (key, 0))
                 if 1 == self.runType:
@@ -106,7 +106,7 @@ class rank_requests(base, Thread):
                 # 2. 翻页操作
                 for page in range(self.PagesCount):
                     found = False   # 定位到关键词排名后，跳出循环标志位
-                    self.output_Result(info="     搜索结果页面翻到第[%d]页" % (page+1))
+                    self.output_Result(info=u"     搜索结果页面翻到第[%d]页" % (page+1))
                     if page == 0 and self.runType == 0:
                         # 如果是第一页的话，随机从前五中随机点击若干(1-self.randomNo_firstpage)个URL
                         soup = BS(baiduPage)
@@ -118,18 +118,18 @@ class rank_requests(base, Thread):
                         else:
                             targets = random.sample(range(self.randomArea), random.sample(range(1, self.randomNo_firstpage+1), 1)[0])
                         for index in targets:
-                            self.output_Result(info="     点击结果页面第[%d]个链接" % (index+1))
+                            self.output_Result(info=u"     点击结果页面第[%d]个链接" % (index+1))
                             try:
                                 resultURL = BS(str(searchResult[index])).findAll("a")[0]["href"]
                                 self.baseobj.requests_url(resultURL)
                             except Exception, e:
-                                self.output_Result(log="     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
+                                self.output_Result(log=u"     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
                     else:
                         if page > 0:
                             try:
                                 baiduPage = self.baseobj.requests_url(self.data.baidu_url_request_web % (key, page*10))
                             except Exception, e:
-                                self.output_Result(log="     Oops，翻页失败...... T_T, %s" % str(e))
+                                self.output_Result(log=u"     Oops，翻页失败...... T_T, %s" % str(e))
                                 self.end()
                                 continue
 
@@ -146,18 +146,18 @@ class rank_requests(base, Thread):
                             if kw in resultTitle:
                                 # print "穷游URL: ", resultURL
                                 if self.runType == 2:       # 如果只是查询排名, 执行到这里结束
-                                    self.output_Result(info="     关键字位于第[%d]页，第[%d]个链接" % (page+1, index+1))
+                                    self.output_Result(info=u"     关键字位于第[%d]页，第[%d]个链接" % (page+1, index+1))
                                     found = True
                                     succtime += 1
                                     break
-                                self.output_Result(info="     点击结果页面第[%d]个链接: %s" % (index+1, resultURL))
+                                self.output_Result(info=u"     点击结果页面第[%d]个链接: %s" % (index+1, resultURL))
                                 try:
                                     self.baseobj.requests_url(resultURL)
                                     found = True
                                     succtime += 1
                                     break
                                 except Exception, e:
-                                    self.output_Result(log="     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
+                                    self.output_Result(log=u"     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
                             if found:
                                 break
                     if found:
@@ -172,7 +172,7 @@ class rank_requests(base, Thread):
                 except ZeroDivisionError:
                     pass
             if self.runType == 0:
-                self.output_Result(info="当前关键词，成功点击%d次" % succtime)
+                self.output_Result(info=u"当前关键词，成功点击%d次" % succtime)
 
     def rank_baidu_m(self):
         process = 0         # process: 记录已执行到第几个关键词
@@ -182,13 +182,13 @@ class rank_requests(base, Thread):
             total = len(self.SearchKeywords)
             key = kw[0]
             value = (kw[1] if not self.Runtime else self.Runtime)
-            self.output_Result(info="【%d/%d】：当前关键词 - %s" % (process, total, key))
+            self.output_Result(info=u"【%d/%d】：当前关键词 - %s" % (process, total, key))
             for click in range(value):
                 runtime += 1
                 self.begin()
                 self.output_Result(info="----------------------------------------------")
                 if 2 != self.runType:
-                    self.output_Result(info="当前使用代理: %s" %self.baseobj.getProxyAddr())
+                    self.output_Result(info=u"当前使用代理: %s" %self.baseobj.getProxyAddr())
                 # 1. 打开搜索页面并使用关键词搜索
                 baiduPage = self.baseobj.requests_url(self.data.baidu_url_request_m % (key, 0))
                 if 1 == self.runType:
@@ -205,7 +205,7 @@ class rank_requests(base, Thread):
                 # 2. 翻页操作
                 for page in range(self.PagesCount):
                     found = False   # 定位到关键词排名后，跳出循环标志位
-                    self.output_Result(info="     搜索结果页面翻到第[%d]页" % (page+1))
+                    self.output_Result(info=u"     搜索结果页面翻到第[%d]页" % (page+1))
                     if page == 0 and self.runType == 0:
                         # 如果是第一页的话，随机从前五中随机点击若干(1-self.randomNo_firstpage)个URL
                         soup = BS(baiduPage)
@@ -217,18 +217,18 @@ class rank_requests(base, Thread):
                         else:
                             targets = random.sample(range(self.randomArea), random.sample(range(1, self.randomNo_firstpage+1), 1)[0])
                         for index in targets:
-                            self.output_Result(info="     点击结果页面第[%d]个链接" % (index+1))
+                            self.output_Result(info=u"     点击结果页面第[%d]个链接" % (index+1))
                             try:
                                 resultURL = BS(str(searchResult[index])).findAll("a")[0]["href"]
                                 self.baseobj.requests_url(resultURL)
                             except Exception, e:
-                                self.output_Result(log="     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
+                                self.output_Result(log=u"     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
                     else:
                         if page > 0:
                             try:
                                 baiduPage = self.baseobj.requests_url(self.data.baidu_url_request_m % (key, page*10))
                             except Exception, e:
-                                self.output_Result(log="     Oops，翻页失败...... T_T, %s" % str(e))
+                                self.output_Result(log=u"     Oops，翻页失败...... T_T, %s" % str(e))
                                 self.end()
                                 continue
 
@@ -245,18 +245,18 @@ class rank_requests(base, Thread):
                             if kw in resultTitle:
                                 # print "穷游URL: ", resultURL
                                 if self.runType == 2:       # 如果只是查询排名, 执行到这里结束
-                                    self.output_Result(info="     关键字位于第[%d]页，第[%d]个链接" % (page+1, index+1))
+                                    self.output_Result(info=u"     关键字位于第[%d]页，第[%d]个链接" % (page+1, index+1))
                                     found = True
                                     succtime += 1
                                     break
-                                self.output_Result(info="     点击结果页面第[%d]个链接: %s" % (index+1, resultURL))
+                                self.output_Result(info=u"     点击结果页面第[%d]个链接: %s" % (index+1, resultURL))
                                 try:
                                     self.baseobj.requests_url(resultURL)
                                     found = True
                                     succtime += 1
                                     break
                                 except Exception, e:
-                                    self.output_Result(log="     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
+                                    self.output_Result(log=u"     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
                             if found:
                                 break
                     if found:
@@ -271,16 +271,16 @@ class rank_requests(base, Thread):
                 except ZeroDivisionError:
                     pass
             if self.runType == 0:
-                self.output_Result(info="当前关键词，成功点击%d次" % succtime)
+                self.output_Result(info=u"当前关键词，成功点击%d次" % succtime)
 
     def rank_sm_web(self):
-        wx.CallAfter(self.output_Result, log="该功能尚未支持!")
+        wx.CallAfter(self.output_Result, log=u"该功能尚未支持!")
 
     def rank_sm_m(self):
-        wx.CallAfter(self.output_Result, log="该功能尚未支持!")
+        wx.CallAfter(self.output_Result, log=u"该功能尚未支持!")
 
     def rank_sogou_web(self):
-        wx.CallAfter(self.output_Result, log="该功能尚未支持!")
+        wx.CallAfter(self.output_Result, log=u"该功能尚未支持!")
 
     def rank_sogou_m(self):
-        wx.CallAfter(self.output_Result, log="该功能尚未支持!")
+        wx.CallAfter(self.output_Result, log=u"该功能尚未支持!")

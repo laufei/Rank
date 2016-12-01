@@ -10,7 +10,7 @@ from rank_req.rank_requests import rank_requests
 
 class wxRank(wx.Frame):
     def __init__(self):
-        wx.Frame.__init__(self, parent=None, title='刷搜索排名小工具 v2.0', size=(840, 640), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
+        wx.Frame.__init__(self, parent=None, title=u'刷搜索排名小工具 v2.0', size=(840, 640), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
         self.data = data()
         self.keyworks, self.urlkw, self.proxyType, self.proxyConfig = "", "", "", ""
         self.proValue, self.spend = 0, 0
@@ -41,7 +41,9 @@ class wxRank(wx.Frame):
         # 功能选择
         fcm = wx.StaticBox(self, -1, u"▼ 功能选择:")
         self.runTypeBtn = wx.ToggleButton(self, -1, label=u'只刷指数', size=(120, 21))
+        self.Bind(wx.EVT_TOGGLEBUTTON, self.OnClickRunTypeBtn, self.runTypeBtn)
         self.getRankBtn = wx.ToggleButton(self, -1, label=u'获取排名', size=(120, 21))
+        self.Bind(wx.EVT_TOGGLEBUTTON, self.OnClickGetRankBtn, self.getRankBtn)
         # 选择搜索引擎: baidu, sm, sogou
         sm = wx.StaticBox(self, -1, u"▼ 搜索平台:")
         spfList = ["Baidu", "SM", "Sogou"]
@@ -162,6 +164,7 @@ class wxRank(wx.Frame):
         mbox.Add(buttomBox, 0, wx.ALL, 5)
 
         self.SetSizer(mbox)
+        mbox.Fit(self)
         self.Show()
 
     def OnStart(self):
@@ -238,6 +241,24 @@ class wxRank(wx.Frame):
         self.rb_proxy.Enable()
         self.proxyTextBtn.Enable()
         self.proxyText.Enable()
+
+    def OnClickRunTypeBtn(self, evt):
+        if self.runTypeBtn.GetValue():
+            self.target_kw.Disable()
+        else:
+            self.target_kw.Enable()
+
+    def OnClickGetRankBtn(self, evt):
+        if self.getRankBtn.GetValue():
+            self.runTime.Disable()
+            self.runText.Disable()
+            self.rb_proxy.Disable()
+            self.proxyText.Disable()
+        else:
+            self.runTime.Enable()
+            self.runText.Enable()
+            self.rb_proxy.Enable()
+            self.proxyText.Enable()
 
     def OnClickAPI(self, evt):
         self.proxyText.Enable()
