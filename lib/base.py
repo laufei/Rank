@@ -62,8 +62,14 @@ class base():
             self.driver = self.config.driver
         self.session = requests.session()
 
+    def __del__(self):
+        self.clearCookies()
+
     def getSession(self):
         return self.session
+
+    def clearCookies(self):
+        self.session.cookies.clear()
 
     def getProxyAddr(self):
         return self.proxy

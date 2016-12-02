@@ -73,7 +73,7 @@ class rank_requests(base, Thread):
             exit("Failed to run~!")
 
     def end(self):
-            pass
+        pass
 
     def rank_baidu_web(self):
         process = 0         # process: 记录已执行到第几个关键词
