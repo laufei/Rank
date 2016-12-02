@@ -42,5 +42,4 @@ class data:
                     程序会在该app所在路径下生成日志文件: Result.txt
 
 
-                                                                                                        By LiuFei
                 '''
