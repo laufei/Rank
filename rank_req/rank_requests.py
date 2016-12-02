@@ -29,6 +29,8 @@ class rank_requests(base, Thread):
         self.PagesCount = 3     # 搜索结果页面中，遍历结果页面数量
         self.randomNo_firstpage = 2  # 首页最大随机点击URL数量
         self.randomArea = 5     # 首页随机点击URL范围
+        if runType == 1:
+            self.randomArea = 2 # 首页随机点击URL范围
         self.radio_sorted = 0.8  # 首页正序随机点击URL比例
 
         # 设置线程为后台线程, 并启动线程
