@@ -92,22 +92,12 @@ class rank_requests(base, Thread):
                     self.output_Result(info=u"当前使用代理: %s" %self.baseobj.getProxyAddr())
                 # 1. 打开搜索页面并使用关键词搜索
                 baiduPage = self.baseobj.requests_url(self.data.baidu_url_request_web % (key, 0))
-                if 1 == self.runType:
-                    self.succTimeAll += 1   #总的成功执行数增1
-                    wx.CallAfter(pub.sendMessage, "succTime", value=(self.succTimeAll))
-                    wx.CallAfter(pub.sendMessage, "process", value=((((process-1)*value)+runtime)*100)/(total*value))
-                    try:
-                        self.succRatio = '%.2f' % (self.succTimeAll/float((process-1)*value+runtime))
-                        wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
-                    except ZeroDivisionError:
-                        pass
-                    continue
 
                 # 2. 翻页操作
                 for page in range(self.PagesCount):
                     found = False   # 定位到关键词排名后，跳出循环标志位
                     self.output_Result(info=u"     搜索结果页面翻到第[%d]页" % (page+1))
-                    if page == 0 and self.runType == 0:
+                    if page == 0 and self.runType != 2:
                         # 如果是第一页的话，随机从前五中随机点击若干(1-self.randomNo_firstpage)个URL
                         soup = BS(baiduPage)
                         searchResult = soup.findAll(name="h3", attrs={"class": "t"}, limit=self.randomArea)
@@ -124,6 +114,16 @@ class rank_requests(base, Thread):
                                 self.baseobj.requests_url(resultURL)
                             except Exception, e:
                                 self.output_Result(log=u"     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
+                        if 1 == self.runType:
+                            self.succTimeAll += 1   #总的成功执行数增1
+                            wx.CallAfter(pub.sendMessage, "succTime", value=(self.succTimeAll))
+                            wx.CallAfter(pub.sendMessage, "process", value=((((process-1)*value)+runtime)*100)/(total*value))
+                            try:
+                                self.succRatio = '%.2f' % (self.succTimeAll/float((process-1)*value+runtime))
+                                wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
+                            except ZeroDivisionError:
+                                pass
+                            break
                     else:
                         if page > 0:
                             try:
@@ -191,22 +191,12 @@ class rank_requests(base, Thread):
                     self.output_Result(info=u"当前使用代理: %s" %self.baseobj.getProxyAddr())
                 # 1. 打开搜索页面并使用关键词搜索
                 baiduPage = self.baseobj.requests_url(self.data.baidu_url_request_m % (key, 0))
-                if 1 == self.runType:
-                    self.succTimeAll += 1   #总的成功执行数增1
-                    wx.CallAfter(pub.sendMessage, "succTime", value=(self.succTimeAll))
-                    wx.CallAfter(pub.sendMessage, "process", value=((((process-1)*value)+runtime)*100)/(total*value))
-                    try:
-                        self.succRatio = '%.2f' % (self.succTimeAll/float((process-1)*value+runtime))
-                        wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
-                    except ZeroDivisionError:
-                        pass
-                    continue
 
                 # 2. 翻页操作
                 for page in range(self.PagesCount):
                     found = False   # 定位到关键词排名后，跳出循环标志位
                     self.output_Result(info=u"     搜索结果页面翻到第[%d]页" % (page+1))
-                    if page == 0 and self.runType == 0:
+                    if page == 0 and self.runType != 2:
                         # 如果是第一页的话，随机从前五中随机点击若干(1-self.randomNo_firstpage)个URL
                         soup = BS(baiduPage)
                         searchResult = soup.findAll(name="div", attrs={"class": "c-container"}, limit=self.randomArea)
@@ -223,6 +213,16 @@ class rank_requests(base, Thread):
                                 self.baseobj.requests_url(resultURL)
                             except Exception, e:
                                 self.output_Result(log=u"     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
+                        if 1 == self.runType:
+                            self.succTimeAll += 1   #总的成功执行数增1
+                            wx.CallAfter(pub.sendMessage, "succTime", value=(self.succTimeAll))
+                            wx.CallAfter(pub.sendMessage, "process", value=((((process-1)*value)+runtime)*100)/(total*value))
+                            try:
+                                self.succRatio = '%.2f' % (self.succTimeAll/float((process-1)*value+runtime))
+                                wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
+                            except ZeroDivisionError:
+                                pass
+                            break
                     else:
                         if page > 0:
                             try:

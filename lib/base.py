@@ -63,7 +63,10 @@ class base():
         self.session = requests.session()
 
     def __del__(self):
-        self.clearCookies()
+        try:
+            self.clearCookies()
+        except Exception:
+            pass
 
     def getSession(self):
         return self.session
