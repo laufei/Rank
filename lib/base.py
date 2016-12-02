@@ -4,14 +4,11 @@ __author__ = 'liufei'
 import time
 import random
 import json
-
 import wx
 import requests
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
-
 from wx.lib.pubsub import pub
-
 from conf.config import config
 from data.data import data
 

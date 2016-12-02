@@ -6,6 +6,7 @@ import os
 import wx
 from wx.lib.pubsub import pub
 from data.data import data
+from conf.config import config
 from rank_req.rank_requests import rank_requests
 
 class wxRank(wx.Frame):
@@ -19,32 +20,7 @@ class wxRank(wx.Frame):
         # 创建定时器
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.OnTimer, self.timer)
-        self.note = u'''
-
-                                                ▄▄▄▄说明▄▄▄▄
-
-
-        1. 功能选择:
-            "只刷指数"和"获取排名"功能只能选择其一;
-            选择了对应功能后, 非必填的内容会自动置灰
-        2. 搜索平台&运行平台:
-            可以选择各个搜索平台对应的H5或者Web平台进行操作.
-        3. 目标页面标题包含关键词:
-            输入的关键词用于判断结果页面中目标URL;
-            如果是多个关键词, 使用英文半角","分隔;
-        4. 关键词文件路径:
-            文件名须为'kw.data'; 点击生成模板按钮"+", 查看具体文件格式.
-        5. 运行次数:
-            勾选了该复选框, 每个关键词运行次数被统一配置.
-        6. 代理方式:
-            对于每个代理方式需配置对应请求地址或文件路径;
-            如选择TXT方式, 需要点击按钮"..."来选择代理文件.
-        7. 运行日志:
-            程序执行过程中会输入log信息, 包括各种报错及提示信息
-            程序会在该app所在路径下生成日志文件: Result.txt
-
-                                                                                                By LiuFei
-        '''
+        self.note = self.data.note
         self.font = wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL, False)
         # 功能选择
         fcm = wx.StaticBox(self, -1, u"▼ 功能选择:")
