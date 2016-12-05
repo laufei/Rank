@@ -3,17 +3,13 @@ __author__ = 'liufei'
 import time
 import random
 from threading import Thread
-
 import wx
-
 from wx.lib.pubsub import pub
-
 from element.page import page
 from data.data import data
 
-
 class rank(page, Thread):
-    def __init__(self, searcher, driverType, proxyType, proxyConfig, keyworks, runtime=0):
+    def __init__(self, searcher, driverType, proxyType, proxyConfig, keyworks, urlkw, runType, runtime=0):
         Thread.__init__(self)
         #搜索关键词
         self.data = data()
@@ -23,6 +19,8 @@ class rank(page, Thread):
         self.proxyType = proxyType
         self.proxyConfig = proxyConfig
         self.SearchKeywords = keyworks
+        self.URLKeywords = urlkw
+        self.runType = runType
         self.Runtime = runtime
 
         # 常量设置
@@ -65,8 +63,11 @@ class rank(page, Thread):
 
     def begin(self):
         # 实例化
+        isProxy = True
+        if 2 == self.runType:
+            isProxy = False
         try:
-            self.pageobj = page(self.getdriverType(), self.proxyType, self.proxyConfig)
+            self.pageobj = page(self.getdriverType(), self.proxyType, self.proxyConfig, self.runType, isProxy)
         except Exception, e:
             self.output_Result(info=str(e))
             wx.CallAfter(pub.sendMessage, "reset")
@@ -140,7 +141,7 @@ class rank(page, Thread):
                     for index in range(len(baidu_result_items)):
                         resultTitle = baidu_result_items[index].text
                         resultURL = baidu_result_items[index].get_attribute("href")
-                        for kw in self.data.URLKeywords:
+                        for kw in self.URLKeywords:
                             if kw in resultTitle:
                                 self.output_Result(info="     点击结果页面第[%d]个链接: %s" % (index+1, resultURL))
                                 try:
@@ -229,7 +230,7 @@ class rank(page, Thread):
                     for index in range(len(baidu_result_items)):
                         resultTitle = baidu_result_items[index].text
                         resultURL = baidu_result_items[index].get_attribute("href")
-                        for kw in self.data.URLKeywords:
+                        for kw in self.URLKeywords:
                             if kw in resultTitle:
                                 self.output_Result(info="     点击结果页面第[%d]个链接: %s" % (index+1, resultURL))
                                 try:

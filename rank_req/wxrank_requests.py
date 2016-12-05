@@ -55,7 +55,7 @@ class wxRank(wx.Frame):
         self.runText.SetEditable(False)
         self.runText.SetValue("10")
         self.Bind(wx.EVT_CHECKBOX, self.EvtCheckBox_RT, self.runTime)
-        # 选择代理方式：dns, api，txt
+        # 选择代理方式：Local, api，txt
         pm = wx.StaticBox(self, -1, u"▼ 代理方式:")
         sampleList = ["Local", "API", "TXT"]
         self.rb_proxy = wx.RadioBox(self, -1, "", wx.DefaultPosition, wx.DefaultSize, sampleList, 3)
