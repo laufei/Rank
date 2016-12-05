@@ -22,6 +22,7 @@ class rank(page, Thread):
         self.URLKeywords = urlkw
         self.runType = runType
         self.Runtime = runtime
+        self.succTimeAll, self.succRatio = 0, 0
 
         # 常量设置
         self.PagesCount = 3     # 搜索结果页面中，遍历结果页面数量
@@ -80,8 +81,10 @@ class rank(page, Thread):
             pass
 
     def rank_baidu_web(self):
-        process = 1
+        process = 0
         for kw in self.SearchKeywords.items():
+            process += 1
+            succtime, runtime = 0, 0         # succtime: 记录当前关键字下成功点击次数;     runtime: 记录当前关键字下所有点击次数
             total = len(self.SearchKeywords)
             runtime = 0
             key = kw[0]
