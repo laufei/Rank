@@ -25,7 +25,7 @@ exe = EXE(pyz,
           a.binaries,
           a.zipfiles,
           a.datas,
-          name='rank',
+          name='Ranker',
           debug=False,
           strip=False,
           upx=True,
@@ -33,7 +33,7 @@ exe = EXE(pyz,
           icon='../src/icon.ico')
 
 app = BUNDLE(exe,
-             name='Ranker.app',
+             name='Ranker v1.0.app',
              icon='../src/icon.ico',
              bundle_identifier=None,
              info_plist={
