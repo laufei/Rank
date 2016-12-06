@@ -365,12 +365,14 @@ class wxRank(wx.Frame, page):
     def cpDriver(self, evt):
         os.system("mkdir %s" % self.dir)
         import pkgutil, tarfile
-        cdname = "chromedriver_mac64.tar.gz"
-        cd = pkgutil.get_data('rank', cdname)
-        cdpath = self.dir + cdname
         gdname = "geckodriver-v0.11.1-macos.tar.gz"
-        gd = pkgutil.get_data('rank', gdname)
+        gd = pkgutil.get_data('rank', "drivers/"+gdname)
         gdpath = self.dir + gdname
+
+        ''' # for chrome driver, no used in code now
+        cdname = "chromedriver_mac64.tar.gz"
+        cd = pkgutil.get_data('Ranker', cdname)
+        cdpath = self.dir + cdname
         try:
             if self.EvtRadioBox_PF(evt) == "H5-C":
                 with open(cdpath, 'wb') as ff:
@@ -385,7 +387,16 @@ class wxRank(wx.Frame, page):
                 tfile.extractall(path=self.dir)
                 self.errInfo(u"成功解压%s到目录: %s\n\n" % (gdname, self.dir))
         except Exception, e:
-            self.errInfo(str(e))
+            self.errInfo(u"解压web driver文件失败: %s" % str(e))
+        '''
+        try:
+            with open(gdpath, 'wb') as ff:
+                ff.write(gd)
+            tfile = tarfile.open(gdpath)
+            tfile.extractall(path=self.dir)
+            self.errInfo(u"成功解压%s到目录: %s\n\n" % (gdname, self.dir))
+        except Exception, e:
+            self.errInfo(u"解压web driver文件失败: %s" % str(e))
 
     def OnCreateTmpFile(self, evt):
         ret = wx.MessageBox(u"点击确定会覆盖当前已存在的配置文件, 确定要创建模板文件吗?", "", wx.YES_NO)
