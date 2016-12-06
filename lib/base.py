@@ -29,6 +29,8 @@ class base():
             else:
                 self.proxy = "获取代理失败, 请检查代理配置!"
             print "当前使用的代理服务器：%s" % self.proxy
+        else:
+            self.proxy = ""
 
         self.runType = runType
         self.data = data()
@@ -123,7 +125,7 @@ class base():
         try:
             self.driver.quit()
         except Exception, e:
-            print e
+            print "关闭浏览器失败:", e
 
     def is_element_present(self, how, what):
         try:

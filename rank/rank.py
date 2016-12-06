@@ -81,20 +81,21 @@ class rank(page, Thread):
             pass
 
     def rank_baidu_web(self):
-        process = 0
+        process = 0         # process: 记录已执行到第几个关键词
         for kw in self.SearchKeywords.items():
             process += 1
             succtime, runtime = 0, 0         # succtime: 记录当前关键字下成功点击次数;     runtime: 记录当前关键字下所有点击次数
             total = len(self.SearchKeywords)
-            runtime = 0
             key = kw[0]
             value = (kw[1] if not self.Runtime else self.Runtime)
             self.output_Result(info="【%d/%d】：当前关键词 - %s" % (process, total, key))
             for click in range(value):
+                runtime += 1
                 self.begin()
                 driver = self.pageobj.getDriver()
                 self.output_Result(info="----------------------------------------------")
-                self.output_Result(info="当前使用代理: %s" %self.pageobj.getProxyAddr())
+                if 2 != self.runType:
+                    self.output_Result(info="当前使用代理: %s" %self.pageobj.getProxyAddr())
                 # 1. 打开搜索页面并使用关键词搜索
                 try:
                     self.pageobj.gotoURL(self.gotoURL)
@@ -110,9 +111,10 @@ class rank(page, Thread):
 
                 # 2. 翻页操作
                 for page in range(self.PagesCount):
+                    found = False   # 定位到关键词排名后，跳出循环标志位
                     self.output_Result(info="     搜索结果页面翻到第[%d]页" % (page+1))
                     pageButton = self.pageobj.find_elements(*self.baidu_result_pages)
-                    if page == 0:
+                    if page == 0 and self.runType != 2:
                         # 如果是第一页的话，随机从前五中随机点击若干(1-self.randomNo_firstpage)个URL
                         baidu_result_items = self.pageobj.find_elements(*self.baidu_result_items)
                         # 按照比例随机点击URL，正序80%，乱序20%
@@ -129,6 +131,16 @@ class rank(page, Thread):
                             except Exception, e:
                                 self.output_Result(log="     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
                             driver.switch_to_window(window)
+                        if 1 == self.runType:   # 如果选择只刷指数,
+                            self.succTimeAll += 1   #总的成功执行数增1
+                            wx.CallAfter(pub.sendMessage, "succTime", value=(self.succTimeAll))
+                            wx.CallAfter(pub.sendMessage, "process", value=((((process-1)*value)+runtime)*100)/(total*value))
+                            try:
+                                self.succRatio = '%.2f' % (self.succTimeAll/float((process-1)*value+runtime))
+                                wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
+                            except ZeroDivisionError:
+                                pass
+                            break
                     else:
                         try:
                             pageButton[page].click()
@@ -146,33 +158,55 @@ class rank(page, Thread):
                         resultURL = baidu_result_items[index].get_attribute("href")
                         for kw in self.URLKeywords:
                             if kw in resultTitle:
+                                # print "穷游URL: ", resultURL
+                                if self.runType == 2:       # 如果只是查询排名, 执行到这里结束
+                                    self.output_Result(info=u"     关键字位于第[%d]页，第[%d]个链接" % (page+1, index+1))
+                                    found = True
+                                    succtime += 1
+                                    break
                                 self.output_Result(info="     点击结果页面第[%d]个链接: %s" % (index+1, resultURL))
                                 try:
                                     time.sleep(1)
                                     baidu_result_items[index].click()
+                                    found = True
+                                    succtime += 1
+                                    break
                                 except Exception, e:
                                     self.output_Result(log="     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
                             driver.switch_to_window(window)
+                            if found:
+                                break
                         self.pageobj.scroll_page(100)
+                    if found:
+                        self.succTimeAll += 1   #总的成功执行数增1
+                        wx.CallAfter(pub.sendMessage, "succTime", value=(self.succTimeAll))
+                        break
                 self.end()
-                runtime += 1
                 wx.CallAfter(pub.sendMessage, "process", value=((((process-1)*value)+runtime)*100)/(total*value))
-            process += 1
-            self.output_Result(info="当前关键词，成功点击%d次" % runtime)
+                try:
+                    self.succRatio = '%.2f' % (self.succTimeAll/float((process-1)*value+runtime))
+                    wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
+                except ZeroDivisionError:
+                    pass
+            if self.runType == 0:
+                self.output_Result(info=u"当前关键词，成功点击%d次" % succtime)
 
     def rank_baidu_m(self):
-        process = 1
+        process = 0         # process: 记录已执行到第几个关键词
         for kw in self.SearchKeywords.items():
+            process += 1
+            succtime, runtime = 0, 0         # succtime: 记录当前关键字下成功点击次数;     runtime: 记录当前关键字下所有点击次数
             total = len(self.SearchKeywords)
-            runtime = 0
             key = kw[0]
             value = (kw[1] if not self.Runtime else self.Runtime)
             self.output_Result(info="【%d/%d】：当前关键词 - %s" % (process, total, key))
             for click in range(value):
+                runtime += 1
                 self.begin()
                 driver = self.pageobj.getDriver()
                 self.output_Result(info="----------------------------------------------")
-                self.output_Result(info="当前使用代理: %s" %self.pageobj.getProxyAddr())
+                if 2 != self.runType:
+                    self.output_Result(info="当前使用代理: %s" %self.pageobj.getProxyAddr())
                 # 1. 打开搜索页面并使用关键词搜索
                 try:
                     self.pageobj.gotoURL(self.gotoURL)
@@ -190,7 +224,7 @@ class rank(page, Thread):
                 for page in range(self.PagesCount):
                     found = False   # 定位到关键词排名后，跳出循环标志位
                     self.output_Result(info="     搜索结果页面翻到第[%d]页" % (page+1))
-                    if page == 0:
+                    if page == 0 and self.runType != 2:
                         # 如果是第一页的话，随机从前五中随机点击若干(1-self.randomNo_firstpage)个URL
                         baidu_result_items = self.pageobj.find_elements(*self.baidu_result_items_m)
                         # 按照比例随机点击URL，正序80%，乱序20%
@@ -218,6 +252,16 @@ class rank(page, Thread):
                             except Exception, e:
                                 self.output_Result(log="     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
                             driver.switch_to_window(window)
+                        if 1 == self.runType:   # 如果选择只刷指数,
+                            self.succTimeAll += 1   #总的成功执行数增1
+                            wx.CallAfter(pub.sendMessage, "succTime", value=(self.succTimeAll))
+                            wx.CallAfter(pub.sendMessage, "process", value=((((process-1)*value)+runtime)*100)/(total*value))
+                            try:
+                                self.succRatio = '%.2f' % (self.succTimeAll/float((process-1)*value+runtime))
+                                wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
+                            except ZeroDivisionError:
+                                pass
+                            break
                     else:
                         try:
                             self.pageobj.find_elements(*self.baidu_result_pages_m)[-1].click()
@@ -235,6 +279,12 @@ class rank(page, Thread):
                         resultURL = baidu_result_items[index].get_attribute("href")
                         for kw in self.URLKeywords:
                             if kw in resultTitle:
+                                # print "穷游URL: ", resultURL
+                                if self.runType == 2:       # 如果只是查询排名, 执行到这里结束
+                                    self.output_Result(info=u"     关键字位于第[%d]页，第[%d]个链接" % (page+1, index+1))
+                                    found = True
+                                    succtime += 1
+                                    break
                                 self.output_Result(info="     点击结果页面第[%d]个链接: %s" % (index+1, resultURL))
                                 try:
                                     # 将结果页面中的URL修改为新页面打开
@@ -243,20 +293,32 @@ class rank(page, Thread):
                                     time.sleep(2)
                                     baidu_result_items[index].click()
                                     found = True
+                                    succtime += 1
                                     break
                                 except Exception, e:
                                     self.output_Result(log="     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
                             if found:
                                 break
                                 driver.switch_to_window(window)
+                            if found:
+                                break
                         self.pageobj.scroll_page(100)
+                    if found:
+                        self.succTimeAll += 1   #总的成功执行数增1
+                        time.sleep(3)
+                        wx.CallAfter(pub.sendMessage, "succTime", value=(self.succTimeAll))
+                        break
                     if found:
                         break
                 self.end()
-                runtime += 1
                 wx.CallAfter(pub.sendMessage, "process", value=((((process-1)*value)+runtime)*100)/(total*value))
-            process += 1
-            self.output_Result(info="当前关键词，成功点击%d次" % runtime)
+                try:
+                    self.succRatio = '%.2f' % (self.succTimeAll/float((process-1)*value+runtime))
+                    wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
+                except ZeroDivisionError:
+                    pass
+            if self.runType == 0:
+                self.output_Result(info=u"当前关键词，成功点击%d次" % succtime)
 
     def rank_sm_web(self):
         wx.CallAfter(self.output_Result, log="该功能尚未支持!")

@@ -24,13 +24,15 @@ class config:
             proxy, ip, port = "获取代理失败, 请检查代理配置!", "", ""
 
         if driverConfig == "web_firefox":
+            uaValue = random.choice(self.UA.USER_AGENTS_WEB)
+            # print "web_firefox's ua = ", uaValue
             profile = webdriver.FirefoxProfile()
             profile.set_preference("network.proxy.type", 1)
             profile.set_preference("network.proxy.http", ip)
             profile.set_preference("network.proxy.http_port", port)
             profile.set_preference(
                 "general.useragent.override",
-                random.choice(self.UA.USER_AGENTS_WEB)
+                uaValue
             )
             profile.update_preferences()
             try:
@@ -42,6 +44,8 @@ class config:
                 assert False, e
 
         elif driverConfig == "h5_firefox":
+            uaValue = random.choice(self.UA.USER_AGENTS_H5)
+            # print "h5_firefox's ua = ", uaValue
             profile = webdriver.FirefoxProfile()
             profile.set_preference("network.proxy.type", 1)
             profile.set_preference("network.proxy.http", ip)
@@ -50,7 +54,7 @@ class config:
             profile.set_preference("network.proxy.no_proxies_on", "localhost");
             profile.set_preference(
                 "general.useragent.override",
-                random.choice(self.UA.USER_AGENTS_H5)
+                uaValue
             )
             profile.update_preferences()
             try:
