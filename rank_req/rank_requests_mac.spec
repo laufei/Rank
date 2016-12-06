@@ -1,7 +1,7 @@
 # -*- mode: python -*-
 
 block_cipher = None
-APP_NAME = 'Ranker'
+APP_NAME = 'Ranker v2.0'
 
 a = Analysis(['wxrank_requests.py'],
              pathex=['/Users/luca/PycharmProjects/Rank/rank_req'],

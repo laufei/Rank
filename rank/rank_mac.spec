@@ -1,7 +1,7 @@
 # -*- mode: python -*-
 
 block_cipher = None
-APP_NAME = 'Ranker'
+APP_NAME = 'Ranker v1.0'
 added_files = [
             ('../drivers/geckodriver-v0.11.1-macos.tar.gz', '.'),
             ('../drivers/chromedriver_mac64.tar.gz', '.'),

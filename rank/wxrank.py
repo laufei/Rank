@@ -45,7 +45,8 @@ class wxRank(wx.Frame, page):
         self.rb_splatform = wx.RadioBox(self, -1, "", wx.DefaultPosition, (110,80), spfList, 3, wx.SL_VERTICAL)
         # 选择平台：web，h5
         dm = wx.StaticBox(self, -1, u"▼ 运行平台:")
-        pfList = ["H5-F", "H5-C", "Web-F"]
+        # pfList = ["H5-F", "H5-C", "Web-F"]
+        pfList = ["H5", "Web"]
         self.rb_platform = wx.RadioBox(self, -1, "", wx.DefaultPosition, (110,80), pfList, 3, wx.SL_VERTICAL)
         # 配置目标页面关键词
         tm = wx.StaticBox(self, -1, u"▼ 目标页面标题包含关键词:")
