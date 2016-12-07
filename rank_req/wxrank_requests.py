@@ -14,8 +14,15 @@ class wxRank_requests(wx.Frame):
         self.data = data()
         self.keyworks, self.urlkw, self.proxyType, self.proxyConfig = "", "", "", ""
         self.proValue, self.spend = 0, 0
-        self.apiCount = self.getProxyCount("API", self.data.proxy_api)
-        self.dnsCount = self.getProxyCount("Local", self.data.proxy_dns)
+        self.apiCount, self.dnsCount = 0, 0
+        try:
+            self.dnsCount = self.getProxyCount("Local", self.data.proxy_dns)
+        except:
+            self.errInfo(u'Local代理方式下: 并没有获取到代理数量. ', True)
+        try:
+            self.apiCount = self.getProxyCount("API", self.data.proxy_api)
+        except:
+            self.errInfo(u'API代理方式下: 并没有获取到代理数量. ', True)
         self.update()
         self.Bind(wx.EVT_CLOSE, self.OnClickStop)
         # 创建定时器
