@@ -9,16 +9,16 @@ from element.page import page
 from data.data import data
 from rank import rank
 
-
 class wxRank(wx.Frame, page):
     def __init__(self):
         wx.Frame.__init__(self, parent=None, title=u'刷搜索排名小工具 v1.0', size=(840, 640), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
         self.data = data()
         self.keyworks, self.urlkw, self.proxyType, self.proxyConfig = "", "", "", ""
         self.proValue, self.spend = 0, 0
+        self.apiCount = self.getProxyCount("API", self.data.proxy_api)
+        self.dnsCount = self.getProxyCount("Local", self.data.proxy_dns)
         self.note = self.data.note
         self.font = wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL, False)
-
         self.update()
         self.Bind(wx.EVT_CLOSE, self.OnClickStop)
         # 添加drivers到环境变量
@@ -77,8 +77,10 @@ class wxRank(wx.Frame, page):
         self.proxyTextBtn.Hide()
         self.Bind(wx.EVT_BUTTON, self.OnOpenProxyFile, self.proxyTextBtn)
         # 代理DNS，API, TXT配置输入框
-        self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_dns, size=(247, 21))
+        self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_dns, size=(220, 21))
         self.proxyText.SetFont(self.font)
+        # 代理数量显示
+        self.proxyCount = wx.StaticText(self, -1, label="|%d" % self.dnsCount, size=(27, 21))
 
         # 运行log
         om = wx.StaticBox(self, -1, u"▼ 运行日志:")
@@ -132,8 +134,11 @@ class wxRank(wx.Frame, page):
         proxymodBox = wx.BoxSizer(wx.HORIZONTAL)
         proxymodBox.Add(self.rb_proxy, 0, wx.ALIGN_LEFT, 5)
         proxymodBox.Add(self.proxyTextBtn, 0, wx.ALIGN_RIGHT, 5)
+        proxyConfBox = wx.BoxSizer(wx.HORIZONTAL)
+        proxyConfBox.Add(self.proxyText, 0, wx.ALIGN_LEFT, 5)
+        proxyConfBox.Add(self.proxyCount, 0, wx.ALIGN_RIGHT, 5)
         proxyBox.Add(proxymodBox, 0, wx.ALL, 5)
-        proxyBox.Add(self.proxyText,  0, wx.ALL, 5)
+        proxyBox.Add(proxyConfBox,  0, wx.ALL, 5)
         leftbox.Add(proxyBox, 0, wx.ALL, 5)
         # 右侧布局
         rightBox = wx.BoxSizer(wx.VERTICAL)
@@ -261,21 +266,27 @@ class wxRank(wx.Frame, page):
             self.rb_proxy.Enable()
             self.proxyText.Enable()
 
+    def getProxyCount(self, type, conf):
+        return len(page.getProxy(type, conf, False))
+
     def OnClickAPI(self, evt):
         self.proxyText.Enable()
         self.proxyText.SetValue(self.data.proxy_api)
         self.proxyText.SetEditable(True)
         self.proxyTextBtn.Hide()
+        self.proxyCount.SetLabel("|%d" % self.apiCount)
 
     def OnClickDNS(self, evt):
         self.proxyText.Enable()
         self.proxyText.SetValue(self.data.proxy_dns)
         self.proxyText.SetEditable(True)
         self.proxyTextBtn.Hide()
+        self.proxyCount.SetLabel("|%d" % self.dnsCount)
 
     def OnClickTXT(self, evt):
         self.proxyText.Disable()
         self.proxyText.SetValue(u"点击右侧按钮选择文件...")
+        self.proxyCount.SetLabel("|0")
         self.proxyTextBtn.Show()
         self.Layout()
 
@@ -330,7 +341,7 @@ class wxRank(wx.Frame, page):
 
     def OnOpenKWFile(self, evt):
         file_wildcard = "All files(*.*)|*.*"
-        dlg = wx.FileDialog(self, u"选择关键词文件....", os.getcwd(), style=wx.FC_OPEN, wildcard=file_wildcard)
+        dlg = wx.FileDialog(self, u"请选择关键词文件", os.getcwd(), style=wx.FC_OPEN, wildcard=file_wildcard)
         if dlg.ShowModal() == wx.ID_OK:
             kwfilename = dlg.GetPath()
             self.kwText.SetLabel(kwfilename)
@@ -341,12 +352,13 @@ class wxRank(wx.Frame, page):
 
     def OnOpenProxyFile(self, evt):
         file_wildcard = "All files(*.*)|*.*"
-        dlg = wx.FileDialog(self, u"选择代理文件....", os.getcwd(), style=wx.FC_OPEN, wildcard=file_wildcard)
+        dlg = wx.FileDialog(self, u"请选择代理文件", os.getcwd(), style=wx.FC_OPEN, wildcard=file_wildcard)
         if dlg.ShowModal() == wx.ID_OK:
             kwfilename = dlg.GetPath()
-            self.proxyText.SetLabel(kwfilename)
+            self.proxyText.SetValue(kwfilename)
             self.proxyConfig = kwfilename
             self.multiText.SetValue(self.note)
+            self.proxyCount.SetLabel("|%d" % self.getProxyCount("TXT", kwfilename))
         dlg.Destroy()
 
     def kyFileHeadle(self, filename):
@@ -441,8 +453,3 @@ class wxRank(wx.Frame, page):
         pub.subscribe(self.getProcess, "process")
         pub.subscribe(self.setSuccTime, "succTime")
         pub.subscribe(self.setSuccRatio, "succRatio")
-
-if __name__ == "__main__":
-    app = wx.App()
-    wxRank()
-    app.MainLoop()

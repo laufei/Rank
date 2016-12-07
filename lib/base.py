@@ -54,8 +54,8 @@ class base():
     def getProxyAddr(self):
         return self.proxy
 
+    @classmethod
     def getProxy(self, type, config, rand):
-        # type 0: api接口获取，1: 文件获取
         # rand False: 返回全部，True: 随机返回一个
         proxyaddr = []
         if type == "Local":
@@ -69,19 +69,21 @@ class base():
             reqURL = config
             try:
                 response = requests.get(reqURL)
-            except Exception, e:
+            except Exception:
                 return False
             proxyaddr = response.text.split("\r\n")
         if type == "TXT":
             filename = config
+            data = list()
             try:
                 with open(filename, 'r') as ff:
-                    data = ff.readlines()
+                    for line in ff.readlines():
+                        data.append(line[:-2])
             except:
                 return False
-            proxyaddr = data[0].split("\r")
+            proxyaddr = data
         if rand:
-            return proxyaddr[random.randint(0, len(proxyaddr)-1)]
+            return random.choice(proxyaddr)
         return proxyaddr
 
     def requests_url(self, url, timeout=20):

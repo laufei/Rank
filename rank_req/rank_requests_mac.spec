@@ -2,11 +2,13 @@
 
 block_cipher = None
 APP_NAME = 'Ranker v2.0'
-
-a = Analysis(['wxrank_requests.py'],
-             pathex=['/Users/luca/PycharmProjects/Rank/rank_req'],
+added_files = [
+            ('../src', 'src')
+            ]
+a = Analysis(['../main_requests.py'],
+             pathex=['/Users/luca/PycharmProjects/Rank'],
              binaries=None,
-             datas=None,
+             datas=added_files,
              hiddenimports=["BeautifulSoup", "requests"],
              hookspath=[],
              runtime_hooks=[],

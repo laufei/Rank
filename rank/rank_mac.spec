@@ -6,8 +6,8 @@ added_files = [
             ('../drivers/geckodriver-v0.11.1-macos.tar.gz', 'rank/drivers'),
             ('../src', 'src')
             ]
-a = Analysis(['wxrank.py'],
-             pathex=['/Users/luca/PycharmProjects/Rank/rank'],
+a = Analysis(['../main.py'],
+             pathex=['/Users/luca/PycharmProjects/Rank'],
              binaries=None,
              datas=added_files,
              hiddenimports=["selenium", "requests"],
@@ -34,7 +34,7 @@ exe = EXE(pyz,
           icon='../src/icon.ico')
 
 app = BUNDLE(exe,
-             name='Ranker.app',
+             name='Ranker v1.0.app',
              icon='../src/icon.ico',
              bundle_identifier=None,
              info_plist={
