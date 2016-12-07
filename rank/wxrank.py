@@ -15,15 +15,6 @@ class wxRank(wx.Frame, page):
         self.data = data()
         self.keyworks, self.urlkw, self.proxyType, self.proxyConfig = "", "", "", ""
         self.proValue, self.spend = 0, 0
-        self.apiCount, self.dnsCount = 0, 0
-        try:
-            self.dnsCount = self.getProxyCount("Local", self.data.proxy_dns)
-        except:
-            self.errInfo(u'Local代理方式下: 并没有获取到代理数量. ', True)
-        try:
-            self.apiCount = self.getProxyCount("API", self.data.proxy_api)
-        except:
-            self.errInfo(u'API代理方式下: 并没有获取到代理数量. ', True)
 
         self.note = self.data.note
         self.font = wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL, False)
@@ -38,7 +29,10 @@ class wxRank(wx.Frame, page):
         # 创建定时器
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.OnTimer, self.timer)
-
+        # 运行log
+        om = wx.StaticBox(self, -1, u"▼ 运行日志:")
+        self.multiText = wx.TextCtrl(self, -1, value=self.note, size=(480, 480), style=wx.TE_MULTILINE|wx.TE_READONLY)
+        self.multiText.SetInsertionPoint(0)
         # 功能选择
         fcm = wx.StaticBox(self, -1, u"▼ 功能选择:")
         self.runTypeBtn = wx.ToggleButton(self, -1, label=u'只刷指数', size=(76, 21))
@@ -88,12 +82,17 @@ class wxRank(wx.Frame, page):
         self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_dns, size=(220, 21))
         self.proxyText.SetFont(self.font)
         # 代理数量显示
+        self.apiCount, self.dnsCount = 0, 0
+        try:
+            self.dnsCount = self.getProxyCount("Local", self.data.proxy_dns)
+        except:
+            self.errInfo(u'Local代理方式下: 并没有获取到代理数量. ', True)
+        try:
+            self.apiCount = self.getProxyCount("API", self.data.proxy_api)
+        except:
+            self.errInfo(u'API代理方式下: 并没有获取到代理数量. ', True)
         self.proxyCount = wx.StaticText(self, -1, label="|%d" % self.dnsCount, size=(27, 21))
 
-        # 运行log
-        om = wx.StaticBox(self, -1, u"▼ 运行日志:")
-        self.multiText = wx.TextCtrl(self, -1, value=self.note, size=(480, 480), style=wx.TE_MULTILINE|wx.TE_READONLY)
-        self.multiText.SetInsertionPoint(0)
         # 版权模块
         self.copyRight = wx.StaticText(self, -1, u"©️LiuFei", style=1)
         self.spendTime = wx.StaticText(self, -1, u"▶ 耗时: 00:00:00  ")
