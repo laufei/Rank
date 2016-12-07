@@ -23,8 +23,10 @@ class wxRank(wx.Frame, page):
         # 添加drivers到环境变量
         if platform.system() == "Darwin":
             self.dir = "%s/drivers/" % os.environ["HOME"]
+            self.gdname = "geckodriver-v0.11.1-macos.tar.gz"
         elif platform.system() == "Windows":
             self.dir = "%s\\drivers" % os.environ["USERPROFILE"]
+            self.gdname = "geckodriver-v0.11.1-win64.zip"
         os.environ["PATH"] += ':' + self.dir
         # 创建定时器
         self.timer = wx.Timer(self)
@@ -384,9 +386,8 @@ class wxRank(wx.Frame, page):
     def cpDriver(self, evt):
         os.system("mkdir %s" % self.dir)
         import pkgutil, tarfile
-        gdname = "geckodriver-v0.11.1-macos.tar.gz"
-        gd = pkgutil.get_data('rank', "drivers/"+gdname)
-        gdpath = self.dir + gdname
+        gd = pkgutil.get_data('rank', "drivers/"+self.gdname)
+        gdpath = self.dir + self.gdname
 
         ''' # for chrome driver, no used in code now
         cdname = "chromedriver_mac64.tar.gz"
