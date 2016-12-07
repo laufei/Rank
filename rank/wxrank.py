@@ -386,7 +386,7 @@ class wxRank(wx.Frame, page):
     def cpDriver(self, evt):
         os.system("mkdir %s" % self.dir)
         import pkgutil, tarfile, zipfile
-        gd = pkgutil.get_data('rank', "drivers/"+self.gdname)
+        gd = pkgutil.get_data('rank', "drivers"+os.sep+self.gdname)
         gdpath = self.dir + self.gdname
 
         ''' # for chrome driver, no used in code now
