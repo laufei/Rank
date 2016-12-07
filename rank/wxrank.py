@@ -15,8 +15,12 @@ class wxRank(wx.Frame, page):
         self.data = data()
         self.keyworks, self.urlkw, self.proxyType, self.proxyConfig = "", "", "", ""
         self.proValue, self.spend = 0, 0
-        self.apiCount = self.getProxyCount("API", self.data.proxy_api)
-        self.dnsCount = self.getProxyCount("Local", self.data.proxy_dns)
+        self.apiCount, self.dnsCount = 0, 0
+        try:
+            self.apiCount = self.getProxyCount("API", self.data.proxy_api)
+            self.dnsCount = self.getProxyCount("Local", self.data.proxy_dns)
+        except:
+            pass
         self.note = self.data.note
         self.font = wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL, False)
         self.update()
