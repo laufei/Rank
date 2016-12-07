@@ -17,10 +17,14 @@ class wxRank(wx.Frame, page):
         self.proValue, self.spend = 0, 0
         self.apiCount, self.dnsCount = 0, 0
         try:
-            self.apiCount = self.getProxyCount("API", self.data.proxy_api)
             self.dnsCount = self.getProxyCount("Local", self.data.proxy_dns)
         except:
-            pass
+            self.errInfo(u'Local代理方式下: 并没有获取到代理数量. ', True)
+        try:
+            self.apiCount = self.getProxyCount("API", self.data.proxy_api)
+        except:
+            self.errInfo(u'API代理方式下: 并没有获取到代理数量. ', True)
+
         self.note = self.data.note
         self.font = wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL, False)
         self.update()
