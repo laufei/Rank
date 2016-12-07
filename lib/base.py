@@ -25,10 +25,10 @@ class base():
                 try:
                     self.proxy.split(":")
                 except:
-                    self.proxy = "获取代理失败, 请检查代理配置!"
+                    self.proxy = u"获取代理失败, 请检查代理配置!"
             else:
-                self.proxy = "获取代理失败, 请检查代理配置!"
-            print "当前使用的代理服务器：%s" % self.proxy
+                self.proxy = u"获取代理失败, 请检查代理配置!"
+            print u"当前使用的代理服务器：%s" % self.proxy
         else:
             self.proxy = ""
 
@@ -113,21 +113,21 @@ class base():
 
     def gotoURL(self, url):
         try:
-            print "     正在打开页面：", url
+            print u"     正在打开页面：", url
             self.driver.get(url)
             self.driver.maximize_window()
         except TimeoutException:
-            print "     打开该页面超时！"
+            print u"     打开该页面超时！"
             assert False, "Timed out waiting for page load! "
         except Exception:
-            print "     打开该页面失败！"
+            print u"     打开该页面失败！"
             assert False, "Failed to open this page! "
 
     def quit(self):
         try:
             self.driver.quit()
         except Exception, e:
-            print "关闭浏览器失败:", e
+            print u"关闭浏览器失败:", e
 
     def is_element_present(self, how, what):
         try:
@@ -138,7 +138,7 @@ class base():
 
     def isPageOpened(self, by, value):
         if not self.is_element_present(by, value):
-            print "     打开该页面失败！"
+            print u"     打开该页面失败！"
             assert False, "Unable to open this page!"
 
     def waitForPageLoad(self, how, what):
@@ -147,7 +147,7 @@ class base():
                                                   "Wait for element <" + what + "> time out!")
             return True
         except TimeoutException, e:
-            print "     打开该页面超时！"
+            print u"     打开该页面超时！"
             assert False, "Wait for element <%s> time out!" % what
 
     def goto_other_window(self):
