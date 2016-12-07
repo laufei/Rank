@@ -3,7 +3,6 @@ __author__ = 'liufei'
 
 import os
 import platform
-import zipfile
 import wx
 from wx.lib.pubsub import pub
 from element.page import page
@@ -386,7 +385,7 @@ class wxRank(wx.Frame, page):
 
     def cpDriver(self, evt):
         os.system("mkdir %s" % self.dir)
-        import pkgutil, tarfile
+        import pkgutil, tarfile, zipfile
         gd = pkgutil.get_data('rank', "drivers/"+self.gdname)
         gdpath = self.dir + self.gdname
 
