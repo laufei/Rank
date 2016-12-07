@@ -3,6 +3,7 @@ __author__ = 'liufei'
 
 import os
 import platform
+import zipfile
 import wx
 from wx.lib.pubsub import pub
 from element.page import page
@@ -25,7 +26,7 @@ class wxRank(wx.Frame, page):
             self.dir = "%s/drivers/" % os.environ["HOME"]
             self.gdname = "geckodriver-v0.11.1-macos.tar.gz"
         elif platform.system() == "Windows":
-            self.dir = "%s\\drivers" % os.environ["USERPROFILE"]
+            self.dir = "%s\\drivers\\" % os.environ["USERPROFILE"]
             self.gdname = "geckodriver-v0.11.1-win64.zip"
         os.environ["PATH"] += ':' + self.dir
         # 创建定时器
@@ -412,9 +413,13 @@ class wxRank(wx.Frame, page):
         try:
             with open(gdpath, 'wb') as ff:
                 ff.write(gd)
-            tfile = tarfile.open(gdpath)
-            tfile.extractall(path=self.dir)
-            self.errInfo(u"成功解压%s到目录: %s\n\n" % (gdname, self.dir))
+            if platform.system() == "Darwin":
+                tfile = tarfile.open(gdpath)
+                tfile.extractall(path=self.dir)
+            if platform.system() == "Windows":
+                zfile = zipfile.ZipFile(gdpath,'r')
+                zfile.extractall(path=self.dir)
+            self.errInfo(u"成功解压%s到目录: %s\n\n" % (self.gdname, self.dir))
         except Exception, e:
             self.errInfo(u"解压web driver文件失败: %s" % str(e))
 
