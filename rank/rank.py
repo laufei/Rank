@@ -144,7 +144,7 @@ class rank(page, Thread):
                             except Exception, e:
                                 self.output_Result(log=u"     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
                             driver.switch_to_window(window)
-                        if 1 == self.runType:   # 如果选择只刷指数,
+                        if 1 == self.runType:   # 如果选择只刷指数, 则无需翻页再进行后续操作
                             self.succTimeAll += 1   #总的成功执行数增1
                             wx.CallAfter(pub.sendMessage, "succTime", value=(self.succTimeAll))
                             wx.CallAfter(pub.sendMessage, "process", value=((((process-1)*value)+runtime)*100)/(total*value))
@@ -188,12 +188,12 @@ class rank(page, Thread):
                                     self.output_Result(log=u"     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
                             driver.switch_to_window(window)
                             if found:
-                                break
+                                break       # 点击到目标链接后, 退出点击结果页面URL循环
                         self.pageobj.scroll_page(100)
                     if found:
                         self.succTimeAll += 1   #总的成功执行数增1
                         wx.CallAfter(pub.sendMessage, "succTime", value=(self.succTimeAll))
-                        break
+                        break                  # 点击到目标链接后, 退出翻页操作循环
                 self.end()
                 wx.CallAfter(pub.sendMessage, "process", value=((((process-1)*value)+runtime)*100)/(total*value))
                 try:
@@ -265,7 +265,7 @@ class rank(page, Thread):
                             except Exception, e:
                                 self.output_Result(log=u"     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
                             driver.switch_to_window(window)
-                        if 1 == self.runType:   # 如果选择只刷指数,
+                        if 1 == self.runType:   # 如果选择只刷指数, 则无需翻页再进行后续操作
                             self.succTimeAll += 1   #总的成功执行数增1
                             wx.CallAfter(pub.sendMessage, "succTime", value=(self.succTimeAll))
                             wx.CallAfter(pub.sendMessage, "process", value=((((process-1)*value)+runtime)*100)/(total*value))
@@ -310,19 +310,14 @@ class rank(page, Thread):
                                     break
                                 except Exception, e:
                                     self.output_Result(log=u"     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
-                            if found:
-                                break
                                 driver.switch_to_window(window)
                             if found:
-                                break
+                                break       # 点击到目标链接后, 退出点击结果页面URL循环
                         self.pageobj.scroll_page(100)
                     if found:
                         self.succTimeAll += 1   #总的成功执行数增1
-                        time.sleep(3)
                         wx.CallAfter(pub.sendMessage, "succTime", value=(self.succTimeAll))
-                        break
-                    if found:
-                        break
+                        break                  # 点击到目标链接后, 退出翻页操作循环
                 self.end()
                 wx.CallAfter(pub.sendMessage, "process", value=((((process-1)*value)+runtime)*100)/(total*value))
                 try:

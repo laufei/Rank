@@ -92,9 +92,11 @@ class base():
             proxy["http"] = "http://"+self.proxy
         headers = {"User-Agent": self.ua}
         if 0 == self.runType:
-            return self.getSession().get(url, headers=headers, proxies=proxy, timeout=timeout).text
+            response = self.getSession().get(url, headers=headers, proxies=proxy, timeout=timeout, verify=True).text
         else:
-            return requests.get(url, headers=headers, proxies=proxy, timeout=timeout).text
+            response = requests.get(url, headers=headers, proxies=proxy, timeout=timeout, verify=True).text
+        time.sleep(3)
+        return response
 
     def getDriver(self):
         return self.driver

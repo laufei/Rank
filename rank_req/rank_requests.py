@@ -29,8 +29,8 @@ class rank_requests(base, Thread):
         self.PagesCount = 3     # 搜索结果页面中，遍历结果页面数量
         self.randomNo_firstpage = 2  # 首页最大随机点击URL数量
         self.randomArea = 5     # 首页随机点击URL范围
-        if runType == 1:
-            self.randomArea = 2 # 首页随机点击URL范围
+        if self.runType==1:
+            self.randomArea = 3     # 首页随机点击URL范围
         self.radio_sorted = 0.8  # 首页正序随机点击URL比例
 
         # 设置线程为后台线程, 并启动线程
@@ -102,7 +102,10 @@ class rank_requests(base, Thread):
                     if page == 0 and self.runType != 2:
                         # 如果是第一页的话，随机从前五中随机点击若干(1-self.randomNo_firstpage)个URL
                         soup = BS(baiduPage)
-                        searchResult = soup.findAll(name="h3", attrs={"class": "t"}, limit=self.randomArea)
+                        if self.runType == 0:
+                            searchResult = soup.findAll(name="h3", attrs={"class": "t"}, limit=self.randomArea)
+                        elif self.runType == 1:
+                            searchResult = soup.findAll(name="h3", attrs={"class": "t"})
                         # 按照比例随机点击URL，正序80%，乱序20%
                         ra = random.random()
                         if ra < self.radio_sorted:

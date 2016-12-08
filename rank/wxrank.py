@@ -240,6 +240,9 @@ class wxRank(wx.Frame, page):
         self.proxyTextBtn.Disable()
         self.proxyText.Disable()
 
+    def DisableRun(self):
+        self.buttonRun.Disable()
+
     def EnableOnStop(self):
         self.rb_splatform.Enable()
         self.rb_platform.Enable()
