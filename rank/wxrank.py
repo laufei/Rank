@@ -11,7 +11,7 @@ from rank import rank
 
 class wxRank(wx.Frame, page):
     def __init__(self):
-        wx.Frame.__init__(self, parent=None, title=u'刷搜索排名小工具 v1.0', size=(840, 640), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
+        wx.Frame.__init__(self, parent=None, title=u'刷搜索排名小工具 v1.0', size=(920, 640), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
         self.data = data()
         self.keyworks, self.urlkw, self.proxyType, self.proxyConfig = "", "", "", ""
         self.proValue, self.spend = 0, 0
@@ -33,31 +33,31 @@ class wxRank(wx.Frame, page):
         self.Bind(wx.EVT_TIMER, self.OnTimer, self.timer)
         # 运行log
         om = wx.StaticBox(self, -1, u"▼ 运行日志:")
-        self.multiText = wx.TextCtrl(self, -1, value=self.note, size=(480, 480), style=wx.TE_MULTILINE|wx.TE_READONLY)
+        self.multiText = wx.TextCtrl(self, -1, value=self.note, size=(500, 490), style=wx.TE_MULTILINE|wx.TE_READONLY)
         self.multiText.SetInsertionPoint(0)
         # 功能选择
         fcm = wx.StaticBox(self, -1, u"▼ 功能选择:")
-        self.runTypeBtn = wx.ToggleButton(self, -1, label=u'只刷指数', size=(76, 21))
+        self.runTypeBtn = wx.ToggleButton(self, -1, label=u'只刷指数', size=(84, 21))
         self.Bind(wx.EVT_TOGGLEBUTTON, self.OnClickRunTypeBtn, self.runTypeBtn)
-        self.getRankBtn = wx.ToggleButton(self, -1, label=u'获取排名', size=(76, 21))
+        self.getRankBtn = wx.ToggleButton(self, -1, label=u'获取排名', size=(84, 21))
         self.Bind(wx.EVT_TOGGLEBUTTON, self.OnClickGetRankBtn, self.getRankBtn)
-        self.dndBtn = wx.Button(self, label=u'部署Driver', size=(80, 21))
+        self.dndBtn = wx.Button(self, label=u'部署Driver', size=(84, 21))
         self.Bind(wx.EVT_BUTTON, self.cpDriver, self.dndBtn)
         # 选择搜索引擎: baidu, sm, sogou
         sm = wx.StaticBox(self, -1, u"▼ 搜索平台:")
         spfList = ["Baidu", "SM", "Sogou"]
-        self.rb_splatform = wx.RadioBox(self, -1, "", wx.DefaultPosition, (110,80), spfList, 3, wx.SL_VERTICAL)
+        self.rb_splatform = wx.RadioBox(self, -1, "", wx.DefaultPosition, (120, 80), spfList, 3, wx.SL_VERTICAL)
         # 选择平台：web，h5
         dm = wx.StaticBox(self, -1, u"▼ 运行平台:")
         # pfList = ["H5-F", "H5-C", "Web-F"]
         pfList = ["H5", "Web"]
-        self.rb_platform = wx.RadioBox(self, -1, "", wx.DefaultPosition, (110,80), pfList, 3, wx.SL_VERTICAL)
+        self.rb_platform = wx.RadioBox(self, -1, "", wx.DefaultPosition, (120, 80), pfList, 3, wx.SL_VERTICAL)
         # 配置目标页面关键词
         tm = wx.StaticBox(self, -1, u"▼ 目标页面标题包含关键词:")
-        self.target_kw = wx.TextCtrl(self, -1, value=u"穷游网", size=(250, 21))
+        self.target_kw = wx.TextCtrl(self, -1, value=u"穷游网", size=(272, 21))
         # 选择keywords文件
         fm = wx.StaticBox(self, -1, u"▼ 关键词文件路径:")
-        self.kwText = wx.TextCtrl(self, -1, value=u"点击右侧按钮选择文件...", size=(198, 21))
+        self.kwText = wx.TextCtrl(self, -1, value=u"点击右侧按钮选择文件...", size=(222, 21))
         self.kwText.Disable()
         self.kwText.SetFont(self.font)
         self.kwBtn = wx.Button(self, label='...', size=(30, 21))
@@ -66,8 +66,8 @@ class wxRank(wx.Frame, page):
         self.Bind(wx.EVT_BUTTON, self.OnCreateTmpFile, self.tmpBtn)
         # 关键词运行次数
         rm = wx.StaticBox(self, -1, u"▼ 运行次数:")
-        self.runTime = wx.CheckBox(self, -1, u"是否统一配置?  运行次数:")
-        self.runText = wx.TextCtrl(self, -1, size=(65, 21))
+        self.runTime = wx.CheckBox(self, -1, u"是否统一配置?  输入运行次数:")
+        self.runText = wx.TextCtrl(self, -1, size=(62, 21))
         self.runText.SetEditable(False)
         self.runText.SetValue("10")
         self.Bind(wx.EVT_CHECKBOX, self.EvtCheckBox_RT, self.runTime)
@@ -77,11 +77,14 @@ class wxRank(wx.Frame, page):
         self.rb_proxy = wx.RadioBox(self, -1, "", wx.DefaultPosition, wx.DefaultSize, sampleList, 3)
         self.proxyType = self.rb_proxy.GetItemLabel(self.rb_proxy.GetSelection())
         self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_Proxy, self.rb_proxy)
-        self.proxyTextBtn = wx.Button(self, label='...', size=(30, 30))
+        self.proxyTextBtn = wx.Button(self, label='...', size=(30, 21))
         self.proxyTextBtn.Hide()
         self.Bind(wx.EVT_BUTTON, self.OnOpenProxyFile, self.proxyTextBtn)
+        self.spiderBtn = wx.Button(self, label='+', size=(30, 21))
+        self.spiderBtn.Hide()
+        self.Bind(wx.EVT_BUTTON, self.OnSpider, self.spiderBtn)
         # 代理DNS，API, TXT配置输入框
-        self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_dns, size=(220, 21))
+        self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_dns, size=(245, 21))
         self.proxyText.SetFont(self.font)
         # 代理数量显示
         self.apiCount, self.dnsCount = 0, 0
@@ -93,7 +96,7 @@ class wxRank(wx.Frame, page):
             self.apiCount = self.getProxyCount("API", self.data.proxy_api)
         except:
             self.errInfo(u'API代理方式下: 并没有获取到代理数量. ', True)
-        self.proxyCount = wx.StaticText(self, -1, label="|%d" % self.dnsCount, size=(27, 21))
+        self.proxyCount = wx.StaticText(self, -1, label=" |%d" % self.dnsCount, size=(27, 21))
 
         # 版权模块
         self.copyRight = wx.StaticText(self, -1, u"©️LiuFei", style=1)
@@ -101,7 +104,7 @@ class wxRank(wx.Frame, page):
         self.succTime = wx.StaticText(self, -1, u"▶ 成功次数: 0  ")
         self.succRatio = wx.StaticText(self, -1, u"▶ 成功率: 0.0  ")
         self.proText = wx.StaticText(self, -1, u"▶ 进度:")
-        self.process = wx.Gauge(self, -1, size=(160, 20), style=wx.GA_HORIZONTAL)
+        self.process = wx.Gauge(self, -1, size=(190, 20), style=wx.GA_HORIZONTAL)
         self.Bind(wx.EVT_IDLE, self.Onprocess)
         # 运行按钮
         self.buttonRun = wx.Button(self, label=u"运行")
@@ -141,8 +144,9 @@ class wxRank(wx.Frame, page):
         leftbox.Add(runBox, 0, wx.ALL, 5)
         proxyBox = wx.StaticBoxSizer(pm, wx.VERTICAL)
         proxymodBox = wx.BoxSizer(wx.HORIZONTAL)
-        proxymodBox.Add(self.rb_proxy, 0, wx.ALIGN_LEFT, 5)
-        proxymodBox.Add(self.proxyTextBtn, 0, wx.ALIGN_RIGHT, 5)
+        proxymodBox.Add(self.rb_proxy, 0, wx.ALL, 5)
+        proxymodBox.Add(self.proxyTextBtn, 0, wx.CENTER, 5)
+        # proxymodBox.Add(self.spiderBtn, 0, wx.CENTER, 5)
         proxyConfBox = wx.BoxSizer(wx.HORIZONTAL)
         proxyConfBox.Add(self.proxyText, 0, wx.ALIGN_LEFT, 5)
         proxyConfBox.Add(self.proxyCount, 0, wx.ALIGN_RIGHT, 5)
@@ -238,6 +242,7 @@ class wxRank(wx.Frame, page):
         self.runText.Disable()
         self.rb_proxy.Disable()
         self.proxyTextBtn.Disable()
+        self.spiderBtn.Disable()
         self.proxyText.Disable()
 
     def DisableRun(self):
@@ -258,6 +263,7 @@ class wxRank(wx.Frame, page):
         self.runText.Enable()
         self.rb_proxy.Enable()
         self.proxyTextBtn.Enable()
+        self.spiderBtn.Enable()
         self.proxyText.Enable()
 
     def OnClickRunTypeBtn(self, evt):
@@ -286,20 +292,23 @@ class wxRank(wx.Frame, page):
         self.proxyText.SetValue(self.data.proxy_api)
         self.proxyText.SetEditable(True)
         self.proxyTextBtn.Hide()
-        self.proxyCount.SetLabel("|%d" % self.apiCount)
+        self.spiderBtn.Hide()
+        self.proxyCount.SetLabel(" |%d" % self.apiCount)
 
     def OnClickDNS(self, evt):
         self.proxyText.Enable()
         self.proxyText.SetValue(self.data.proxy_dns)
         self.proxyText.SetEditable(True)
         self.proxyTextBtn.Hide()
-        self.proxyCount.SetLabel("|%d" % self.dnsCount)
+        self.spiderBtn.Hide()
+        self.proxyCount.SetLabel(" |%d" % self.dnsCount)
 
     def OnClickTXT(self, evt):
         self.proxyText.Disable()
         self.proxyText.SetValue(u"点击右侧按钮选择文件...")
-        self.proxyCount.SetLabel("|0")
+        self.proxyCount.SetLabel(" |0")
         self.proxyTextBtn.Show()
+        self.spiderBtn.Show()
         self.Layout()
 
     def OnClickRun(self, evt):
@@ -370,8 +379,11 @@ class wxRank(wx.Frame, page):
             self.proxyText.SetValue(kwfilename)
             self.proxyConfig = kwfilename
             self.multiText.SetValue(self.note)
-            self.proxyCount.SetLabel("|%d" % self.getProxyCount("TXT", kwfilename))
+            self.proxyCount.SetLabel(" |%d" % self.getProxyCount("TXT", kwfilename))
         dlg.Destroy()
+
+    def OnSpider(self, evt):
+        pass
 
     def kyFileHeadle(self, filename):
         name = os.path.basename(filename)

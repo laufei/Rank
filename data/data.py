@@ -13,9 +13,14 @@ class data:
         self.baidu_url_request_m = "https://m.baidu.com/s?word=%s&pn=%d&ref=www_colorful&st=111041&from=1014994a"
         self.sm_url = "http://m.sm.cn/"
         self.sogou_url = "https://www.sogou.com/"
-        self.proxy_dns = "http://127.0.0.1:8000/?types=0&count=500"
+        # self.proxy_dns = "http://127.0.0.1:8000/?types=0&count=500"
+        self.proxy_dns = "http://127.0.0.1/proxy.txt"
         self.proxy_api = "http://api.xicidaili.com/free2016.txt"
         self.proxy_txt = "proxy.txt"
+
+        self.youdaili = "http://www.youdaili.net/"
+        self.youdaili_newItem = 3
+
 
 
         self.note = u'''

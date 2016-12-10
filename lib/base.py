@@ -58,27 +58,28 @@ class base():
     def getProxy(self, type, config, rand):
         # rand False: 返回全部，True: 随机返回一个
         proxyaddr = []
-        if type == "Local":
-            r = requests.get(config)
-            ip_ports = json.loads(r.text)
-            for i in ip_ports:
-                ip = i['ip']
-                port = i['port']
-                proxyaddr.append(ip+":"+str(port))
-        if type == "API":
+        # if type == "Local":
+        #     r = requests.get(config)
+        #     ip_ports = json.loads(r.text)
+        #     for i in ip_ports:
+        #         ip = i['ip']
+        #         port = i['port']
+        #         proxyaddr.append(ip+":"+str(port))
+
+        if type == "Local" or type == "API":
             reqURL = config
             try:
                 response = requests.get(reqURL)
             except Exception:
                 return False
-            proxyaddr = response.text.split("\r\n")
+            proxyaddr = response.text.split("\r\n")[:-1]
         if type == "TXT":
             filename = config
             data = list()
             try:
                 with open(filename, 'r') as ff:
                     for line in ff.readlines():
-                        data.append(line[:-2])
+                        data.append(line.split("\r\n")[0])
             except:
                 return False
             proxyaddr = data

@@ -141,6 +141,6 @@ class config:
         #     except Exception, e:
         #         assert False, e
 
-        self.driver.implicitly_wait(30)
-        self.driver.set_script_timeout(30)
-        self.driver.set_page_load_timeout(30)
+        self.driver.implicitly_wait(10)
+        self.driver.set_script_timeout(10)
+        self.driver.set_page_load_timeout(10)

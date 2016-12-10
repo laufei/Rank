@@ -81,7 +81,7 @@ class wxRank_requests(wx.Frame):
             self.apiCount = self.getProxyCount("API", self.data.proxy_api)
         except:
             self.errInfo(u'API代理方式下: 并没有获取到代理数量. ', True)
-        self.proxyCount = wx.StaticText(self, -1, label="|%d" % self.dnsCount, size=(27, 21))
+        self.proxyCount = wx.StaticText(self, -1, label=" |%d" % self.dnsCount, size=(27, 21))
 
         # 版权模块
         self.copyRight = wx.StaticText(self, -1, u"©️LiuFei", style=1)
@@ -268,19 +268,19 @@ class wxRank_requests(wx.Frame):
         self.proxyText.SetValue(self.data.proxy_api)
         self.proxyText.SetEditable(True)
         self.proxyTextBtn.Hide()
-        self.proxyCount.SetLabel("|%d" % self.apiCount)
+        self.proxyCount.SetLabel(" |%d" % self.apiCount)
 
     def OnClickDNS(self, evt):
         self.proxyText.Enable()
         self.proxyText.SetValue(self.data.proxy_dns)
         self.proxyText.SetEditable(True)
         self.proxyTextBtn.Hide()
-        self.proxyCount.SetLabel("|%d" % self.dnsCount)
+        self.proxyCount.SetLabel(" |%d" % self.dnsCount)
 
     def OnClickTXT(self, evt):
         self.proxyText.Disable()
         self.proxyText.SetValue(u"点击右侧按钮选择文件...")
-        self.proxyCount.SetLabel("|0")
+        self.proxyCount.SetLabel(" |0")
         self.proxyTextBtn.Show()
         self.Layout()
 
@@ -352,7 +352,7 @@ class wxRank_requests(wx.Frame):
             self.proxyText.SetValue(kwfilename)
             self.proxyConfig = kwfilename
             self.multiText.SetValue(self.note)
-            self.proxyCount.SetLabel("|%d" % self.getProxyCount("TXT", kwfilename))
+            self.proxyCount.SetLabel(" |%d" % self.getProxyCount("TXT", kwfilename))
         dlg.Destroy()
 
     def kyFileHeadle(self, filename):
