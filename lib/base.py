@@ -3,7 +3,6 @@ __author__ = 'liufei'
 
 import time
 import random
-import json
 import wx
 import requests
 from selenium.webdriver.support.ui import WebDriverWait
@@ -17,11 +16,11 @@ class base():
 
     def __init__(self, platform, proxyType, proxyConfig, runType, isProxy=True, isDriver=True, rand=True):
         self.UA = ua()
-        self.ua = self.UA.USER_AGENTS_H5[random.randint(0, len(self.UA.USER_AGENTS_H5)-1)] if platform == "M" else self.UA.USER_AGENTS_WEB[random.randint(0, len(self.UA.USER_AGENTS_WEB)-1)]
+        self.ua = random.choice(self.UA.USER_AGENTS_H5) if platform.startswith("h5") else random.choice(self.UA.USER_AGENTS_WEB)
         self.isProxy = isProxy
         if self.isProxy:
             self.proxy = self.getProxy(proxyType, proxyConfig, rand)
-            if self.proxy and not "ERR" in self.proxy:
+            if self.proxy and "ERR" not in self.proxy:
                 try:
                     self.proxy.split(":")
                 except:
@@ -36,7 +35,7 @@ class base():
         self.data = data()
         if isDriver:
             self.config = config(platform, self.proxy)
-            self.driver = self.config.driver
+            self.driver = self.config.getDriver()
         self.session = requests.session()
 
     def __del__(self):
@@ -91,7 +90,14 @@ class base():
         proxy = {}
         if self.isProxy:
             proxy["http"] = "http://"+self.proxy
-        headers = {"User-Agent": self.ua}
+            proxy["https"] = "http://"+self.proxy
+            headers = {"User-Agent": self.ua,
+                       'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                        'Accept-Language': 'en-US,en;q=0.5',
+                        'Connection': 'keep-alive',
+                        'Accept-Encoding': 'gzip, deflate',
+                   }
+
         if 0 == self.runType:
             response = self.getSession().get(url, headers=headers, proxies=proxy, timeout=timeout, verify=True).text
         else:

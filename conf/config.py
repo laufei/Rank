@@ -6,6 +6,7 @@ import os
 import platform
 import random
 from selenium import webdriver
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from conf.ua import ua
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -13,7 +14,11 @@ sys.setdefaultencoding('utf8')
 class config:
     def __init__(self, driverConfig, proxy=""):
         self.UA = ua()
-        # 1 - 本地浏览器配置代理；2 - windows测试机配置代理；
+        if driverConfig.startswith("web"):
+            self.uaValue = random.choice(self.UA.USER_AGENTS_WEB)
+        if driverConfig.startswith("h5"):
+            self.uaValue = random.choice(self.UA.USER_AGENTS_H5)
+
         if proxy:
             try:
                 iparray = proxy.split(":")
@@ -23,16 +28,33 @@ class config:
         else:
             proxy, ip, port = "获取代理失败, 请检查代理配置!", "", ""
 
-        if driverConfig == "web_firefox":
-            uaValue = random.choice(self.UA.USER_AGENTS_WEB)
-            # print "web_firefox's ua = ", uaValue
+        if driverConfig == "phantomjs":
+            print "phantomjs's ua = ", self.uaValue
+            caps = DesiredCapabilities.PHANTOMJS
+            caps["phantomjs.page.settings.loadImages"] = False
+            caps["phantomjs.page.customHeaders.User-Agent"] = self.uaValue
+            service_args = [
+                "--proxy=%s" % proxy,
+                "--proxy-type=http",
+                ]
+            try:
+                self.driver = webdriver.PhantomJS(
+                    # executable_path="%s/drivers/" % os.environ["HOME"],
+                    desired_capabilities=caps,
+                    service_args=service_args,
+                    )
+            except Exception, e:
+                assert False, e
+
+        elif driverConfig == "web_firefox":
+            print "web_firefox's ua = ", self.uaValue
             profile = webdriver.FirefoxProfile()
             profile.set_preference("network.proxy.type", 1)
             profile.set_preference("network.proxy.http", ip)
             profile.set_preference("network.proxy.http_port", port)
             profile.set_preference(
                 "general.useragent.override",
-                uaValue
+                self.uaValue
             )
             profile.update_preferences()
             try:
@@ -44,8 +66,7 @@ class config:
                 assert False, e
 
         elif driverConfig == "h5_firefox":
-            uaValue = random.choice(self.UA.USER_AGENTS_H5)
-            # print "h5_firefox's ua = ", uaValue
+            print "h5_firefox's ua = ", self.uaValue
             profile = webdriver.FirefoxProfile()
             profile.set_preference("network.proxy.type", 1)
             profile.set_preference("network.proxy.http", ip)
@@ -54,7 +75,7 @@ class config:
             profile.set_preference("network.proxy.no_proxies_on", "localhost");
             profile.set_preference(
                 "general.useragent.override",
-                uaValue
+                self.uaValue
             )
             profile.update_preferences()
             try:
@@ -89,7 +110,7 @@ class config:
 
         # elif driverConfig == "web_remote":
         #     PROXY = proxy
-        #     webdriver.DesiredCapabilities.FIREFOX['proxy'] = {
+        #     DesiredCapabilities.FIREFOX['proxy'] = {
         #         "httpProxy":PROXY,
         #         "ftpProxy":PROXY,
         #         "sslProxy":PROXY,
@@ -101,7 +122,7 @@ class config:
         #     try:
         #         self.driver = webdriver.Remote(
         #             "http://192.168.56.101:4444/wd/hub",
-        #             webdriver.DesiredCapabilities.FIREFOX)
+        #             DesiredCapabilities.FIREFOX)
         #     except Exception, e:
         #         assert False, e
 
@@ -140,7 +161,24 @@ class config:
         #             desired_capabilities=options.to_capabilities())
         #     except Exception, e:
         #         assert False, e
+        self.setDriver()
 
-        self.driver.implicitly_wait(10)
-        self.driver.set_script_timeout(10)
-        self.driver.set_page_load_timeout(10)
+    def getDriver(self):
+        return self.driver
+
+    def setDriver(self):
+        driver = self.getDriver()
+        driver.implicitly_wait(30)
+        driver.set_script_timeout(10)
+        driver.set_page_load_timeout(30)
+
+if __name__ == "__main__":
+    conf = config("web_phantomjs", "110.73.9.246:8123")
+    driver = conf.getDriver()
+    driver.get("http://httpbin.org/headers")
+    print driver.page_source
+    cap_dict = driver.desired_capabilities
+    for key in cap_dict:
+        print '%s: %s' % (key, cap_dict[key])
+    print driver.current_url
+    driver.quit()

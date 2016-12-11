@@ -248,10 +248,13 @@ class rank(page, Thread):
                             targets = random.sample(range(self.randomArea), random.sample(range(1, self.randomNo_firstpage+1), 1)[0])
                         for index in targets:
                             for baikw in self.baidu_keywords:
-                                if baikw in baidu_result_items[index].text:
-                                    isBaiduUrl = True
-                                else:
-                                    isBaiduUrl = False
+                                try:
+                                    if baikw in baidu_result_items[index].text:
+                                        isBaiduUrl = True
+                                    else:
+                                        isBaiduUrl = False
+                                except:
+                                    continue
                             self.output_Result(info=u"     点击结果页面第[%d]个链接" % (index+1))
                             try:
                                 js = "document.querySelectorAll('%s')[%d].setAttribute('target', '_blank')"

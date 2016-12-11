@@ -146,7 +146,7 @@ class wxRank(wx.Frame, page):
         proxymodBox = wx.BoxSizer(wx.HORIZONTAL)
         proxymodBox.Add(self.rb_proxy, 0, wx.ALL, 5)
         proxymodBox.Add(self.proxyTextBtn, 0, wx.CENTER, 5)
-        # proxymodBox.Add(self.spiderBtn, 0, wx.CENTER, 5)
+        proxymodBox.Add(self.spiderBtn, 0, wx.CENTER, 5)
         proxyConfBox = wx.BoxSizer(wx.HORIZONTAL)
         proxyConfBox.Add(self.proxyText, 0, wx.ALIGN_LEFT, 5)
         proxyConfBox.Add(self.proxyCount, 0, wx.ALIGN_RIGHT, 5)
