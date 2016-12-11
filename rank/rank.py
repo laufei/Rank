@@ -9,12 +9,13 @@ from element.page import page
 from data.data import data
 
 class rank(page, Thread):
-    def __init__(self, searcher, driverType, proxyType, proxyConfig, keyworks, urlkw, runType, runtime=0):
+    def __init__(self, searcher, driverType, isPhantomjs, proxyType, proxyConfig, keyworks, urlkw, runType, runtime=0):
         Thread.__init__(self)
         #搜索关键词
         self.data = data()
         self.searcher = searcher
         self.driverType = driverType
+        self.isPhantomjs = isPhantomjs
         self.gotoURL = self.getURL()
         self.proxyType = proxyType
         self.proxyConfig = proxyConfig
@@ -42,9 +43,13 @@ class rank(page, Thread):
         wx.CallAfter(pub.sendMessage, "reset")
         wx.CallAfter(self.output_Result, log="[All Done]")
 
-    def getdriverType(self):
+
+    def getdriverType(self, isPhantomjs):
         # return "h5_firefox" if self.driverType == 0 else ("h5_chrome" if self.driverType == 1 else "web_firefox")
-        return "h5_firefox" if self.driverType == 0 else "web_firefox"
+        if isPhantomjs:
+            return "h5_phantomjs" if self.driverType == 0 else "web_phantomjs"
+        else:
+            return "h5_firefox" if self.driverType == 0 else "web_firefox"
 
     def getURL(self):
         return self.data.baidu_url if self.searcher == 0 else (self.data.sm_url if self.searcher == 1 else self.data.sogou_url)
@@ -81,7 +86,7 @@ class rank(page, Thread):
         if 2 == self.runType:
             isProxy = False
         try:
-            self.pageobj = page(self.getdriverType(), self.proxyType, self.proxyConfig, self.runType, isProxy)
+            self.pageobj = page(self.getdriverType(self.isPhantomjs), self.proxyType, self.proxyConfig, self.runType, isProxy)
         except Exception, e:
             self.output_Result(info=str(e))
             wx.CallAfter(pub.sendMessage, "reset")

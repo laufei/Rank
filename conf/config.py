@@ -28,7 +28,7 @@ class config:
         else:
             proxy, ip, port = "获取代理失败, 请检查代理配置!", "", ""
 
-        if driverConfig == "phantomjs":
+        if driverConfig.endswith("phantomjs"):
             print "phantomjs's ua = ", self.uaValue
             caps = DesiredCapabilities.PHANTOMJS
             caps["phantomjs.page.settings.loadImages"] = False

@@ -51,7 +51,9 @@ class wxRank(wx.Frame, page):
         dm = wx.StaticBox(self, -1, u"▼ 运行平台:")
         # pfList = ["H5-F", "H5-C", "Web-F"]
         pfList = ["H5", "Web"]
-        self.rb_platform = wx.RadioBox(self, -1, "", wx.DefaultPosition, (120, 80), pfList, 3, wx.SL_VERTICAL)
+        self.rb_platform = wx.RadioBox(self, -1, "", wx.DefaultPosition, (120, 40), pfList, 2, wx.SL_HORIZONTAL)
+        # 是否使用模拟浏览器
+        self.cb_isPhantomjs = wx.CheckBox(self, -1, u"模拟浏览器?", wx.DefaultPosition, (120, 30))
         # 配置目标页面关键词
         tm = wx.StaticBox(self, -1, u"▼ 目标页面标题包含关键词:")
         self.target_kw = wx.TextCtrl(self, -1, value=u"穷游网", size=(272, 21))
@@ -124,8 +126,9 @@ class wxRank(wx.Frame, page):
         funcbox.Add(self.dndBtn, 0, wx.ALL, 5)
         searchbox = wx.StaticBoxSizer(sm, wx.HORIZONTAL)
         searchbox.Add(self.rb_splatform, 0, wx.ALL, 5)
-        driverbox = wx.StaticBoxSizer(dm, wx.HORIZONTAL)
+        driverbox = wx.StaticBoxSizer(dm, wx.VERTICAL)
         driverbox.Add(self.rb_platform, 0, wx.ALL, 5)
+        driverbox.Add(self.cb_isPhantomjs, 0, wx.ALL, 5)
         targetbox = wx.StaticBoxSizer(tm, wx.HORIZONTAL)
         targetbox.Add(self.target_kw, 0, wx.ALL, 5)
         filebox = wx.StaticBoxSizer(fm, wx.HORIZONTAL)
@@ -205,6 +208,9 @@ class wxRank(wx.Frame, page):
     def EvtRadioBox_SPF(self, evt):
         return self.rb_splatform.GetSelection()
 
+    def getIsPhantomjs(self, evt):
+        return self.cb_isPhantomjs.GetValue()
+
     def EvtCheckBox_RT(self, evt):
         if self.runTime.GetValue():
             self.runText.SetEditable(True)
@@ -232,6 +238,7 @@ class wxRank(wx.Frame, page):
     def DisableOnRun(self):
         self.rb_splatform.Disable()
         self.rb_platform.Disable()
+        self.cb_isPhantomjs.Disable()
         self.target_kw.Disable()
         self.runTypeBtn.Disable()
         self.getRankBtn.Disable()
@@ -251,6 +258,7 @@ class wxRank(wx.Frame, page):
     def EnableOnStop(self):
         self.rb_splatform.Enable()
         self.rb_platform.Enable()
+        self.cb_isPhantomjs.Enable()
         self.target_kw.Enable()
         self.runTypeBtn.Enable()
         self.runTypeBtn.SetValue(False)
@@ -352,7 +360,8 @@ class wxRank(wx.Frame, page):
         self.OnStart()
         searcher = self.EvtRadioBox_SPF(evt)
         drvierType = self.EvtRadioBox_PF(evt)
-        self.rankObj = rank(searcher, drvierType, self.proxyType, self.proxyConfig, self.keyworks, self.urlkw, func, int(runtime))
+        isPhantomjs = self.getIsPhantomjs(evt)
+        self.rankObj = rank(searcher, drvierType, isPhantomjs, self.proxyType, self.proxyConfig, self.keyworks, self.urlkw, func, int(runtime))
 
     def OnClickStop(self, evt):
         ret = wx.MessageBox(u"确定要关闭吗?", "", wx.YES_NO)
