@@ -86,7 +86,9 @@ class rank_requests(base, Thread):
             key = kw[0]
             value = (kw[1] if not self.Runtime else self.Runtime)
             self.output_Result(info=u"【%d/%d】：当前关键词 - %s" % (process, total, key))
-            for click in range(value):
+            while True:
+                if value == succtime:
+                    break
                 runtime += 1
                 self.begin()
                 self.output_Result(info="----------------------------------------------")
@@ -187,8 +189,10 @@ class rank_requests(base, Thread):
             total = len(self.SearchKeywords)
             key = kw[0]
             value = (kw[1] if not self.Runtime else self.Runtime)
-            self.output_Result(info=u"【%d/%d】：当前关键词 - %s" % (process, total, key))
-            for click in range(value):
+            while True:
+                self.output_Result(info=u"【%d/%d】：当前关键词 - %s" % (process, total, key))
+                if value == succtime:
+                    break
                 runtime += 1
                 self.begin()
                 self.output_Result(info="----------------------------------------------")

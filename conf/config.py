@@ -31,9 +31,12 @@ class config:
         if driverConfig.endswith("phantomjs"):
             print "phantomjs's ua = ", self.uaValue
             caps = DesiredCapabilities.PHANTOMJS
+            caps["phantomjs.page.settings.resourceTimeout"] = 5000
             caps["phantomjs.page.settings.loadImages"] = False
-            caps["phantomjs.page.customHeaders.User-Agent"] = self.uaValue
+            caps["phantomjs.page.settings.userAgent"] = self.uaValue
             service_args = [
+                "--ssl-protocol=any",
+                "--ignore-ssl-errors=yes",
                 "--proxy=%s" % proxy,
                 "--proxy-type=http",
                 ]
@@ -173,9 +176,9 @@ class config:
         driver.set_page_load_timeout(30)
 
 if __name__ == "__main__":
-    conf = config("web_phantomjs", "110.73.9.246:8123")
+    conf = config("web_phantomjs", "110.84.239.208:8118")
     driver = conf.getDriver()
-    driver.get("http://httpbin.org/headers")
+    driver.get("https://www.baidu.com")
     print driver.page_source
     cap_dict = driver.desired_capabilities
     for key in cap_dict:

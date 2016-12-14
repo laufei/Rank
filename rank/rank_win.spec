@@ -4,6 +4,7 @@ block_cipher = None
 APP_NAME = 'Ranker'
 added_files = [
             ('..\\drivers\\geckodriver-v0.11.1-win64.zip', '.'),
+            ('..\\drivers\\phantomjs-2.1.1-windows.zip', '.'),
             ('..\\src', 'src')
             ]
 a = Analysis(['main.py'],
