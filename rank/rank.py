@@ -113,7 +113,7 @@ class rank(page, Thread):
                 driver = self.pageobj.getDriver()
                 self.output_Result(info="----------------------------------------------")
                 if 2 != self.runType:
-                    self.output_Result(info=u"当前使用代理: %s" %self.pageobj.getProxyAddr())
+                    self.output_Result(info=u"%s 当前使用代理: %s" % (time.strftime('%Y-%m-%d %H:%M:%S'), self.pageobj.getProxyAddr()))
                 # 1. 打开搜索页面并使用关键词搜索
                 try:
                     self.pageobj.gotoURL(self.gotoURL)
@@ -200,7 +200,7 @@ class rank(page, Thread):
                         wx.CallAfter(pub.sendMessage, "succTime", value=(self.succTimeAll))
                         break                  # 点击到目标链接后, 退出翻页操作循环
                 self.end()
-                wx.CallAfter(pub.sendMessage, "process", value=((((process-1)*value)+runtime)*100)/(total*value))
+                wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll/(total*value))
                 try:
                     self.succRatio = '%.2f' % (self.succTimeAll/float((process-1)*value+runtime))
                     wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
@@ -224,7 +224,7 @@ class rank(page, Thread):
                 driver = self.pageobj.getDriver()
                 self.output_Result(info="----------------------------------------------")
                 if 2 != self.runType:
-                    self.output_Result(info=u"当前使用代理: %s" %self.pageobj.getProxyAddr())
+                    self.output_Result(info=u"%s 当前使用代理: %s" % (time.strftime('%Y-%m-%d %H:%M:%S'), self.pageobj.getProxyAddr()))
                 # 1. 打开搜索页面并使用关键词搜索
                 try:
                     self.pageobj.gotoURL(self.gotoURL)
@@ -276,7 +276,7 @@ class rank(page, Thread):
                         if 1 == self.runType:   # 如果选择只刷指数, 则无需翻页再进行后续操作
                             self.succTimeAll += 1   #总的成功执行数增1
                             wx.CallAfter(pub.sendMessage, "succTime", value=(self.succTimeAll))
-                            wx.CallAfter(pub.sendMessage, "process", value=((((process-1)*value)+runtime)*100)/(total*value))
+                            wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll/(total*value))
                             try:
                                 self.succRatio = '%.2f' % (self.succTimeAll/float((process-1)*value+runtime))
                                 wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
