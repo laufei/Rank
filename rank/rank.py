@@ -107,7 +107,9 @@ class rank(page, Thread):
             key = kw[0]
             value = (kw[1] if not self.Runtime else self.Runtime)
             self.output_Result(info=u"【%d/%d】：当前关键词 - %s" % (process, total, key))
-            for click in range(value):
+            while True:
+                if value == succtime:
+                    break
                 runtime += 1
                 self.begin()
                 driver = self.pageobj.getDriver()
@@ -218,7 +220,9 @@ class rank(page, Thread):
             key = kw[0]
             value = (kw[1] if not self.Runtime else self.Runtime)
             self.output_Result(info=u"【%d/%d】：当前关键词 - %s" % (process, total, key))
-            for click in range(value):
+            while True:
+                if value == succtime:
+                    break
                 runtime += 1
                 self.begin()
                 driver = self.pageobj.getDriver()

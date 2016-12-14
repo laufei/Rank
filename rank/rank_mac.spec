@@ -4,6 +4,7 @@ block_cipher = None
 APP_NAME = 'Ranker'
 added_files = [
             ('../drivers/geckodriver-v0.11.1-macos.tar.gz', 'rank/drivers'),
+            ('../drivers/phantomjs-2.1.1-macosx.tar.gz', 'rank/drivers'),
             ('../src', 'src')
             ]
 a = Analysis(['../main.py'],

@@ -49,7 +49,6 @@ class wxRank(wx.Frame, page):
         self.rb_splatform = wx.RadioBox(self, -1, "", wx.DefaultPosition, (120, 80), spfList, 3, wx.SL_VERTICAL)
         # 选择平台：web，h5
         dm = wx.StaticBox(self, -1, u"▼ 运行平台:")
-        # pfList = ["H5-F", "H5-C", "Web-F"]
         pfList = ["H5", "Web"]
         self.rb_platform = wx.RadioBox(self, -1, "", wx.DefaultPosition, (120, 40), pfList, 2, wx.SL_HORIZONTAL)
         # 是否使用模拟浏览器
