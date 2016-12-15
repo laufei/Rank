@@ -171,9 +171,9 @@ class config:
 
     def setDriver(self):
         driver = self.getDriver()
-        driver.implicitly_wait(30)
+        driver.implicitly_wait(10)
         driver.set_script_timeout(10)
-        driver.set_page_load_timeout(30)
+        driver.set_page_load_timeout(10)
 
 if __name__ == "__main__":
     conf = config("web_phantomjs", "110.84.239.208:8118")
