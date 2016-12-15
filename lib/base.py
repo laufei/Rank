@@ -183,11 +183,14 @@ class base():
         js = "document.documentElement.scrollTop+=%d" % pix
         self.driver.execute_script(js)
 
-    def print_kw_config(self, config):
+    def print_kw_config(self, config, runtime):
         self.output_Result(info="本次执行使用关键词配置信息:")
+        index = 0
         for kw in config.items():
-            self.output_Result(info="               ┣搜索关键词┫ " + str(kw[0]))
-            self.output_Result(info="               ┣目标点击数┫" + str(kw[1]))
+            index += 1
+            self.output_Result(info="              %d. 〖搜索关键词〗 %s" % (index, str(kw[0])))
+            value = kw[1] if not runtime else runtime
+            self.output_Result(info="                     〖目标点击数〗 %s" % str(value))
 
     def output_Result(self, log='', info='', outputfile=True):
         msg = ""

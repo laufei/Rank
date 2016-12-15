@@ -70,7 +70,7 @@ class wxRank(wx.Frame, page):
         self.runTime = wx.CheckBox(self, -1, u"是否统一配置?  输入运行次数:")
         self.runText = wx.TextCtrl(self, -1, size=(62, 21))
         self.runText.SetEditable(False)
-        self.runText.SetValue("10")
+        self.runText.SetValue("100")
         self.Bind(wx.EVT_CHECKBOX, self.EvtCheckBox_RT, self.runTime)
         # 选择代理方式：Local, api，txt
         pm = wx.StaticBox(self, -1, u"▼ 代理方式:")

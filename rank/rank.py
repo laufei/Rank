@@ -100,7 +100,7 @@ class rank(page, Thread):
 
     def rank_baidu_web(self):
         process = 0         # process: 记录已执行到第几个关键词
-        self.print_kw_config(self.SearchKeywords)
+        self.print_kw_config(self.SearchKeywords, self.Runtime)
         for kw in self.SearchKeywords.items():
             process += 1
             succtime, runtime = 0, 0         # succtime: 记录当前关键字下成功点击次数;     runtime: 记录当前关键字下所有点击次数
@@ -153,9 +153,11 @@ class rank(page, Thread):
                                 self.output_Result(log=u"     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
                             driver.switch_to_window(window)
                         if 1 == self.runType:   # 如果选择只刷指数, 则无需翻页再进行后续操作
+                            succtime += 1
                             self.succTimeAll += 1   #总的成功执行数增1
-                            wx.CallAfter(pub.sendMessage, "succTime", value=(self.succTimeAll))
-                            wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll/(total*value))
+                            wx.CallAfter(pub.sendMessage, "succTime", value=self.succTimeAll)
+                            print "process = ", self.succTimeAll/(total*value)
+                            wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll*100/(total*value))
                             try:
                                 self.succRatio = '%.2f' % (self.succTimeAll/float((process-1)*value+runtime))
                                 wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
@@ -200,10 +202,10 @@ class rank(page, Thread):
                         self.pageobj.scroll_page(100)
                     if found:
                         self.succTimeAll += 1   #总的成功执行数增1
-                        wx.CallAfter(pub.sendMessage, "succTime", value=(self.succTimeAll))
+                        wx.CallAfter(pub.sendMessage, "succTime", value=self.succTimeAll)
                         break                  # 点击到目标链接后, 退出翻页操作循环
                 self.end()
-                wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll/(total*value))
+                wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll*100/(total*value))
                 try:
                     self.succRatio = '%.2f' % (self.succTimeAll/float((process-1)*value+runtime))
                     wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
@@ -214,7 +216,7 @@ class rank(page, Thread):
 
     def rank_baidu_m(self):
         process = 0         # process: 记录已执行到第几个关键词
-        self.print_kw_config(self.SearchKeywords)
+        self.print_kw_config(self.SearchKeywords, self.Runtime)
         for kw in self.SearchKeywords.items():
             process += 1
             succtime, runtime = 0, 0         # succtime: 记录当前关键字下成功点击次数;     runtime: 记录当前关键字下所有点击次数
@@ -281,8 +283,9 @@ class rank(page, Thread):
                             driver.switch_to_window(window)
                         if 1 == self.runType:   # 如果选择只刷指数, 则无需翻页再进行后续操作
                             self.succTimeAll += 1   #总的成功执行数增1
-                            wx.CallAfter(pub.sendMessage, "succTime", value=(self.succTimeAll))
-                            wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll/(total*value))
+                            succtime += 1
+                            wx.CallAfter(pub.sendMessage, "succTime", value=self.succTimeAll)
+                            wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll*100/(total*value))
                             try:
                                 self.succRatio = '%.2f' % (self.succTimeAll/float((process-1)*value+runtime))
                                 wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
@@ -330,10 +333,10 @@ class rank(page, Thread):
                         self.pageobj.scroll_page(100)
                     if found:
                         self.succTimeAll += 1   #总的成功执行数增1
-                        wx.CallAfter(pub.sendMessage, "succTime", value=(self.succTimeAll))
+                        wx.CallAfter(pub.sendMessage, "succTime", value=self.succTimeAll)
                         break                  # 点击到目标链接后, 退出翻页操作循环
                 self.end()
-                wx.CallAfter(pub.sendMessage, "process", value=((((process-1)*value)+runtime)*100)/(total*value))
+                wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll*100/(total*value))
                 try:
                     self.succRatio = '%.2f' % (self.succTimeAll/float((process-1)*value+runtime))
                     wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))

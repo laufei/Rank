@@ -78,7 +78,7 @@ class rank_requests(base, Thread):
 
     def rank_baidu_web(self):
         process = 0         # process: 记录已执行到第几个关键词
-        self.print_kw_config(self.SearchKeywords)
+        self.print_kw_config(self.SearchKeywords, self.Runtime)
         for kw in self.SearchKeywords.items():
             process += 1
             succtime, runtime = 0, 0         # succtime: 记录当前关键字下成功请求次数;     runtime: 记录当前关键字下所有请求次数
@@ -124,7 +124,7 @@ class rank_requests(base, Thread):
                         if 1 == self.runType:
                             self.succTimeAll += 1   #总的成功执行数增1
                             wx.CallAfter(pub.sendMessage, "succTime", value=(self.succTimeAll))
-                            wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll/(total*value))
+                            wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll*100/(total*value))
                             try:
                                 self.succRatio = '%.2f' % (self.succTimeAll/float((process-1)*value+runtime))
                                 wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
@@ -172,7 +172,7 @@ class rank_requests(base, Thread):
                         wx.CallAfter(pub.sendMessage, "succTime", value=(self.succTimeAll))
                         break
                 self.end()
-                wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll/(total*value))
+                wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll*100/(total*value))
                 try:
                     self.succRatio = '%.2f' % (self.succTimeAll/float((process-1)*value+runtime))
                     wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
@@ -183,7 +183,7 @@ class rank_requests(base, Thread):
 
     def rank_baidu_m(self):
         process = 0         # process: 记录已执行到第几个关键词
-        self.print_kw_config(self.SearchKeywords)
+        self.print_kw_config(self.SearchKeywords, self.Runtime)
         for kw in self.SearchKeywords.items():
             process += 1
             succtime, runtime = 0, 0         # succtime: 记录当前关键字下成功请求次数;     runtime: 记录当前关键字下所有请求次数
@@ -226,7 +226,7 @@ class rank_requests(base, Thread):
                         if 1 == self.runType:
                             self.succTimeAll += 1   #总的成功执行数增1
                             wx.CallAfter(pub.sendMessage, "succTime", value=(self.succTimeAll))
-                            wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll/(total*value))
+                            wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll*100/(total*value))
                             try:
                                 self.succRatio = '%.2f' % (self.succTimeAll/float((process-1)*value+runtime))
                                 wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
@@ -274,7 +274,7 @@ class rank_requests(base, Thread):
                         wx.CallAfter(pub.sendMessage, "succTime", value=(self.succTimeAll))
                         break
                 self.end()
-                wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll/(total*value))
+                wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll*100/(total*value))
                 try:
                     self.succRatio = '%.2f' % (self.succTimeAll/float((process-1)*value+runtime))
                     wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
