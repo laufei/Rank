@@ -108,14 +108,14 @@ class rank(page, Thread):
             value = (kw[1] if not self.Runtime else self.Runtime)
             self.output_Result(info=u"【%d/%d】：当前关键词 - %s" % (process, total, key))
             while True:
-                if value == succtime:
+                if int(value) == int(succtime):
                     break
                 runtime += 1
                 self.begin()
                 driver = self.pageobj.getDriver()
                 self.output_Result(info="----------------------------------------------")
                 if 2 != self.runType:
-                    self.output_Result(info=u"当前使用代理: %s" %self.pageobj.getProxyAddr())
+                    self.output_Result(info=u"[%s] 当前使用代理: %s" % (time.strftime("%Y-%m-%d %H:%M:%S"), self.pageobj.getProxyAddr()))
                 # 1. 打开搜索页面并使用关键词搜索
                 try:
                     self.pageobj.gotoURL(self.gotoURL)
@@ -221,14 +221,14 @@ class rank(page, Thread):
             value = (kw[1] if not self.Runtime else self.Runtime)
             self.output_Result(info=u"【%d/%d】：当前关键词 - %s" % (process, total, key))
             while True:
-                if value == succtime:
+                if int(value) == int(succtime):
                     break
                 runtime += 1
                 self.begin()
                 driver = self.pageobj.getDriver()
                 self.output_Result(info="----------------------------------------------")
                 if 2 != self.runType:
-                    self.output_Result(info=u"当前使用代理: %s" %self.pageobj.getProxyAddr())
+                    self.output_Result(info=u"[%s] 当前使用代理: %s" % (time.strftime("%Y-%m-%d %H:%M:%S"), self.pageobj.getProxyAddr()))
                 # 1. 打开搜索页面并使用关键词搜索
                 try:
                     self.pageobj.gotoURL(self.gotoURL)
