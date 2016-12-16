@@ -1,7 +1,7 @@
 ﻿# coding: utf-8
 __author__ = 'liufei'
 
-import os
+import os, time, datetime
 import wx
 from wx.lib.pubsub import pub
 from data.data import data
@@ -17,6 +17,7 @@ class wxRank_requests(wx.Frame):
         self.update()
         self.Bind(wx.EVT_CLOSE, self.OnClickStop)
         # 创建定时器
+        self.beginTime = 0
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.OnTimer, self.timer)
         self.note = self.data.note
@@ -172,7 +173,8 @@ class wxRank_requests(wx.Frame):
         self.timer.Stop()
 
     def OnTimer(self, evt):
-        self.spend += 1
+        now = int(time.mktime(datetime.datetime.now().timetuple()))
+        self.spend = now - self.beginTime
         hour = str(self.spend/3600)
         min = str((self.spend % 3600)/60)
         sec = str(self.spend % 3600 % 60)
@@ -285,6 +287,7 @@ class wxRank_requests(wx.Frame):
         self.Layout()
 
     def OnClickRun(self, evt):
+        self.beginTime = int(time.mktime(datetime.datetime.now().timetuple()))
         self.spend, runtime = 0, 0
         # 如果功能按钮: 只刷指数和获取排名同时开启的话, 提示错误
         runType = self.runTypeBtn.GetValue()
