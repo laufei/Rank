@@ -15,7 +15,6 @@ class wxRank(wx.Frame, page):
         self.data = data()
         self.keyworks, self.urlkw, self.proxyType, self.proxyConfig = "", "", "", ""
         self.proValue, self.spend = 0, 0
-
         self.note = self.data.note
         self.font = wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL, False)
         self.update()
@@ -39,6 +38,7 @@ class wxRank(wx.Frame, page):
         # 功能选择
         fcm = wx.StaticBox(self, -1, u"▼ 功能选择:")
         self.runTypeBtn = wx.ToggleButton(self, -1, label=u'只刷指数', size=(84, 21))
+        self.runTypeBtn.SetValue(True)
         self.Bind(wx.EVT_TOGGLEBUTTON, self.OnClickRunTypeBtn, self.runTypeBtn)
         self.getRankBtn = wx.ToggleButton(self, -1, label=u'获取排名', size=(84, 21))
         self.Bind(wx.EVT_TOGGLEBUTTON, self.OnClickGetRankBtn, self.getRankBtn)
@@ -86,7 +86,7 @@ class wxRank(wx.Frame, page):
         self.spiderBtn.Hide()
         self.Bind(wx.EVT_BUTTON, self.OnSpider, self.spiderBtn)
         # 代理DNS，API, TXT配置输入框
-        self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_dns, size=(245, 21))
+        self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_dns, size=(220, 21))
         self.proxyText.SetFont(self.font)
         # 代理数量显示
         self.apiCount, self.dnsCount = 0, 0
@@ -98,8 +98,7 @@ class wxRank(wx.Frame, page):
             self.apiCount = self.getProxyCount("API", self.data.proxy_api)
         except:
             self.errInfo(u'API代理方式下: 并没有获取到代理数量. ', True)
-        self.proxyCount = wx.StaticText(self, -1, label=" |%d" % self.dnsCount, size=(27, 21))
-
+        self.proxyCount = wx.StaticText(self, -1, label=" |%d" % self.dnsCount, size=(50, 21))
         # 版权模块
         self.copyRight = wx.StaticText(self, -1, u"©️LiuFei", style=1)
         self.spendTime = wx.StaticText(self, -1, u"▶ 耗时: 00:00:00  ")
@@ -322,7 +321,7 @@ class wxRank(wx.Frame, page):
 
     def OnClickRun(self, evt):
         self.beginTime = int(time.mktime(datetime.datetime.now().timetuple()))
-        self.spend, runtime = 0, 0
+        runtime = 0
         # 如果功能按钮: 只刷指数和获取排名同时开启的话, 提示错误
         runType = self.runTypeBtn.GetValue()
         getRank = self.getRankBtn.GetValue()
@@ -379,7 +378,6 @@ class wxRank(wx.Frame, page):
             self.kwText.SetLabel(kwfilename)
             self.multiText.SetValue(self.note)
             self.keyworks = self.kyFileHeadle(kwfilename)
-            self.kwText.SetEditable(False)
         dlg.Destroy()
 
     def OnOpenProxyFile(self, evt):

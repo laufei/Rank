@@ -45,9 +45,8 @@ class rank(page, Thread):
 
 
     def getdriverType(self, isPhantomjs):
-        # return "h5_firefox" if self.driverType == 0 else ("h5_chrome" if self.driverType == 1 else "web_firefox")
         if isPhantomjs:
-            return "h5_phantomjs" if self.driverType == 0 else "web_phantomjs"
+            return "phantomjs"
         else:
             return "h5_firefox" if self.driverType == 0 else "web_firefox"
 

@@ -82,7 +82,7 @@ class wxRank_requests(wx.Frame):
             self.apiCount = self.getProxyCount("API", self.data.proxy_api)
         except:
             self.errInfo(u'API代理方式下: 并没有获取到代理数量. ', True)
-        self.proxyCount = wx.StaticText(self, -1, label=" |%d" % self.dnsCount, size=(27, 21))
+        self.proxyCount = wx.StaticText(self, -1, label=" |%d" % self.dnsCount, size=(50, 21))
 
         # 版权模块
         self.copyRight = wx.StaticText(self, -1, u"©️LiuFei", style=1)
@@ -288,7 +288,7 @@ class wxRank_requests(wx.Frame):
 
     def OnClickRun(self, evt):
         self.beginTime = int(time.mktime(datetime.datetime.now().timetuple()))
-        self.spend, runtime = 0, 0
+        runtime = 0
         # 如果功能按钮: 只刷指数和获取排名同时开启的话, 提示错误
         runType = self.runTypeBtn.GetValue()
         getRank = self.getRankBtn.GetValue()
@@ -344,7 +344,6 @@ class wxRank_requests(wx.Frame):
             self.kwText.SetLabel(kwfilename)
             self.multiText.SetValue(self.note)
             self.keyworks = self.kyFileHeadle(kwfilename)
-            self.kwText.SetEditable(False)
         dlg.Destroy()
 
     def OnOpenProxyFile(self, evt):

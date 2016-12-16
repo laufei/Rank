@@ -93,7 +93,7 @@ class rank_requests(base, Thread):
                 self.begin()
                 self.output_Result(info="----------------------------------------------")
                 if 2 != self.runType:
-                    self.output_Result(info=u"[%s] 当前使用代理: %s" % (time.strftime("%Y-%m-%d %H:%M:%S"), self.pageobj.getProxyAddr()))
+                    self.output_Result(info=u"[%s] 当前使用代理: %s" % (time.strftime("%Y-%m-%d %H:%M:%S"), self.baseobj.getProxyAddr()))
                 # 1. 打开搜索页面并使用关键词搜索
                 baiduPage = self.baseobj.requests_url(self.data.baidu_url_request_web % (key, 0))
 
@@ -190,15 +190,15 @@ class rank_requests(base, Thread):
             total = len(self.SearchKeywords)
             key = kw[0]
             value = (kw[1] if not self.Runtime else self.Runtime)
+            self.output_Result(info=u"【%d/%d】：当前关键词 - %s" % (process, total, key))
             while True:
-                self.output_Result(info=u"【%d/%d】：当前关键词 - %s" % (process, total, key))
                 if int(value) == int(succtime):
                     break
                 runtime += 1
                 self.begin()
                 self.output_Result(info="----------------------------------------------")
                 if 2 != self.runType:
-                    self.output_Result(info=u"[%s] 当前使用代理: %s" % (time.strftime("%Y-%m-%d %H:%M:%S"), self.pageobj.getProxyAddr()))
+                    self.output_Result(info=u"[%s] 当前使用代理: %s" % (time.strftime("%Y-%m-%d %H:%M:%S"), self.baseobj.getProxyAddr()))
                 # 1. 打开搜索页面并使用关键词搜索
                 baiduPage = self.baseobj.requests_url(self.data.baidu_url_request_m % (key, 0))
 
@@ -209,8 +209,10 @@ class rank_requests(base, Thread):
                     if page == 0 and self.runType != 2:
                         # 如果是第一页的话，随机从前五中随机点击若干(1-self.randomNo_firstpage)个URL
                         soup = BS(baiduPage)
-                        searchResult = soup.findAll(name="div", attrs={"class": "c-container"}, limit=self.randomArea)
-                        # 按照比例随机点击URL，正序80%，乱序20%
+                        if self.runType == 0:
+                            searchResult = soup.findAll(name="h3", attrs={"class": "t"}, limit=self.randomArea)
+                        elif self.runType == 1:
+                            searchResult = soup.findAll(name="h3", attrs={"class": "t"})                        # 按照比例随机点击URL，正序80%，乱序20%
                         ra = random.random()
                         if ra < self.radio_sorted:
                             targets = sorted(random.sample(range(self.randomArea), random.sample(range(1, self.randomNo_firstpage+1), 1)[0]))
