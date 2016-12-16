@@ -100,7 +100,7 @@ class rank(page, Thread):
 
     def rank_baidu_web(self):
         process = 0         # process: 记录已执行到第几个关键词
-        self.print_kw_config(self.SearchKeywords, self.Runtime)
+        self.print_kw_config(self.SearchKeywords, self.driverType, self.Runtime)
         for kw in self.SearchKeywords.items():
             process += 1
             succtime, runtime = 0, 0         # succtime: 记录当前关键字下成功点击次数;     runtime: 记录当前关键字下所有点击次数
@@ -216,7 +216,7 @@ class rank(page, Thread):
 
     def rank_baidu_m(self):
         process = 0         # process: 记录已执行到第几个关键词
-        self.print_kw_config(self.SearchKeywords, self.Runtime)
+        self.print_kw_config(self.SearchKeywords, self.driverType, self.Runtime)
         for kw in self.SearchKeywords.items():
             process += 1
             succtime, runtime = 0, 0         # succtime: 记录当前关键字下成功点击次数;     runtime: 记录当前关键字下所有点击次数
