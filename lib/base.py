@@ -86,7 +86,7 @@ class base():
             return random.choice(proxyaddr)
         return proxyaddr
 
-    def requests_url(self, url, timeout=10):
+    def requests_url(self, url, timeout=30):
         proxy = {}
         if self.isProxy:
             proxy["http"] = "http://"+self.proxy

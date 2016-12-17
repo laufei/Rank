@@ -46,7 +46,7 @@ class rank(page, Thread):
 
     def getdriverType(self, isPhantomjs):
         if isPhantomjs:
-            return "phantomjs"
+            return "h5_phantomjs" if self.driverType == 0 else "web_phantomjs"
         else:
             return "h5_firefox" if self.driverType == 0 else "web_firefox"
 
@@ -54,18 +54,6 @@ class rank(page, Thread):
         return self.data.baidu_url if self.searcher == 0 else (self.data.sm_url if self.searcher == 1 else self.data.sogou_url)
 
     def getMethod(self, searcher, driverType):
-        # if [searcher, driverType] == [0, 0] or [searcher, driverType] == [0, 1]:
-        #     self.rank_baidu_m()
-        # if [searcher, driverType] == [0, 2]:
-        #     self.rank_baidu_web()
-        # if [searcher, driverType] == [1, 0] or [searcher, driverType] == [1, 1]:
-        #     self.rank_sm_m()
-        # if [searcher, driverType] == [1, 2]:
-        #     self.rank_sm_web()
-        # if [searcher, driverType] == [2, 0] or [searcher, driverType] == [2, 1]:
-        #     self.rank_sogou_m()
-        # if [searcher, driverType] == [2, 2]:
-        #     self.rank_sogou_web()
         if [searcher, driverType] == [0, 0]:
             self.rank_baidu_m()
         if [searcher, driverType] == [0, 1]:

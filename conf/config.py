@@ -66,7 +66,7 @@ class config:
             except Exception, e:
                 assert False, e
 
-        elif driverConfig == "chrome":
+        elif driverConfig.endswith("chrome"):
             if platform.system() == "Darwin":
                 chromedriver = "%s/drivers/" % os.environ["HOME"]
             elif platform.system() == "Windows":
