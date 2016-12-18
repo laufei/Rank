@@ -1,18 +1,18 @@
 # coding: utf-8
 __author__ = 'liufei'
-from lib.SqlHelper import SqlHelper
 import sqlite3
+import json
 
-class SqliteHelper(SqlHelper):
+class SqliteHelper:
     '''
     数据库的配置
     '''
     DB_CONFIG = {
-        'dbType':'sqlite',#sqlite,mysql,mongodb
-        'dbPath':'../data/ranker.db',#这个仅仅对sqlite有效
-        'dbUser':'',#用户名
-        'dbPass':'',#密码
-        'dbName':''#数据库名称
+        'dbType': 'sqlite',#sqlite,mysql,mongodb
+        'dbPath': 'data/ranker.db',#这个仅仅对sqlite有效
+        'dbUser': '',#用户名
+        'dbPass': '',#密码
+        'dbName': ''#数据库名称
     }
     table_customer = "customer"
     table_ranker = "ranker"
@@ -28,6 +28,12 @@ class SqliteHelper(SqlHelper):
         self.createTable_customer()
         self.createTable_ranker()
 
+    def __del__(self):
+        try:
+            self.close()
+        except:
+            pass
+
     def compress(self):
         '''
         数据库进行压缩
@@ -35,6 +41,10 @@ class SqliteHelper(SqlHelper):
         self.database.execute('VACUUM')
 
     def createTable_customer(self):
+        # name - 用户名字
+        # customer_info - 用户详细信息
+        # vaild_data - 订单截止日期
+        # updatetime - 数据更新时间
         sql = '''
                 create TABLE IF NOT EXISTS %s
                 (
@@ -49,14 +59,28 @@ class SqliteHelper(SqlHelper):
         self.database.commit()
 
     def createTable_ranker(self):
+        # customerid - 用户订单id
+        # keyword - 需要操作的关键字
+        # searcher -  搜索引擎: 0-百度; 1-神马; 2-搜狗
+        # searcher - 执行平台: 0-h5; 1-web
+        # runway - 执行操作方式: 0-刷指数+刷权重 1-只刷指数
+        # targeturl_keyword - 目标页面URL中包含的关键字, 以此作为匹配目标页面的标志
+        # target_runtimes - 指数点击次数
+        # clicked_times - 当日已经点击次数
+        # updatetime - 记录更新时间
+
         sql = '''
                 create TABLE IF NOT EXISTS %s
                 (
                     id INTEGER PRIMARY KEY,
                     customerid CHAR(10) NOT NULL,
                     keyword VARCHAR(16) NOT NULL,
-                    platform CHAR(6) NOT NULL, runway INTEGER NOT NULL,
-                    target_runtimes INTEGER NOT NULL DEFAULT 0, clicked_times INTEGER NOT NULL DEFAULT 0,
+                    searcher INTEGER NOT NULL DEFAULT 0,
+                    platform INTEGER NOT NULL DEFAULT 0,
+                    runway INTEGER NOT NULL,
+                    targeturl_keyword CHAR(20) DEFAULT "",
+                    target_runtimes INTEGER NOT NULL DEFAULT 0,
+                    clicked_times INTEGER NOT NULL DEFAULT 0,
                     updatetime TimeStamp NOT NULL DEFAULT (datetime('now','localtime'))
                 )
                ''' % self.table_ranker
@@ -68,18 +92,30 @@ class SqliteHelper(SqlHelper):
         self.cursor.execute("INSERT INTO %s (name, customer_info, vaild_date)VALUES (?,?,?)" % self.table_customer, customer)
 
     def insert_ranker(self, value):
-        ranker = [value['customerid'], value['keyword'], value['platform'], value['runway'], value['target_runtimes']]
-        self.cursor.execute("INSERT INTO %s (customerid, keyword, platform, runway, target_runtimes) VALUES (?,?,?,?,?)" % self.table_ranker, ranker)
+        ranker = [value['customerid'], value['keyword'], value['searcher'], value['platform'], value['runway'], value['targeturl_keyword'], value['target_runtimes']]
+        self.cursor.execute("INSERT INTO %s (customerid, keyword, searcher, platform, runway, targeturl_keyword, target_runtimes) VALUES (?,?,?,?,?,?,?)" % self.table_ranker, ranker)
 
     def select_today_tasks(self):
         sql = '''
-        select keyword, platform, runway, target_runtimes, clicked_times
+        select searcher, platform, runway, keyword, targeturl_keyword, target_runtimes - clicked_times
         from ranker r left join customer c on r.customerid = c.id
         where vaild_date >= date('now','localtime')
         '''
         self.cursor.execute(sql)
         result = self.cursor.fetchall()
-        return result
+        taskList, index = [], 1
+        for t in result:
+            task, value = {}, {}
+            task['T%d' % index] = value
+            value['searcher'] = t[0]
+            value['drvierType'] = t[1]
+            value['func'] = t[2]
+            value['keyword'] = t[3]
+            value['targeturl_keyword'] = t[4]
+            value['runtime'] = t[5]
+            index += 1
+            taskList.append(task)
+        return json.dumps(taskList)
 
     def update(self,tableName, condition, value):
         self.cursor.execute('UPDATE %s %s'%(tableName, condition), value)
@@ -100,7 +136,7 @@ class SqliteHelper(SqlHelper):
 
 if __name__ == "__main__":
     sh = SqliteHelper()
-    ''' #添加订单数据
+    '''#添加订单数据
     content = {
         'name': 'LiuFei',
         "customer_info": u"这是刘飞测试程序使用的客户信息字段内容",
@@ -109,18 +145,20 @@ if __name__ == "__main__":
     sh.insert_customer(content)
     sh.commit()
     '''
-
-    ''' #添加任务数据
+    '''#添加任务数据
     content = {
         'customerid': 2,
         'keyword': u'中青旅遨游网',
-        'platform': 'h5',
+        'searcher': 0,
+        'platform': '0',
         'runway': 1,
+        'targeturl_keyword': u'遨游网',
         'target_runtimes': 200
     }
     sh.insert_ranker(content)
     sh.commit()
     '''
 
-    #查询当日任务
+    # 查询当日任务
     print sh.select_today_tasks()
+

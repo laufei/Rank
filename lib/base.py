@@ -2,6 +2,7 @@
 __author__ = 'liufei'
 
 import time
+import json
 import random
 import wx
 import requests
@@ -183,16 +184,20 @@ class base():
         js = "document.documentElement.scrollTop+=%d" % pix
         self.driver.execute_script(js)
 
-    def print_kw_config(self, config, platform, runtime):
+    def print_kw_config(self, tasks, platform):
         self.output_Result(info="本次执行使用关键词配置信息:")
-        index = 0
-        for kw in config.items():
-            index += 1
-            self.output_Result(info="              %d. 〖搜索关键词〗: %s" % (index, str(kw[0])))
+        for task in tasks:
+            key = task.keys()
+            value = task.values()
+            keyword = value['keyword']
+            targetkw = value['targeturl_keyword']
+            runtime = value['runtime']
+            self.output_Result(info="              %s. 〖搜索关键词〗: %s" % (key, keyword))
             platform = "Web" if platform else "H5"
             self.output_Result(info="                     〖目标端平台〗: %s端" % platform)
-            value = kw[1] if not runtime else runtime
-            self.output_Result(info="                     〖目标点击数〗: %s次" % str(value))
+            self.output_Result(info="                     〖目标关键字〗: %s" % targetkw)
+            # value = kw[2] if not runtime else runtime
+            self.output_Result(info="                     〖目标点击数〗: %s次" % str(runtime))
 
     def output_Result(self, log='', info='', outputfile=True):
         msg = ""
