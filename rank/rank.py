@@ -2,17 +2,20 @@
 __author__ = 'liufei'
 import time
 import random
+import threading
 from threading import Thread
 import wx
 from wx.lib.pubsub import pub
 from element.page import page
 from data.data import data
+from lib.SqliteHelper import SqliteHelper
 
 class rank(page, Thread):
-    def __init__(self, searcher, driverType, isPhantomjs, proxyType, proxyConfig, keyworks, urlkw, runType, runtime=0):
+    def __init__(self, searcher, driverType, isPhantomjs, proxyType, proxyConfig, keyworks, urlkw, runType, taskid = None, runtime=0):
         Thread.__init__(self)
         #搜索关键词
         self.data = data()
+        self.sh = SqliteHelper()
         self.searcher = searcher
         self.driverType = driverType
         self.isPhantomjs = isPhantomjs
@@ -22,6 +25,7 @@ class rank(page, Thread):
         self.SearchKeywords = keyworks
         self.URLKeywords = urlkw
         self.runType = runType
+        self.taskid = taskid
         self.Runtime = runtime
         self.succTimeAll, self.succRatio = 0, 0
 
@@ -51,7 +55,7 @@ class rank(page, Thread):
             return "h5_firefox" if self.driverType == 0 else "web_firefox"
 
     def getURL(self):
-        return self.data.baidu_url if self.searcher == 0 else (self.data.sm_url if self.searcher == 1 else self.data.sogou_url)
+        return (self.data.baidu_url_h5 if self.driverType == 0 else self.data.baidu_url_web) if self.searcher == 0 else (self.data.sm_url if self.searcher == 1 else self.data.sogou_url)
 
     def getMethod(self, searcher, driverType):
         if [searcher, driverType] == [0, 0]:
@@ -86,12 +90,11 @@ class rank(page, Thread):
             pass
 
     def rank_baidu_web(self):
-        process = 1         # process: 记录已执行到第几个关键词
+        threadname = threading.currentThread().getName()
         succtime, runtime = 0, 0         # succtime: 记录当前关键字下成功点击次数;     runtime: 记录当前关键字下所有点击次数
-        total = 1
-        self.output_Result(info=u"【%d/%d】：当前关键词 - %s" % (process, total, self.SearchKeywords))
+        self.output_Result(info=u"【%s】：当前关键词 - %s" % (threadname, self.SearchKeywords))
         while True:
-            if int(self.Runtime) == int(succtime):
+            if int(self.Runtime) == int(succtime) or self.sh.select_runtime(self.taskid) <= 0:
                 break
             runtime += 1
             self.begin()
@@ -137,11 +140,13 @@ class rank(page, Thread):
                     if 1 == self.runType:   # 如果选择只刷指数, 则无需翻页再进行后续操作
                         succtime += 1
                         self.succTimeAll += 1   #总的成功执行数增1
-                        wx.CallAfter(pub.sendMessage, "succTime", value=self.succTimeAll)
+                        if self.taskid:
+                            self.sh.update("clicked_times = clicked_times + 1, updatetime = datetime('now','localtime')", " id = %d" % self.taskid)
+                        wx.CallAfter(pub.sendMessage, "succTime", threadName=threadname, value=self.succTimeAll)
                         wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll*100/self.Runtime)
                         try:
-                            self.succRatio = '%.2f' % (self.succTimeAll/float((process-1)*self.Runtime+runtime))
-                            wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
+                            self.succRatio = '%.2f' % (self.succTimeAll/runtime)
+                            wx.CallAfter(pub.sendMessage, "succRatio", value=self.succRatio)
                         except ZeroDivisionError:
                             pass
                         break
@@ -167,6 +172,8 @@ class rank(page, Thread):
                                 self.output_Result(info=u"     关键字位于第[%d]页，第[%d]个链接" % (page+1, index+1))
                                 found = True
                                 succtime += 1
+                                if self.taskid:
+                                    self.sh.update("clicked_times = clicked_times + 1, updatetime = datetime('now','localtime')", " id = %d" % self.taskid)
                                 break
                             self.output_Result(info=u"     点击结果页面第[%d]个链接: %s" % (index+1, resultURL))
                             try:
@@ -174,6 +181,8 @@ class rank(page, Thread):
                                 baidu_result_items[index].click()
                                 found = True
                                 succtime += 1
+                                if self.taskid:
+                                    self.sh.update("clicked_times = clicked_times + 1, updatetime = datetime('now','localtime')", " id = %d" % self.taskid)
                                 break
                             except Exception, e:
                                 self.output_Result(log=u"     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
@@ -183,12 +192,12 @@ class rank(page, Thread):
                     self.pageobj.scroll_page(100)
                 if found:
                     self.succTimeAll += 1   #总的成功执行数增1
-                    wx.CallAfter(pub.sendMessage, "succTime", value=self.succTimeAll)
+                    wx.CallAfter(pub.sendMessage, "succTime", threadName=threadname, value=self.succTimeAll)
                     break                  # 点击到目标链接后, 退出翻页操作循环
             self.end()
             wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll*100/self.Runtime)
             try:
-                self.succRatio = '%.2f' % (self.succTimeAll/float((process-1)*self.Runtime+runtime))
+                self.succRatio = '%.2f' % (self.succTimeAll/+runtime)
                 wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
             except ZeroDivisionError:
                 pass
@@ -196,12 +205,11 @@ class rank(page, Thread):
             self.output_Result(info=u"当前关键词，成功点击%d次" % succtime)
 
     def rank_baidu_m(self):
-        process = 1         # process: 记录已执行到第几个关键词
+        threadname = threading.currentThread().getName()
         succtime, runtime = 0, 0         # succtime: 记录当前关键字下成功点击次数;     runtime: 记录当前关键字下所有点击次数
-        total = 1
-        self.output_Result(info=u"【%d/%d】：当前关键词 - %s" % (process, total, self.SearchKeywords))
+        self.output_Result(info=u"【%s】：当前关键词 - %s" % (threadname, self.SearchKeywords))
         while True:
-            if int(self.Runtime) == int(succtime):
+            if int(self.Runtime) == int(succtime) or self.sh.select_runtime(self.taskid) <= 0:
                 break
             runtime += 1
             self.begin()
@@ -260,10 +268,12 @@ class rank(page, Thread):
                     if 1 == self.runType:   # 如果选择只刷指数, 则无需翻页再进行后续操作
                         self.succTimeAll += 1   #总的成功执行数增1
                         succtime += 1
-                        wx.CallAfter(pub.sendMessage, "succTime", value=self.succTimeAll)
+                        if self.taskid:
+                            self.sh.update("clicked_times = clicked_times + 1, updatetime = datetime('now','localtime')", " id = %d" % self.taskid)
+                        wx.CallAfter(pub.sendMessage, "succTime", threadName=threadname, value=self.succTimeAll)
                         wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll*100/self.Runtime)
                         try:
-                            self.succRatio = '%.2f' % (self.succTimeAll/float((process-1)*self.Runtime+runtime))
+                            self.succRatio = '%.2f' % (self.succTimeAll/runtime)
                             wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
                         except ZeroDivisionError:
                             pass
@@ -290,6 +300,8 @@ class rank(page, Thread):
                                 self.output_Result(info=u"     关键字位于第[%d]页，第[%d]个链接" % (page+1, index+1))
                                 found = True
                                 succtime += 1
+                                if self.taskid:
+                                    self.sh.update("clicked_times = clicked_times + 1, updatetime = datetime('now','localtime')", " id = %d" % self.taskid)
                                 break
                             self.output_Result(info=u"     点击结果页面第[%d]个链接: %s" % (index+1, resultURL))
                             try:
@@ -300,6 +312,8 @@ class rank(page, Thread):
                                 baidu_result_items[index].click()
                                 found = True
                                 succtime += 1
+                                if self.taskid:
+                                    self.sh.update("clicked_times = clicked_times + 1, updatetime = datetime('now','localtime')", " id = %d" % self.taskid)
                                 break
                             except Exception, e:
                                 self.output_Result(log=u"     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
@@ -309,12 +323,12 @@ class rank(page, Thread):
                     self.pageobj.scroll_page(100)
                 if found:
                     self.succTimeAll += 1   #总的成功执行数增1
-                    wx.CallAfter(pub.sendMessage, "succTime", value=self.succTimeAll)
+                    wx.CallAfter(pub.sendMessage, "succTime", threadName=threadname, value=self.succTimeAll)
                     break                  # 点击到目标链接后, 退出翻页操作循环
             self.end()
             wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll*100/self.Runtime)
             try:
-                self.succRatio = '%.2f' % (self.succTimeAll/float((process-1)*self.Runtime+runtime))
+                self.succRatio = '%.2f' % (self.succTimeAll/runtime)
                 wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
             except ZeroDivisionError:
                 pass

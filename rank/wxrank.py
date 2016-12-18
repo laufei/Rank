@@ -109,10 +109,10 @@ class wxRank(wx.Frame, page):
         # 版权模块
         self.copyRight = wx.StaticText(self, -1, u"©️LiuFei", style=1)
         self.spendTime = wx.StaticText(self, -1, u"▶ 耗时: 00:00:00  ")
-        self.succTime = wx.StaticText(self, -1, u"▶ 成功次数: 0  ")
+        self.succTime = wx.StaticText(self, -1, u"进程: ---  ▶ 成功次数: 0  ")
         self.succRatio = wx.StaticText(self, -1, u"▶ 成功率: 0.0  ")
         self.proText = wx.StaticText(self, -1, u"▶ 进度:")
-        self.process = wx.Gauge(self, -1, size=(190, 20), style=wx.GA_HORIZONTAL)
+        self.process = wx.Gauge(self, -1, size=(140, 20), style=wx.GA_HORIZONTAL)
         self.Bind(wx.EVT_IDLE, self.Onprocess)
         # 运行按钮
         self.buttonRun = wx.Button(self, label=u"运行")
@@ -242,8 +242,8 @@ class wxRank(wx.Frame, page):
     def getProcess(self, value):
         self.proValue = value
 
-    def setSuccTime(self, value):
-        self.succTime.SetLabel(u"▶ 成功次数: %d  " % value)
+    def setSuccTime(self, threadName, value):
+        self.succTime.SetLabel(u"%s ▶ 成功次数: %d  " % (threadName, value))
 
     def setSuccRatio(self, value):
         self.succRatio.SetLabel(u"▶ 成功率: %s  " % str(value))
@@ -385,14 +385,14 @@ class wxRank(wx.Frame, page):
             for t in tasks:
                 key = t.keys()[0]
                 value = t.values()[0]
+                taskid = value["taskid"]
                 searcher = value["searcher"]
                 driverType = value["drvierType"]
                 func = value["func"]
                 keyword = value["keyword"]
-                targetkw = value['targeturl_keyword']
+                targetkw = value['targeturl_keyword'].split(",")
                 runtime = value['runtime']
-                rank(searcher, driverType, isPhantomjs, self.proxyType, self.proxyConfig, keyword, targetkw, func, int(runtime))
-                break
+                rank(searcher, driverType, isPhantomjs, self.proxyType, self.proxyConfig, keyword, targetkw, func, taskid, int(runtime))
         else:
             searcher = self.EvtRadioBox_SPF(evt)
             driverType = self.EvtRadioBox_PF(evt)

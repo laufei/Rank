@@ -97,9 +97,9 @@ class SqliteHelper:
 
     def select_today_tasks(self):
         sql = '''
-        select searcher, platform, runway, keyword, targeturl_keyword, target_runtimes - clicked_times
+        select r.id, searcher, platform, runway, keyword, targeturl_keyword, (target_runtimes - clicked_times) times
         from ranker r left join customer c on r.customerid = c.id
-        where vaild_date >= date('now','localtime')
+        where vaild_date >= date('now','localtime') and times > 0
         '''
         self.cursor.execute(sql)
         result = self.cursor.fetchall()
@@ -107,18 +107,27 @@ class SqliteHelper:
         for t in result:
             task, value = {}, {}
             task['T%d' % index] = value
-            value['searcher'] = t[0]
-            value['drvierType'] = t[1]
-            value['func'] = t[2]
-            value['keyword'] = t[3]
-            value['targeturl_keyword'] = t[4]
-            value['runtime'] = t[5]
+            value['taskid'] = t[0]
+            value['searcher'] = t[1]
+            value['drvierType'] = t[2]
+            value['func'] = t[3]
+            value['keyword'] = t[4]
+            value['targeturl_keyword'] = t[5]
+            value['runtime'] = t[6]
             index += 1
             taskList.append(task)
         return json.dumps(taskList)
 
-    def update(self,tableName, condition, value):
-        self.cursor.execute('UPDATE %s %s'%(tableName, condition), value)
+    def select_runtime(self, taskid):
+        sql = 'select target_runtimes - clicked_times from %s where id = %d' % (self.table_ranker, taskid)
+        self.cursor.execute(sql)
+        for row in self.cursor.fetchall():
+            for r in row:
+                return r
+
+    def update(self, condition, value):
+        sql = 'UPDATE %s SET %s WHERE %s' % (self.table_ranker, condition, value)
+        self.cursor.execute(sql)
         self.database.commit()
 
     def delete(self, tableName, condition):
@@ -159,6 +168,6 @@ if __name__ == "__main__":
     sh.commit()
     '''
 
-    # 查询当日任务
-    print sh.select_today_tasks()
-
+    # # 查询当日任务
+    # print sh.select_today_tasks()
+    sh.update("clicked_times = clicked_times + 1, updatetime = datetime('now','localtime')", " id = 1")
