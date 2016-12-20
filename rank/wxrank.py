@@ -12,7 +12,9 @@ from lib.SqliteHelper import SqliteHelper
 
 class wxRank(wx.Frame, page):
     def __init__(self):
-        wx.Frame.__init__(self, parent=None, title=u'刷搜索排名小工具 v1.0', size=(920, 640), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
+        wx.Frame.__init__(self, parent=None, title=u'刷搜索排名小工具 v1.0', size=(925, 566), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
+        self.size = self.GetSize()
+        # print self.size
         self.data = data()
         self.task, self.urlkw, self.proxyType, self.proxyConfig = "", "", "", ""
         self.proValue, self.spend = 0, 0
@@ -44,6 +46,11 @@ class wxRank(wx.Frame, page):
         self.om = wx.StaticBox(self, -1, u"▼ 运行日志:")
         self.multiText = wx.TextCtrl(self, -1, value=self.note, size=(500, 420), style=wx.TE_MULTILINE|wx.TE_READONLY)
         self.multiText.SetInsertionPoint(0)
+        self.taskInfoBtn = wx.ToggleButton(self, label=u'>', size=(25, 420))
+        self.Bind(wx.EVT_TOGGLEBUTTON, self.OnClickTaskInfoBtn, self.taskInfoBtn)
+        self.taskInfo = wx.StaticText(self, -1, label=u"当日有效任务:  ", size=(300, 420))
+        self.taskInfo.Hide()
+
         # 功能选择
         self.fcm = wx.StaticBox(self, -1, u"▼ 功能选择:")
         self.getDBDataBtn = wx.ToggleButton(self, label=u'DB获取任务', size=(85, 21))
@@ -66,9 +73,8 @@ class wxRank(wx.Frame, page):
         self.cb_isPhantomjs = wx.CheckBox(self, -1, u"模拟浏览器?", wx.DefaultPosition, (120, 30))
 
         self.fm = wx.StaticBox(self, -1, u"▼ 搜索关键词文件路径:")
-        self.kwText = wx.TextCtrl(self, -1, value=u"点击右侧按钮选择文件...", size=(222, 21))
+        self.kwText = wx.TextCtrl(self, -1, value=u"点击右侧按钮选择文件...", size=(222, 21), style=wx.TE_READONLY)
         self.kwText.SetFont(self.font)
-        self.kwText.SetEditable(False)
         self.kwBtn = wx.Button(self, label='...', size=(30, 21))
         self.Bind(wx.EVT_BUTTON, self.OnOpenKWFile, self.kwBtn)
         self.tmpBtn = wx.Button(self, label='+', size=(30, 21))
@@ -89,9 +95,6 @@ class wxRank(wx.Frame, page):
         self.proxyTextBtn = wx.Button(self, label='...', size=(30, 21))
         self.proxyTextBtn.Hide()
         self.Bind(wx.EVT_BUTTON, self.OnOpenProxyFile, self.proxyTextBtn)
-        self.spiderBtn = wx.Button(self, label='+', size=(30, 21))
-        self.spiderBtn.Hide()
-        self.Bind(wx.EVT_BUTTON, self.OnSpider, self.spiderBtn)
         # 代理DNS，API, TXT配置输入框
         self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_dns, size=(220, 21))
         self.proxyText.SetFont(self.font)
@@ -107,9 +110,9 @@ class wxRank(wx.Frame, page):
             self.errInfo(u'API代理方式下: 并没有获取到代理数量. ', True)
         self.proxyCount = wx.StaticText(self, -1, label=" |%d" % self.dnsCount, size=(50, 21))
         # 版权模块
-        self.copyRight = wx.StaticText(self, -1, u"©️LiuFei", style=1)
+        self.copyRight = wx.StaticText(self, -1, u"© LiuFei", style=1)
         self.spendTime = wx.StaticText(self, -1, u"▶ 耗时: 00:00:00  ")
-        self.succTime = wx.StaticText(self, -1, u"进程: ---  ▶ 成功次数: 0  ")
+        self.succTime = wx.StaticText(self, -1, u"进程: ----      ▶ 成功次数: 0  ")
         self.succRatio = wx.StaticText(self, -1, u"▶ 成功率: 0.0  ")
         self.proText = wx.StaticText(self, -1, u"▶ 进度:")
         self.process = wx.Gauge(self, -1, size=(140, 20), style=wx.GA_HORIZONTAL)
@@ -162,7 +165,6 @@ class wxRank(wx.Frame, page):
         proxymodBox = wx.BoxSizer(wx.HORIZONTAL)
         proxymodBox.Add(self.rb_proxy, 0, wx.ALL, 5)
         proxymodBox.Add(self.proxyTextBtn, 0, wx.CENTER, 5)
-        proxymodBox.Add(self.spiderBtn, 0, wx.CENTER, 5)
         proxyConfBox = wx.BoxSizer(wx.HORIZONTAL)
         proxyConfBox.Add(self.proxyText, 0, wx.ALIGN_LEFT, 5)
         proxyConfBox.Add(self.proxyCount, 0, wx.ALIGN_RIGHT, 5)
@@ -171,9 +173,11 @@ class wxRank(wx.Frame, page):
         leftbox.Add(proxyBox, 0, wx.ALL, 5)
 
         # 右侧布局
-        rightBox = wx.BoxSizer(wx.VERTICAL)
-        logBox = wx.StaticBoxSizer(self.om, wx.VERTICAL)
+        rightBox = wx.BoxSizer(wx.HORIZONTAL)
+        logBox = wx.StaticBoxSizer(self.om, wx.HORIZONTAL)
         logBox.Add(self.multiText, 0, wx.ALL, 5)
+        logBox.Add(self.taskInfoBtn, 0, wx.ALL, 5)
+        logBox.Add(self.taskInfo, 0, wx.ALL, 5)
         rightBox.Add(logBox, 0, wx.ALL, 5)
 
         # 底部布局
@@ -243,7 +247,7 @@ class wxRank(wx.Frame, page):
         self.proValue = value
 
     def setSuccTime(self, threadName, value):
-        self.succTime.SetLabel(u"%s ▶ 成功次数: %d  " % (threadName, value))
+        self.succTime.SetLabel(u"进程: %s ▶ 成功次数: %d  " % (threadName, value))
 
     def setSuccRatio(self, value):
         self.succRatio.SetLabel(u"▶ 成功率: %s  " % str(value))
@@ -251,8 +255,19 @@ class wxRank(wx.Frame, page):
     def Onprocess(self, evt):
         self.process.SetValue(self.proValue)
 
-    def OnClickGetDBDataBtn(self,evt):
+    def OnClickGetDBDataBtn(self, evt):
         self.setStatusByDBDataBtn()
+
+    def OnClickTaskInfoBtn(self, evt):
+        if self.taskInfoBtn.GetValue():
+            self.taskInfo.Show()
+            self.taskInfoBtn.SetLabel("<")
+            self.SetSize(1180, 566)
+        else:
+            self.taskInfo.Hide()
+            self.taskInfoBtn.SetLabel(">")
+            self.SetSize(self.size)
+        self.Layout()
 
     def setStatusByDBDataBtn(self):
         if self.getDBDataBtn.GetValue():
@@ -288,7 +303,6 @@ class wxRank(wx.Frame, page):
         self.runText.Disable()
         self.rb_proxy.Disable()
         self.proxyTextBtn.Disable()
-        self.spiderBtn.Disable()
         self.proxyText.Disable()
 
     def DisableRun(self):
@@ -302,7 +316,6 @@ class wxRank(wx.Frame, page):
         self.tmpBtn.Enable()
         self.rb_proxy.Enable()
         self.proxyTextBtn.Enable()
-        self.spiderBtn.Enable()
         self.proxyText.Enable()
 
     def OnClickGetRankBtn(self, evt):
@@ -325,7 +338,6 @@ class wxRank(wx.Frame, page):
         self.proxyText.SetValue(self.data.proxy_api)
         self.proxyText.SetEditable(True)
         self.proxyTextBtn.Hide()
-        self.spiderBtn.Hide()
         self.proxyCount.SetLabel(" |%d" % self.apiCount)
 
     def OnClickDNS(self, evt):
@@ -333,7 +345,6 @@ class wxRank(wx.Frame, page):
         self.proxyText.SetValue(self.data.proxy_dns)
         self.proxyText.SetEditable(True)
         self.proxyTextBtn.Hide()
-        self.spiderBtn.Hide()
         self.proxyCount.SetLabel(" |%d" % self.dnsCount)
 
     def OnClickTXT(self, evt):
@@ -341,12 +352,11 @@ class wxRank(wx.Frame, page):
         self.proxyText.SetValue(u"点击右侧按钮选择文件...")
         self.proxyCount.SetLabel(" |0")
         self.proxyTextBtn.Show()
-        self.spiderBtn.Show()
         self.Layout()
 
     def OnClickRun(self, evt):
         self.beginTime = int(time.mktime(datetime.datetime.now().timetuple()))
-        runtime = 0
+        runtime, allRuntime = 0, 0
         # 如果功能按钮: 只刷指数和获取排名同时开启的话, 提示错误
         runType = self.runTypeBtn.GetValue()
         getRank = self.getRankBtn.GetValue()
@@ -363,8 +373,8 @@ class wxRank(wx.Frame, page):
         self.proxyConfig = self.proxyText.GetValue().strip()
         # 如果选择了固定运行次数, 但是赋值为空, 提示错误
         if self.runTime.GetValue():
-            runTime = self.runText.GetValue().strip()
-            if (not runtime) or (not runtime.isdigit()) or (not int(runtime)):
+            allRuntime = self.runText.GetValue().strip()
+            if (not allRuntime) or (not allRuntime.isdigit()) or (not int(allRuntime)):
                 self.errInfo(u"运行次数配置有误!")
                 return
         if func == 2:       # 如果选择获取排名功能, 执行次数固定设置为1
@@ -373,6 +383,11 @@ class wxRank(wx.Frame, page):
         if self.proxyConfig == "" or self.proxyConfig == u"点击右侧按钮选择文件...":
             self.errInfo(u"代理设置不能为空!")
             return
+        tasks = self.get_data_from_db()
+        if self.getDBDataBtn.GetValue():
+            if not tasks:
+                self.errInfo(u"当前无有效任务!")
+                return
         self.multiText.SetValue("")
         self.buttonRun.SetLabel(u"运行中")
         self.buttonStop.SetLabel(u"停止")
@@ -381,7 +396,6 @@ class wxRank(wx.Frame, page):
         self.OnStart()
         isPhantomjs = self.getIsPhantomjs(evt)
         if self.getDBDataBtn.GetValue():
-            tasks = self.get_data_from_db()
             for t in tasks:
                 key = t.keys()[0]
                 value = t.values()[0]
@@ -396,13 +410,13 @@ class wxRank(wx.Frame, page):
         else:
             searcher = self.EvtRadioBox_SPF(evt)
             driverType = self.EvtRadioBox_PF(evt)
-            for t in self.task:
-                key = t.keys()[0]
-                value = t.values()[0]
+            for k in self.task.keys():
+                key = k
+                value = self.task[k]
                 keyword = value["keyword"]
                 targetkw = value['targeturl_keyword']
-                runtime = runTime if runTime else value['runtime']
-                rank(searcher, driverType, isPhantomjs, self.proxyType, self.proxyConfig, keyword, targetkw, func, int(runtime))
+                runtime = allRuntime if allRuntime else value['runtime']
+                rank(searcher, driverType, isPhantomjs, self.proxyType, self.proxyConfig, keyword, targetkw, func, taskid=None, runtime=int(runtime))
 
     def get_data_from_db(self):
         tasks = self.SqliteHelper.select_today_tasks()
@@ -422,7 +436,6 @@ class wxRank(wx.Frame, page):
             self.kwText.SetLabel(kwfilename)
             self.multiText.SetValue(self.note)
             self.task = self.kyFileHeadle(kwfilename)
-            print "Type of task = ", type(self.task)
         dlg.Destroy()
 
     def OnOpenProxyFile(self, evt):
@@ -447,7 +460,7 @@ class wxRank(wx.Frame, page):
         try:
             with open(filename, "r") as ff:
                 kw = ff.read().decode("utf-8")
-                return json.dumps(kw)
+                return eval(kw)
         except Exception, e:
             self.errInfo(u"获取关键词文件失败:%s" % str(e))
             return False
@@ -494,7 +507,7 @@ class wxRank(wx.Frame, page):
     def OnCreateTmpFile(self, evt):
         ret = wx.MessageBox(u"点击确定会覆盖当前已存在的配置文件, 确定要创建模板文件吗?", "", wx.YES_NO)
         if ret == wx.YES:
-            kwconf = u'''[
+            kwconf = u'''{
                         'T1': {
                                         'keyword': '豌豆荚手机助手',
                                         'targeturl_keyword': '豌豆荚, 手机',
@@ -505,7 +518,7 @@ class wxRank(wx.Frame, page):
                                         'targeturl_keyword': '遨游网',
                                         'runtime': 20,
                         }
-             ]'''
+            }'''
             try:
                 with open("kw.data", "w") as ff:
                     ff.write(kwconf)

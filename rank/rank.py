@@ -38,8 +38,10 @@ class rank(page, Thread):
         # 设置线程为后台线程, 并启动线程
         self.setDaemon(True)
         self.start()
+        self.output_Result(info=self.print_task_list(self.taskid, self.SearchKeywords, self.URLKeywords, self.Runtime))
 
     def __del__(self):
+        self.output_Result(info="Thread: %s Finished" % threading.currentThread().getName())
         self.end()
 
     def run(self):
@@ -47,6 +49,24 @@ class rank(page, Thread):
         wx.CallAfter(pub.sendMessage, "reset")
         wx.CallAfter(self.output_Result, log="[All Done]")
 
+    def print_task_list(self, taskid, keyworks, urlkw, runtime):
+        template = '''
+        ==============================
+        工单ID: %s                                    搜索平台: %s
+        运行平台: %s                                Driver类型: %s
+        功能选择: %s                                搜索关键词: %s
+        目标页面标题关键字: %s               目标执行次数: %s
+
+        ''' %(
+            str(taskid),
+            self.getSearcher(),
+            self.getdriverType(self.isPhantomjs).split("_")[0],
+            self.getdriverType(self.isPhantomjs).split("_")[1],
+            self.getRunType(),
+            keyworks,
+            "".join(urlkw),
+            runtime)
+        return template
 
     def getdriverType(self, isPhantomjs):
         if isPhantomjs:
@@ -56,6 +76,12 @@ class rank(page, Thread):
 
     def getURL(self):
         return (self.data.baidu_url_h5 if self.driverType == 0 else self.data.baidu_url_web) if self.searcher == 0 else (self.data.sm_url if self.searcher == 1 else self.data.sogou_url)
+
+    def getSearcher(self):
+        return "百度" if self.searcher == 0 else ("神马" if self.searcher == 1 else "搜狗")
+
+    def getRunType(self):
+        return "刷指数&排名" if self.runType == 0 else ("只刷指数" if self.runType == 1 else "获取关键字排名")
 
     def getMethod(self, searcher, driverType):
         if [searcher, driverType] == [0, 0]:
@@ -94,8 +120,12 @@ class rank(page, Thread):
         succtime, runtime = 0, 0         # succtime: 记录当前关键字下成功点击次数;     runtime: 记录当前关键字下所有点击次数
         self.output_Result(info=u"【%s】：当前关键词 - %s" % (threadname, self.SearchKeywords))
         while True:
-            if int(self.Runtime) == int(succtime) or self.sh.select_runtime(self.taskid) <= 0:
-                break
+            if self.taskid:
+                if int(self.Runtime) == int(succtime) or self.sh.select_runtime(self.taskid) <= 0:
+                    break
+            else:
+                if int(self.Runtime) == int(succtime):
+                    break
             runtime += 1
             self.begin()
             driver = self.pageobj.getDriver()
@@ -209,8 +239,12 @@ class rank(page, Thread):
         succtime, runtime = 0, 0         # succtime: 记录当前关键字下成功点击次数;     runtime: 记录当前关键字下所有点击次数
         self.output_Result(info=u"【%s】：当前关键词 - %s" % (threadname, self.SearchKeywords))
         while True:
-            if int(self.Runtime) == int(succtime) or self.sh.select_runtime(self.taskid) <= 0:
-                break
+            if self.taskid:
+                if int(self.Runtime) == int(succtime) or self.sh.select_runtime(self.taskid) <= 0:
+                    break
+            else:
+                if int(self.Runtime) == int(succtime):
+                    break
             runtime += 1
             self.begin()
             driver = self.pageobj.getDriver()
