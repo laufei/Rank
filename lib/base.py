@@ -190,7 +190,7 @@ class base():
             msg = info+"\n"
             wx.CallAfter(pub.sendMessage, "info", info=msg)
         if log:
-            msg = " ["+time.ctime()+"]  " + log + "\n"
+            msg = " ["+time.strftime("%Y-%m-%d %H:%M:%S")+"]  " + log + "\n"
             wx.CallAfter(pub.sendMessage, "log", log=msg, mode=1)
         if outputfile:
             filename = "Result.txt"
@@ -198,5 +198,5 @@ class base():
                 if info:
                     msg = info+"\n"
                 if log:
-                    msg = " ["+time.ctime()+"]  " + log + "\n"
+                    msg = " ["+time.strftime("%Y-%m-%d %H:%M:%S")+"]  " + log + "\n"
                 ff.write(msg)

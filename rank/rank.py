@@ -41,21 +41,19 @@ class rank(page, Thread):
         self.output_Result(info=self.print_task_list(self.taskid, self.SearchKeywords, self.URLKeywords, self.Runtime))
 
     def __del__(self):
-        self.output_Result(info="Thread: %s Finished" % threading.currentThread().getName())
         self.end()
 
     def run(self):
         self.getMethod(self.searcher, self.driverType)
-        wx.CallAfter(pub.sendMessage, "reset")
-        wx.CallAfter(self.output_Result, log="[All Done]")
+        self.output_Result(log="[run] Thread: %s Finished" % threading.currentThread().getName())
 
     def print_task_list(self, taskid, keyworks, urlkw, runtime):
         template = '''
-        ==============================
-        工单ID: %s                                    搜索平台: %s
-        运行平台: %s                                Driver类型: %s
-        功能选择: %s                                搜索关键词: %s
-        目标页面标题关键字: %s               目标执行次数: %s
+        [工单ID]: %s                                              [搜索平台]: %s
+        [运行平台]: %s                                      [Driver类型]: %s
+        [功能选择]: %s                              [搜索关键词]: %s
+        [目标页面标题关键字]: %s               [目标执行次数]: %s
+        ================================================
 
         ''' %(
             str(taskid),
@@ -171,7 +169,7 @@ class rank(page, Thread):
                         succtime += 1
                         self.succTimeAll += 1   #总的成功执行数增1
                         if self.taskid:
-                            self.sh.update("clicked_times = clicked_times + 1, updatetime = datetime('now','localtime')", " id = %d" % self.taskid)
+                            self.sh.update_clicked_times(self.taskid)
                         wx.CallAfter(pub.sendMessage, "succTime", threadName=threadname, value=self.succTimeAll)
                         wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll*100/self.Runtime)
                         try:
@@ -203,7 +201,7 @@ class rank(page, Thread):
                                 found = True
                                 succtime += 1
                                 if self.taskid:
-                                    self.sh.update("clicked_times = clicked_times + 1, updatetime = datetime('now','localtime')", " id = %d" % self.taskid)
+                                    self.sh.update_clicked_times(self.taskid)
                                 break
                             self.output_Result(info=u"     点击结果页面第[%d]个链接: %s" % (index+1, resultURL))
                             try:
@@ -212,7 +210,7 @@ class rank(page, Thread):
                                 found = True
                                 succtime += 1
                                 if self.taskid:
-                                    self.sh.update("clicked_times = clicked_times + 1, updatetime = datetime('now','localtime')", " id = %d" % self.taskid)
+                                    self.sh.update_clicked_times(self.taskid)
                                 break
                             except Exception, e:
                                 self.output_Result(log=u"     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
@@ -303,7 +301,7 @@ class rank(page, Thread):
                         self.succTimeAll += 1   #总的成功执行数增1
                         succtime += 1
                         if self.taskid:
-                            self.sh.update("clicked_times = clicked_times + 1, updatetime = datetime('now','localtime')", " id = %d" % self.taskid)
+                            self.sh.update_clicked_times(self.taskid)
                         wx.CallAfter(pub.sendMessage, "succTime", threadName=threadname, value=self.succTimeAll)
                         wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll*100/self.Runtime)
                         try:
@@ -335,7 +333,7 @@ class rank(page, Thread):
                                 found = True
                                 succtime += 1
                                 if self.taskid:
-                                    self.sh.update("clicked_times = clicked_times + 1, updatetime = datetime('now','localtime')", " id = %d" % self.taskid)
+                                    self.sh.update_clicked_times(self.taskid)
                                 break
                             self.output_Result(info=u"     点击结果页面第[%d]个链接: %s" % (index+1, resultURL))
                             try:
@@ -347,7 +345,7 @@ class rank(page, Thread):
                                 found = True
                                 succtime += 1
                                 if self.taskid:
-                                    self.sh.update("clicked_times = clicked_times + 1, updatetime = datetime('now','localtime')", " id = %d" % self.taskid)
+                                    self.sh.update_clicked_times(self.taskid)
                                 break
                             except Exception, e:
                                 self.output_Result(log=u"     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
