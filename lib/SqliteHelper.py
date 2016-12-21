@@ -120,8 +120,7 @@ class SqliteHelper:
         self.database.commit()
 
     def update_clicked_times(self, id):
-        sql = 'UPDATE %s SET %s WHERE %s' % (self.table_tasks, "clicked_times = clicked_times + 1, updatetime = datetime('now','localtime')", "ranker_id = %d" % id)
-        # and date(updatetime) = date('now','localtime')
+        sql = 'UPDATE %s SET %s WHERE %s' % (self.table_tasks, "clicked_times = clicked_times + 1, updatetime = datetime('now','localtime')", "date(updatetime) = date('now','localtime') and ranker_id = %d" % id)
         self.cursor.execute(sql)
         self.database.commit()
 
@@ -129,8 +128,9 @@ class SqliteHelper:
         sql = '''
         select r.id, searcher, platform, runway, keyword, targeturl_keyword, (target_runtimes - clicked_times) times
         from ranker r, customer c, tasks t
-        where c.id = r.customerid and r.id= t.ranker_id and c.vaild_date >= date('now','localtime') and times > 0 and r.status = 1
-        ''' # and date(t.updatetime) = date('now','localtime')
+        where c.id = r.customerid and r.id= t.ranker_id and c.vaild_date >= date('now','localtime') and times > 0
+        and r.status = 1 and date(t.updatetime) = date('now','localtime')
+        '''
         self.cursor.execute(sql)
         result = self.cursor.fetchall()
         taskList, index = [], 1
@@ -148,9 +148,15 @@ class SqliteHelper:
             taskList.append(task)
         return json.dumps(taskList)
 
+    def is_exist_task_record(self, ranker_id):
+        sql = 'select id from %s where ranker_id = %d and date(updatetime) = date("now", "localtime")' % (self.table_tasks, ranker_id)
+        self.cursor.execute(sql)
+        for row in self.cursor.fetchall():
+            for r in row:
+                return r
+
     def select_runtime(self, ranker_id):
-        sql = 'select target_runtimes - clicked_times from %s r, %s t where r.id = t.ranker_id and r.id = %d' % (self.table_ranker, self.table_tasks, ranker_id)
-        # and date(t.updatetime, "localtime") = date("now","localtime")
+        sql = 'select target_runtimes - clicked_times from %s r, %s t where r.id = t.ranker_id  and date(t.updatetime) = date("now","localtime") and r.id = %d' % (self.table_ranker, self.table_tasks, ranker_id)
         self.cursor.execute(sql)
         for row in self.cursor.fetchall():
             for r in row:
@@ -197,6 +203,12 @@ if __name__ == "__main__":
     sh.insert_tasks(1)
     sh.commit()
     '''
+    # 测试is_exist_task_record()
+    print sh.is_exist_task_record(3)
+
+    # 测试update_clicked_times()
+    sh.update_clicked_times(1)
+
     # 测试select_runtime()
     print sh.select_runtime(1)
 

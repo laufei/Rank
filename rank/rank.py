@@ -113,6 +113,14 @@ class rank(page, Thread):
         except:
             pass
 
+    def updateDB(self, taskid):
+        if self.taskid:
+            if self.sh.is_exist_task_record(taskid):
+                self.sh.update_clicked_times(taskid)
+            else:
+                self.sh.insert_tasks(taskid)
+                self.sh.update_clicked_times(taskid)
+
     def rank_baidu_web(self):
         threadname = threading.currentThread().getName()
         succtime, runtime = 0, 0         # succtime: 记录当前关键字下成功点击次数;     runtime: 记录当前关键字下所有点击次数
@@ -168,8 +176,7 @@ class rank(page, Thread):
                     if 1 == self.runType:   # 如果选择只刷指数, 则无需翻页再进行后续操作
                         succtime += 1
                         self.succTimeAll += 1   #总的成功执行数增1
-                        if self.taskid:
-                            self.sh.update_clicked_times(self.taskid)
+                        self.updateDB(taskid)
                         wx.CallAfter(pub.sendMessage, "succTime", threadName=threadname, value=self.succTimeAll)
                         wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll*100/self.Runtime)
                         try:
@@ -200,8 +207,7 @@ class rank(page, Thread):
                                 self.output_Result(info=u"     关键字位于第[%d]页，第[%d]个链接" % (page+1, index+1))
                                 found = True
                                 succtime += 1
-                                if self.taskid:
-                                    self.sh.update_clicked_times(self.taskid)
+                                self.updateDB(self.taskid)
                                 break
                             self.output_Result(info=u"     点击结果页面第[%d]个链接: %s" % (index+1, resultURL))
                             try:
@@ -209,8 +215,7 @@ class rank(page, Thread):
                                 baidu_result_items[index].click()
                                 found = True
                                 succtime += 1
-                                if self.taskid:
-                                    self.sh.update_clicked_times(self.taskid)
+                                self.updateDB(self.taskid)
                                 break
                             except Exception, e:
                                 self.output_Result(log=u"     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
@@ -252,6 +257,7 @@ class rank(page, Thread):
             # 1. 打开搜索页面并使用关键词搜索
             try:
                 self.pageobj.gotoURL(self.gotoURL)
+                driver.set_window_size(720, 1280)
                 window = driver.current_window_handle
                 self.pageobj.find_element(*self.baidu_kw_m).send_keys(unicode(self.SearchKeywords))
                 time.sleep(2)
@@ -300,8 +306,7 @@ class rank(page, Thread):
                     if 1 == self.runType:   # 如果选择只刷指数, 则无需翻页再进行后续操作
                         self.succTimeAll += 1   #总的成功执行数增1
                         succtime += 1
-                        if self.taskid:
-                            self.sh.update_clicked_times(self.taskid)
+                        self.updateDB(self.taskid)
                         wx.CallAfter(pub.sendMessage, "succTime", threadName=threadname, value=self.succTimeAll)
                         wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll*100/self.Runtime)
                         try:
@@ -332,8 +337,7 @@ class rank(page, Thread):
                                 self.output_Result(info=u"     关键字位于第[%d]页，第[%d]个链接" % (page+1, index+1))
                                 found = True
                                 succtime += 1
-                                if self.taskid:
-                                    self.sh.update_clicked_times(self.taskid)
+                                self.updateDB(self.taskid)
                                 break
                             self.output_Result(info=u"     点击结果页面第[%d]个链接: %s" % (index+1, resultURL))
                             try:
@@ -344,8 +348,7 @@ class rank(page, Thread):
                                 baidu_result_items[index].click()
                                 found = True
                                 succtime += 1
-                                if self.taskid:
-                                    self.sh.update_clicked_times(self.taskid)
+                                self.updateDB(self.taskid)
                                 break
                             except Exception, e:
                                 self.output_Result(log=u"     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))

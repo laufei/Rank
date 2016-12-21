@@ -265,7 +265,7 @@ class wxRank(wx.Frame, page):
         if self.taskInfoBtn.GetValue():
             self.taskInfo.Show()
             self.taskInfoBtn.SetLabel("<")
-            self.SetSize(1200, 566)
+            self.SetSize((1200, 566))
         else:
             self.taskInfo.Hide()
             self.taskInfoBtn.SetLabel(">")
