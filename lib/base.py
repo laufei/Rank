@@ -17,7 +17,8 @@ class base():
 
     def __init__(self, platform, proxyType, proxyConfig, runType, isProxy=True, isDriver=True, rand=True):
         self.UA = ua()
-        self.ua = random.choice(self.UA.USER_AGENTS_H5) if platform.startswith("h5") else random.choice(self.UA.USER_AGENTS_WEB)
+        self.platform = platform
+        self.ua = random.choice(self.UA.USER_AGENTS_H5) if self.platform.startswith("h5") else random.choice(self.UA.USER_AGENTS_WEB)
         self.isProxy = isProxy
         if self.isProxy:
             self.proxy = self.getProxy(proxyType, proxyConfig, rand)
@@ -125,7 +126,8 @@ class base():
         try:
             print u"     正在打开页面：", url
             self.driver.get(url)
-            self.driver.maximize_window()
+            if self.platform.startswith("web"):
+                self.driver.maximize_window()
         except TimeoutException:
             print u"     打开该页面超时！"
             assert False, "Timed out waiting for page load! "

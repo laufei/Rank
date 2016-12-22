@@ -257,7 +257,6 @@ class rank(page, Thread):
             # 1. 打开搜索页面并使用关键词搜索
             try:
                 self.pageobj.gotoURL(self.gotoURL)
-                driver.set_window_size(720, 1280)
                 window = driver.current_window_handle
                 self.pageobj.find_element(*self.baidu_kw_m).send_keys(unicode(self.SearchKeywords))
                 time.sleep(2)

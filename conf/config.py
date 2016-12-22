@@ -87,13 +87,15 @@ class config:
                     chrome_options=option)
             except Exception, e:
                 assert False, e
-        self.setDriver()
+        self.setDriver(driverConfig)
 
     def getDriver(self):
         return self.driver
 
-    def setDriver(self):
+    def setDriver(self, driverConfig):
         driver = self.getDriver()
+        if driverConfig.startswith("h5"):
+            driver.set_window_size(414, 900)
         driver.implicitly_wait(10)
         driver.set_script_timeout(10)
         driver.set_page_load_timeout(10)
