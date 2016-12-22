@@ -128,8 +128,13 @@ class SqliteHelper:
         sql = '''
         select r.id, searcher, platform, runway, keyword, targeturl_keyword, (target_runtimes - clicked_times) times
         from ranker r, customer c, tasks t
-        where c.id = r.customerid and r.id= t.ranker_id and c.vaild_date >= date('now','localtime') and times > 0
-        and r.status = 1 and date(t.updatetime) = date('now','localtime')
+        where c.id = r.customerid and r.id= t.ranker_id and c.vaild_date >= date('now','localtime')  and r.status = 1 and times > 0
+        and date(t.updatetime) = date('now','localtime')
+        UNION
+        select r.id, searcher, platform, runway, keyword, targeturl_keyword, target_runtimes
+        from ranker r, customer c, tasks t
+        where c.id = r.customerid and c.vaild_date >= date('now','localtime')  and r.status = 1
+        and r.id not in (select ranker_id from tasks where date(updatetime) = date('now','localtime'))
         '''
         self.cursor.execute(sql)
         result = self.cursor.fetchall()
@@ -204,13 +209,13 @@ if __name__ == "__main__":
     sh.commit()
     '''
     # 测试is_exist_task_record()
-    print sh.is_exist_task_record(3)
+    print sh.is_exist_task_record(1)
 
     # 测试update_clicked_times()
-    sh.update_clicked_times(1)
+    # sh.update_clicked_times(1)
 
     # 测试select_runtime()
-    print sh.select_runtime(1)
+    print sh.select_runtime(2)
 
     # 测试select_today_tasks()
     print sh.select_today_tasks()

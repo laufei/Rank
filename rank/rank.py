@@ -127,7 +127,7 @@ class rank(page, Thread):
         self.output_Result(info=u"【%s】：当前关键词 - %s" % (threadname, self.SearchKeywords))
         while True:
             if self.taskid:
-                if int(self.Runtime) == int(succtime) or self.sh.select_runtime(self.taskid) <= 0:
+                if int(self.Runtime) == int(succtime) or (self.sh.select_runtime(self.taskid) is not None and self.sh.select_runtime(self.taskid) <= 0):
                     break
             else:
                 if int(self.Runtime) == int(succtime):
@@ -176,12 +176,12 @@ class rank(page, Thread):
                     if 1 == self.runType:   # 如果选择只刷指数, 则无需翻页再进行后续操作
                         succtime += 1
                         self.succTimeAll += 1   #总的成功执行数增1
-                        self.updateDB(taskid)
+                        self.updateDB(self.taskid)
                         wx.CallAfter(pub.sendMessage, "succTime", threadName=threadname, value=self.succTimeAll)
                         wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll*100/self.Runtime)
                         try:
                             self.succRatio = '%.2f' % (self.succTimeAll/runtime)
-                            wx.CallAfter(pub.sendMessage, "succRatio", value=self.succRatio)
+                            wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
                         except ZeroDivisionError:
                             pass
                         break
@@ -230,7 +230,7 @@ class rank(page, Thread):
             self.end()
             wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll*100/self.Runtime)
             try:
-                self.succRatio = '%.2f' % (self.succTimeAll/+runtime)
+                self.succRatio = '%.2f' % (self.succTimeAll/runtime)
                 wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
             except ZeroDivisionError:
                 pass
@@ -243,7 +243,7 @@ class rank(page, Thread):
         self.output_Result(info=u"【%s】：当前关键词 - %s" % (threadname, self.SearchKeywords))
         while True:
             if self.taskid:
-                if int(self.Runtime) == int(succtime) or self.sh.select_runtime(self.taskid) <= 0:
+                if int(self.Runtime) == int(succtime) or (self.sh.select_runtime(self.taskid) is not None and self.sh.select_runtime(self.taskid) <= 0):
                     break
             else:
                 if int(self.Runtime) == int(succtime):
