@@ -11,12 +11,12 @@ from rank import rank
 from lib.SqliteHelper import SqliteHelper
 
 class wxRank(wx.Frame, page):
-    def __init__(self):
+    def __init__(self, auto=False):
         wx.Frame.__init__(self, parent=None, title=u'刷搜索排名小工具 v1.0', size=(980, 566), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
         self.size = self.GetSize()
         # print self.size
         self.data = data()
-        self.task, self.urlkw, self.proxyType, self.proxyConfig = "", "", "", ""
+        self.task, self.urlkw, self.proxyType, self.proxyConfig, self.rankobj = "", "", "", "", None
         self.proValue, self.spend = 0, 0
         self.note = self.data.note
         self.font = wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL, False)
@@ -36,6 +36,8 @@ class wxRank(wx.Frame, page):
         self.controllers()
         self.setStatusByDBDataBtn()
         self.ui_design()
+        if auto:
+            self.OnClickRun(wx.EVT_BUTTON)
 
     def controllers(self):
         # 创建定时器
@@ -293,6 +295,7 @@ class wxRank(wx.Frame, page):
             self.runText.Enable()
 
     def DisableOnRun(self):
+        self.buttonRun.Disable()
         self.rb_splatform.Disable()
         self.rb_platform.Disable()
         self.cb_isPhantomjs.Disable()
@@ -308,10 +311,8 @@ class wxRank(wx.Frame, page):
         self.proxyTextBtn.Disable()
         self.proxyText.Disable()
 
-    def DisableRun(self):
-        self.buttonRun.Disable()
-
     def EnableOnStop(self):
+        self.buttonRun.Enable()
         self.getDBDataBtn.Enable()
         self.setStatusByDBDataBtn()
         self.cb_isPhantomjs.Enable()
@@ -394,7 +395,6 @@ class wxRank(wx.Frame, page):
         self.multiText.SetValue("")
         self.buttonRun.SetLabel(u"运行中")
         self.buttonStop.SetLabel(u"停止")
-        evt.GetEventObject().Disable()
         self.DisableOnRun()
         self.OnStart()
         isPhantomjs = self.getIsPhantomjs(evt)
@@ -409,7 +409,7 @@ class wxRank(wx.Frame, page):
                 keyword = value["keyword"]
                 targetkw = value['targeturl_keyword'].split(",")
                 runtime = value['runtime']
-                rank(searcher, driverType, isPhantomjs, self.proxyType, self.proxyConfig, keyword, targetkw, func, taskid, int(runtime))
+                self.rankobj = rank(searcher, driverType, isPhantomjs, self.proxyType, self.proxyConfig, keyword, targetkw, func, taskid, int(runtime))
         else:
             searcher = self.EvtRadioBox_SPF(evt)
             driverType = self.EvtRadioBox_PF(evt)
@@ -419,7 +419,7 @@ class wxRank(wx.Frame, page):
                 keyword = value["keyword"]
                 targetkw = value['targeturl_keyword']
                 runtime = allRuntime if allRuntime else value['runtime']
-                rank(searcher, driverType, isPhantomjs, self.proxyType, self.proxyConfig, keyword, targetkw, func, taskid=None, runtime=int(runtime))
+                self.rankobj = rank(searcher, driverType, isPhantomjs, self.proxyType, self.proxyConfig, keyword, targetkw, func, taskid=None, runtime=int(runtime))
 
     def get_data_from_db(self):
         tasks = self.SqliteHelper.select_today_tasks()
@@ -429,6 +429,7 @@ class wxRank(wx.Frame, page):
         ret = wx.MessageBox(u"确定要关闭吗?", "", wx.YES_NO)
         if ret == wx.YES:
             self.Destroy()
+            self.rankobj.end()
             wx.GetApp().ExitMainLoop()
 
     def OnOpenKWFile(self, evt):
