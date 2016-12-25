@@ -50,12 +50,11 @@ class wxRank(wx.Frame, page):
         self.multiText.SetInsertionPoint(0)
         self.taskInfoBtn = wx.ToggleButton(self, label=u'>', size=(25, 420))
         self.Bind(wx.EVT_TOGGLEBUTTON, self.OnClickTaskInfoBtn, self.taskInfoBtn)
-        self.taskInfo = wx.html.HtmlWindow(self, -1, size=(300, 420))
+        self.taskInfo = wx.html.HtmlWindow(self, -1, size=(380, 420))
         if "gtk2" in wx.PlatformInfo or "gtk3" in wx.PlatformInfo:
             self.taskInfo.SetStandardFonts()
         self.taskInfo.SetPage(self.data.tasksInfo)
         self.taskInfo.Hide()
-
         # 功能选择
         self.fcm = wx.StaticBox(self, -1, u"▼ 功能选择:")
         self.getDBDataBtn = wx.ToggleButton(self, label=u'DB获取任务', size=(85, 21))
@@ -267,7 +266,7 @@ class wxRank(wx.Frame, page):
         if self.taskInfoBtn.GetValue():
             self.taskInfo.Show()
             self.taskInfoBtn.SetLabel("<")
-            self.SetSize((1200, 566))
+            self.SetSize((1280, 566))
         else:
             self.taskInfo.Hide()
             self.taskInfoBtn.SetLabel(">")
@@ -429,7 +428,6 @@ class wxRank(wx.Frame, page):
         ret = wx.MessageBox(u"确定要关闭吗?", "", wx.YES_NO)
         if ret == wx.YES:
             self.Destroy()
-            self.rankobj.end()
             wx.GetApp().ExitMainLoop()
 
     def OnOpenKWFile(self, evt):
@@ -558,45 +556,6 @@ class wxRank(wx.Frame, page):
         pub.subscribe(self.getProcess, "process")
         pub.subscribe(self.setSuccTime, "succTime")
         pub.subscribe(self.setSuccRatio, "succRatio")
-
-    def getTasksInfo(self):
-        text = '''
-        <html>
-        <body bgcolor="#AC76DE">
-        <center><table bgcolor="#458154" width="100%%" cellspacing="0"
-        cellpadding="0" border="1">
-        <tr>
-            <td align="center">
-            <h1>wxPython %s</h1>
-            (%s)<br>
-            Running on Python %s<br>
-            </td>
-        </tr>
-        </table>
-
-        <p><b>wxPython</b> is a Python extension module that
-        encapsulates the wxWindows GUI classes.</p>
-
-        <p>This demo shows off some of the capabilities
-        of <b>wxPython</b>.  Select items from the menu or tree control,
-        sit back and enjoy.  Be sure to take a peek at the source code for each
-        demo item so you can learn how to use the classes yourself.</p>
-
-        <p><b>wxPython</b> is brought to you by <b>Robin Dunn</b> and<br>
-        <b>Total Control Software,</b> Copyright (c) 1997-2011.</p>
-
-        <p>
-        <font size="-1">Please see <i>license.txt</i> for licensing information.</font>
-        </p>
-
-        <p><wxp module="wx" class="Button">
-            <param name="label" value="Okay">
-            <param name="id"    value="ID_OK">
-        </wxp></p>
-        </center>
-        </body>
-        </html>
-        '''
 
 if __name__ == "__main__":
     wr = wxRank()

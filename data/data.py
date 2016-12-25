@@ -1,11 +1,14 @@
 ﻿# coding: utf-8
 __author__ = 'liufei'
+
 import sys
+from lib.SqliteHelper import SqliteHelper
 
 reload(sys)
 sys.setdefaultencoding('utf8')
 
 class data:
+    sh = SqliteHelper()
     def __init__(self):
         self.baidu_url_web = "https://www.baidu.com"
         self.baidu_url_h5 = "https://m.baidu.com"
@@ -18,35 +21,59 @@ class data:
         self.proxy_api = "http://api.xicidaili.com/free2016.txt"
         self.proxy_txt = "proxy.txt"
 
+        self.tasks_count_h5 = self.sh.get_tasks_count(0)
+        self.tasks_count_web = self.sh.get_tasks_count(1)
+        self.keyword_task_data = self.sh.get_keyword_task_data()
+
+        self.clicked_data = ""
+        for i in self.keyword_task_data:
+            self.clicked_data += '''
+                            <tr align='center'>
+                                <td>{id}</td>
+                                <td>{platform}</td>
+                                <td>{keyword}</td>
+                                <td><strong><font  color ='red'>{clicked}</font>/{target}</strong></td>
+                            </tr>
+            '''.format(id=i[0], platform=i[1], keyword=i[2], clicked=i[3], target=i[4]) *10
+
         self.tasksInfo = '''
-                <html>
-                    <body>
-                        <table width="100%" cellspacing="0" cellpadding="0" border="0">
+                        <table width=100% cellspacing=0 cellpadding=0 border=0>
                             <tr>
-                                <td align="center" colspan ='2'>
-                                <h2>任务数据统计</h2>
+                                <td align=center colspan =4>
+                                    <strong>任务数据统计</strong>
                                 </td>
                             </tr>
                             <tr>
-                                <td align="left">
-                                任务数据统计
+                                <td align='center'>
+                                    <strong>Web端任务数:</strong>
                                 </td>
-                                <td align="left">
-                                任务数据统计
+                                <td align='left'>
+                                    <font  color = 'red'>{webCount}</font>
                                 </td>
-                            </tr>
-                            <tr>
-                                <td align="left">
-                                任务数据统计
+                                <td align='center'>
+                                    <strong>H5端任务数:</strong>
                                 </td>
-                                <td align="left">
-                                任务数据统计
+                                <td align='left'>
+                                    <font  color ='red'>{h5Count}</font>
                                 </td>
                             </tr>
                         </table>
-                    </body>
-                </html>
-                '''
+                        <p></p>
+                        <table width=100% cellspacing=0 cellpadding=0 border=0>
+                            <tr>
+                                <td align=center colspan =4>
+                                    <strong>关键字点击情况</strong>
+                                </td>
+                            </tr>
+                            <tr align='center'>
+                                <th>ID</td>
+                                <th>Platform</td>
+                                <th>Keyword</td>
+                                <th>Clicked</td>
+                            </tr>
+                            {clickedData}
+                        </table>
+                        '''.format(webCount=self.tasks_count_web, h5Count=self.tasks_count_h5, clickedData=self.clicked_data)
 
         self.note = u'''
 
@@ -71,3 +98,7 @@ class data:
 
 
                 '''
+
+if __name__ == "__main__":
+    db = data()
+    print db.clicked_data

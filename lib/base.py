@@ -128,6 +128,9 @@ class base():
             self.driver.get(url)
             if self.platform.startswith("web"):
                 self.driver.maximize_window()
+            if self.driver.current_url.startswith("http://"):
+                print u"     自动跳转到http页面, 打开该页面失败！"
+                assert False, "Went to http page, failed to open https page! "
         except TimeoutException:
             print u"     打开该页面超时！"
             assert False, "Timed out waiting for page load! "

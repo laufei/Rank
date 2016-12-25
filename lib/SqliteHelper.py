@@ -167,6 +167,34 @@ class SqliteHelper:
             for r in row:
                 return r
 
+    def get_tasks_count(self, pf):
+        sql = '''
+                select count(r.id)
+                from customer c left join ranker r on c.id = r.customerid
+                where c.vaild_date >= date('now','localtime')  and r.status = 1 and r.platform = %d
+                ''' % pf
+        self.cursor.execute(sql)
+        for row in self.cursor.fetchall():
+            for r in row:
+                return r
+
+    def get_keyword_task_data(self):
+        sql = '''
+                select ranker_id, platform, keyword, clicked_times, target_runtimes from ranker r left join tasks t
+                on r.id = t.ranker_id
+                where date(t.updatetime, 'localtime') = date('now', 'localtime')
+                order by r.id
+        '''
+        self.cursor.execute(sql)
+        ranker_id, platform, keyword, clicked_times, target_runtimes = [], [], [], [], []
+        for row in self.cursor.fetchall():
+            ranker_id.append(row[0])
+            keyword.append(row[1])
+            clicked_times.append(row[2])
+            target_runtimes.append(row[3])
+        result = zip(ranker_id, platform, keyword, clicked_times, target_runtimes)
+        return result
+
     def delete(self, tableName, condition):
         deleCommand = 'DELETE FROM %s WHERE %s' % (tableName, condition)
         # print deleCommand
@@ -209,13 +237,16 @@ if __name__ == "__main__":
     sh.commit()
     '''
     # 测试is_exist_task_record()
-    print sh.is_exist_task_record(1)
+    # print sh.is_exist_task_record(1)
 
     # 测试update_clicked_times()
-    # sh.update_clicked_times(1)
+    # sh.update_clicked_times(2)
 
     # 测试select_runtime()
-    print sh.select_runtime(2)
+    # print sh.select_runtime(2)
 
     # 测试select_today_tasks()
-    print sh.select_today_tasks()
+    # print sh.select_today_tasks()
+
+    # 测试get_keyword_task_data()
+    # print sh.get_keyword_task_data()
