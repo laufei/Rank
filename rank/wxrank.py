@@ -51,7 +51,7 @@ class wxRank(wx.Frame, page):
         self.taskInfoBtn = wx.ToggleButton(self, label=u'>', size=(25, 420))
         self.Bind(wx.EVT_TOGGLEBUTTON, self.OnClickTaskInfoBtn, self.taskInfoBtn)
         self.taskInfo = wx.html.HtmlWindow(self, -1, size=(380, 420))
-        self.taskInfo.SetPage(self.data.tasksInfo)
+        self.taskInfo.SetPage(self.data.get_task_info())
         self.taskInfo.Hide()
         # 功能选择
         self.fcm = wx.StaticBox(self, -1, u"▼ 功能选择:")
@@ -262,6 +262,7 @@ class wxRank(wx.Frame, page):
 
     def OnClickTaskInfoBtn(self, evt):
         if self.taskInfoBtn.GetValue():
+            self.taskInfo.SetPage(self.data.get_task_info())
             self.taskInfo.Show()
             self.taskInfoBtn.SetLabel("<")
             self.SetSize((1280, 566))

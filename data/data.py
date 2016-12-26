@@ -9,6 +9,7 @@ sys.setdefaultencoding('utf8')
 
 class data:
     sh = SqliteHelper()
+
     def __init__(self):
         self.baidu_url_web = "https://www.baidu.com"
         self.baidu_url_h5 = "https://m.baidu.com"
@@ -21,13 +22,38 @@ class data:
         self.proxy_api = "http://api.xicidaili.com/free2016.txt"
         self.proxy_txt = "proxy.txt"
 
-        self.tasks_count_h5 = self.sh.get_tasks_count(0)
-        self.tasks_count_web = self.sh.get_tasks_count(1)
-        self.keyword_task_data = self.sh.get_keyword_task_data()
+        self.note = u'''
 
-        self.clicked_data = ""
-        for i in self.keyword_task_data:
-            self.clicked_data += '''
+                                                        ✎  说明
+                ▷ 功能选择:
+                    默认选择"DB获取任务", 脚本会读取当天有效的配置进行执行.
+                    "只刷指数"和"获取排名"功能只能选择其一;
+                    选择了对应功能后, 非必填的内容会自动置灰.
+                    后面的"+"按钮用来部署WebDriver Driver.
+                ▷ 搜索平台&运行平台:
+                    可以选择各个搜索平台对应的H5或者Web平台进行操作.
+                ▷ 关键词文件路径:
+                    文件名须为"kw.data"; 点击生成模板按钮"+", 查看具体文件格式.
+                ▷ 运行次数:
+                    勾选了该复选框, 每个关键词运行次数被统一配置.
+                ▷ 代理方式:
+                    对于每个代理方式需配置对应请求地址或文件路径;
+                    如选择TXT方式, 需要点击按钮"..."来选择代理文件.
+                ▷ 运行日志:
+                    程序执行过程中会输入log信息, 包括各种报错及提示信息;
+                    程序会在该app所在路径下生成日志文件: Result.txt.
+
+
+                '''
+
+    def get_task_info(self):
+        tasks_count_h5 = self.sh.get_tasks_count(0)
+        tasks_count_web = self.sh.get_tasks_count(1)
+        keyword_task_data = self.sh.get_keyword_task_data()
+        tasksInfo, clicked_data = "", ""
+
+        for i in keyword_task_data:
+            clicked_data += '''
                             <tr align='center'>
                                 <td>{id}</td>
                                 <td>{platform}</td>
@@ -36,7 +62,7 @@ class data:
                             </tr>
             '''.format(id=i[0], platform="web" if i[1] else "h5", keyword=i[2], clicked=i[3], target=i[4])
 
-        self.tasksInfo = u'''
+        tasksInfo = u'''
                         <table width=100% cellspacing=0 cellpadding=0 border=0>
                             <tr>
                                 <td align=center colspan =4>
@@ -73,31 +99,8 @@ class data:
                             </tr>
                             {clickedData}
                         </table>
-                        '''.format(webCount=self.tasks_count_web, h5Count=self.tasks_count_h5, clickedData=self.clicked_data)
-
-        self.note = u'''
-
-                                                        ✎  说明
-                ▷ 功能选择:
-                    默认选择"DB获取任务", 脚本会读取当天有效的配置进行执行.
-                    "只刷指数"和"获取排名"功能只能选择其一;
-                    选择了对应功能后, 非必填的内容会自动置灰.
-                    后面的"+"按钮用来部署WebDriver Driver.
-                ▷ 搜索平台&运行平台:
-                    可以选择各个搜索平台对应的H5或者Web平台进行操作.
-                ▷ 关键词文件路径:
-                    文件名须为"kw.data"; 点击生成模板按钮"+", 查看具体文件格式.
-                ▷ 运行次数:
-                    勾选了该复选框, 每个关键词运行次数被统一配置.
-                ▷ 代理方式:
-                    对于每个代理方式需配置对应请求地址或文件路径;
-                    如选择TXT方式, 需要点击按钮"..."来选择代理文件.
-                ▷ 运行日志:
-                    程序执行过程中会输入log信息, 包括各种报错及提示信息;
-                    程序会在该app所在路径下生成日志文件: Result.txt.
-
-
-                '''
+                        '''.format(webCount=tasks_count_web, h5Count=tasks_count_h5, clickedData=clicked_data)
+        return tasksInfo
 
 if __name__ == "__main__":
     db = data()
