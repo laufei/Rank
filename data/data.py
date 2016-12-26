@@ -34,9 +34,9 @@ class data:
                                 <td>{keyword}</td>
                                 <td><strong><font  color ='red'>{clicked}</font>/{target}</strong></td>
                             </tr>
-            '''.format(id=i[0], platform=i[1], keyword=i[2], clicked=i[3], target=i[4])
+            '''.format(id=i[0], platform="web" if i[1] else "h5", keyword=i[2], clicked=i[3], target=i[4])
 
-        self.tasksInfo = '''
+        self.tasksInfo = u'''
                         <table width=100% cellspacing=0 cellpadding=0 border=0>
                             <tr>
                                 <td align=center colspan =4>

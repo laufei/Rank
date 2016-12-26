@@ -48,7 +48,7 @@ class rank(page, Thread):
         self.output_Result(log="[run] Thread: %s Finished" % threading.currentThread().getName())
 
     def print_task_list(self, taskid, keyworks, urlkw, runtime):
-        template = '''
+        template = u'''
         [工单ID]: %s                                              [搜索平台]: %s
         [运行平台]: %s                                      [Driver类型]: %s
         [功能选择]: %s                              [搜索关键词]: %s
@@ -295,7 +295,7 @@ class rank(page, Thread):
                             driver.execute_script(js % (self.baidu_result_items_m[-1], index))
                             time.sleep(1)
                             baidu_result_items[index].click()
-                            time.sleep(1)
+                            time.sleep(6)
                             # 如果目标链接是百度自己的链接，则点击后，页面运行返回操作
                             if isBaiduUrl:
                                 driver.back()

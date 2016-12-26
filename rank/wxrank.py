@@ -51,8 +51,6 @@ class wxRank(wx.Frame, page):
         self.taskInfoBtn = wx.ToggleButton(self, label=u'>', size=(25, 420))
         self.Bind(wx.EVT_TOGGLEBUTTON, self.OnClickTaskInfoBtn, self.taskInfoBtn)
         self.taskInfo = wx.html.HtmlWindow(self, -1, size=(380, 420))
-        if "gtk2" in wx.PlatformInfo or "gtk3" in wx.PlatformInfo:
-            self.taskInfo.SetStandardFonts()
         self.taskInfo.SetPage(self.data.tasksInfo)
         self.taskInfo.Hide()
         # 功能选择
