@@ -133,6 +133,7 @@ class base():
                 assert False, "Went to http page, failed to open https page! "
         except TimeoutException:
             print u"     打开该页面超时！"
+            self.driver.execute_script("window.stop()")
             assert False, "Timed out waiting for page load! "
         except Exception:
             print u"     打开该页面失败！"

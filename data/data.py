@@ -34,7 +34,7 @@ class data:
                                 <td>{keyword}</td>
                                 <td><strong><font  color ='red'>{clicked}</font>/{target}</strong></td>
                             </tr>
-            '''.format(id=i[0], platform=i[1], keyword=i[2], clicked=i[3], target=i[4]) *10
+            '''.format(id=i[0], platform=i[1], keyword=i[2], clicked=i[3], target=i[4])
 
         self.tasksInfo = '''
                         <table width=100% cellspacing=0 cellpadding=0 border=0>
@@ -45,31 +45,31 @@ class data:
                             </tr>
                             <tr>
                                 <td align='center'>
-                                    <strong>Web端任务数:</strong>
+                                    Web端任务数:
                                 </td>
                                 <td align='left'>
-                                    <font  color = 'red'>{webCount}</font>
+                                    <font  color = 'red'><strong>{webCount}</strong></font>
                                 </td>
                                 <td align='center'>
-                                    <strong>H5端任务数:</strong>
+                                    H5端任务数:
                                 </td>
                                 <td align='left'>
-                                    <font  color ='red'>{h5Count}</font>
+                                    <font  color ='red'><strong>{h5Count}</strong></font>
                                 </td>
                             </tr>
                         </table>
                         <p></p>
-                        <table width=100% cellspacing=0 cellpadding=0 border=0>
+                        <table width=100% cellspacing=2 cellpadding=2 border=0>
                             <tr>
                                 <td align=center colspan =4>
                                     <strong>关键字点击情况</strong>
                                 </td>
                             </tr>
                             <tr align='center'>
-                                <th>ID</td>
-                                <th>Platform</td>
-                                <th>Keyword</td>
-                                <th>Clicked</td>
+                                <th>ID</th>
+                                <th>Platform</th>
+                                <th>Keyword</th>
+                                <th>Clicked</th>
                             </tr>
                             {clickedData}
                         </table>

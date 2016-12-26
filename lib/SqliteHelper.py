@@ -57,7 +57,10 @@ class SqliteHelper:
                     updatetime TimeStamp NOT NULL DEFAULT (datetime('now','localtime'))
                 )
                ''' % self.table_customer
-        self.cursor.execute(sql)
+        try:
+            self.cursor.execute(sql)
+        except Exception, e:
+            print e
         self.database.commit()
 
     def createTable_ranker(self):
@@ -87,7 +90,10 @@ class SqliteHelper:
                     status CHAR(1) NOT NULL DEFAULT 1
                 )
                ''' % self.table_ranker
-        self.cursor.execute(sql)
+        try:
+            self.cursor.execute(sql)
+        except Exception, e:
+            print e
         self.database.commit()
 
     def createTable_tasks(self):
@@ -104,7 +110,10 @@ class SqliteHelper:
                     updatetime TimeStamp NOT NULL DEFAULT (datetime('now','localtime'))
                 )
                ''' % self.table_tasks
-        self.cursor.execute(sql)
+        try:
+            self.cursor.execute(sql)
+        except Exception, e:
+            print e
         self.database.commit()
 
     def insert_customer(self, value):
@@ -126,17 +135,20 @@ class SqliteHelper:
 
     def select_today_tasks(self):
         sql = '''
-        select r.id, searcher, platform, runway, keyword, targeturl_keyword, (target_runtimes - clicked_times) times
-        from ranker r, customer c, tasks t
-        where c.id = r.customerid and r.id= t.ranker_id and c.vaild_date >= date('now','localtime')  and r.status = 1 and times > 0
-        and date(t.updatetime) = date('now','localtime')
-        UNION
-        select r.id, searcher, platform, runway, keyword, targeturl_keyword, target_runtimes
-        from ranker r, customer c, tasks t
-        where c.id = r.customerid and c.vaild_date >= date('now','localtime')  and r.status = 1
-        and r.id not in (select ranker_id from tasks where date(updatetime) = date('now','localtime'))
+            select r.id, searcher, platform, runway, keyword, targeturl_keyword, (target_runtimes - clicked_times) times
+            from ranker r, customer c, tasks t
+            where c.id = r.customerid and r.id= t.ranker_id and c.vaild_date >= date('now','localtime')  and r.status = 1 and times > 0
+            and date(t.updatetime) = date('now','localtime')
+            UNION
+            select r.id, searcher, platform, runway, keyword, targeturl_keyword, target_runtimes
+            from ranker r, customer c, tasks t
+            where c.id = r.customerid and c.vaild_date >= date('now','localtime')  and r.status = 1
+            and r.id not in (select ranker_id from tasks where date(updatetime) = date('now','localtime'))
         '''
-        self.cursor.execute(sql)
+        try:
+            self.cursor.execute(sql)
+        except Exception, e:
+            print e
         result = self.cursor.fetchall()
         taskList, index = [], 1
         for t in result:
@@ -173,25 +185,32 @@ class SqliteHelper:
                 from customer c left join ranker r on c.id = r.customerid
                 where c.vaild_date >= date('now','localtime')  and r.status = 1 and r.platform = %d
                 ''' % pf
-        self.cursor.execute(sql)
+        try:
+            self.cursor.execute(sql)
+        except Exception, e:
+            print e
         for row in self.cursor.fetchall():
             for r in row:
                 return r
 
     def get_keyword_task_data(self):
         sql = '''
-                select ranker_id, platform, keyword, clicked_times, target_runtimes from ranker r left join tasks t
+                select ranker_id, platform, keyword, clicked_times, target_runtimes from ranker r, tasks t
                 on r.id = t.ranker_id
-                where date(t.updatetime, 'localtime') = date('now', 'localtime')
+                where date(t.updatetime, 'localtime') > date('now', 'localtime')
                 order by r.id
         '''
-        self.cursor.execute(sql)
+        try:
+            self.cursor.execute(sql)
+        except Exception, e:
+            print e
         ranker_id, platform, keyword, clicked_times, target_runtimes = [], [], [], [], []
         for row in self.cursor.fetchall():
             ranker_id.append(row[0])
-            keyword.append(row[1])
-            clicked_times.append(row[2])
-            target_runtimes.append(row[3])
+            platform.append(row[1])
+            keyword.append(row[2])
+            clicked_times.append(row[3])
+            target_runtimes.append(row[4])
         result = zip(ranker_id, platform, keyword, clicked_times, target_runtimes)
         return result
 
@@ -249,4 +268,4 @@ if __name__ == "__main__":
     # print sh.select_today_tasks()
 
     # 测试get_keyword_task_data()
-    # print sh.get_keyword_task_data()
+    print sh.get_keyword_task_data()
