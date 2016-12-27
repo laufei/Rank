@@ -58,50 +58,53 @@ class data:
                                 <td>{id}</td>
                                 <td>{platform}</td>
                                 <td>{keyword}</td>
-                                <td><strong><font  color ='red'>{clicked}</font>/{target}</strong></td>
+                                <td><strong><font  color ='green'>{clicked}</font>/{target}</strong></td>
                             </tr>
             '''.format(id=i[0], platform="web" if i[1] else "h5", keyword=i[2], clicked=i[3], target=i[4])
 
         tasksInfo = u'''
-                        <table width=100% cellspacing=0 cellpadding=0 border=0>
-                            <tr>
-                                <td align=center colspan =4>
-                                    <strong>任务数据统计</strong>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td align='center'>
-                                    Web端任务数:
-                                </td>
-                                <td align='left'>
-                                    <font  color = 'red'><strong>{webCount}</strong></font>
-                                </td>
-                                <td align='center'>
-                                    H5端任务数:
-                                </td>
-                                <td align='left'>
-                                    <font  color ='red'><strong>{h5Count}</strong></font>
-                                </td>
-                            </tr>
-                        </table>
-                        <p></p>
-                        <table width=100% cellspacing=2 cellpadding=2 border=0>
-                            <tr>
-                                <td align=center colspan =4>
-                                    <strong>关键字点击情况</strong>
-                                </td>
-                            </tr>
-                            <tr align='center'>
-                                <th>ID</th>
-                                <th>Platform</th>
-                                <th>Keyword</th>
-                                <th>Clicked</th>
-                            </tr>
-                            {clickedData}
-                        </table>
+                        <html>
+                            <body>
+                            <font face="微软雅黑">
+                                <table width=100% cellspacing=0 cellpadding=0 border=0>
+
+                                    <tr>
+                                        <td align=center colspan =4>
+                                            <strong>任务数据统计</strong>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align='center'>
+                                            Web端任务数:
+                                        </td>
+                                        <td align='left'>
+                                            <font  color = 'red'><strong>{webCount}</strong></font>
+                                        </td>
+                                        <td align='center'>
+                                            H5端任务数:
+                                        </td>
+                                        <td align='left'>
+                                            <font  color ='red'><strong>{h5Count}</strong></font>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <p></p>
+                                <table width=100% cellspacing=2 cellpadding=2 border=0>
+                                    <tr>
+                                        <td align=center colspan =4>
+                                            <strong>关键字点击情况</strong>
+                                        </td>
+                                    </tr>
+                                    <tr align='center'>
+                                        <th>ID</th>
+                                        <th>Platform</th>
+                                        <th>Keyword</th>
+                                        <th>Clicked</th>
+                                    </tr>
+                                    {clickedData}
+                                </table>
+                            </font>
+                            </body>
+                        </html>
                         '''.format(webCount=tasks_count_web, h5Count=tasks_count_h5, clickedData=clicked_data)
         return tasksInfo
-
-if __name__ == "__main__":
-    db = data()
-    print db.clicked_data

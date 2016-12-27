@@ -12,9 +12,7 @@ from lib.SqliteHelper import SqliteHelper
 
 class wxRank(wx.Frame, page):
     def __init__(self, auto=False):
-        wx.Frame.__init__(self, parent=None, title=u'刷搜索排名小工具 v1.0', size=(980, 566), style=wx.MINIMIZE_BOX|wx.CLOSE_BOX)
-        self.size = self.GetSize()
-        # print self.size
+        wx.Frame.__init__(self, parent=None, title=u'刷搜索排名小工具 v1.0', size=(915, 580))
         self.data = data()
         self.task, self.urlkw, self.proxyType, self.proxyConfig, self.rankobj = "", "", "", "", None
         self.proValue, self.spend = 0, 0
@@ -50,7 +48,7 @@ class wxRank(wx.Frame, page):
         self.multiText.SetInsertionPoint(0)
         self.taskInfoBtn = wx.ToggleButton(self, label=u'>', size=(25, 420))
         self.Bind(wx.EVT_TOGGLEBUTTON, self.OnClickTaskInfoBtn, self.taskInfoBtn)
-        self.taskInfo = wx.html.HtmlWindow(self, -1, size=(380, 420))
+        self.taskInfo = wx.html.HtmlWindow(self, -1, size=(500, 420))
         self.taskInfo.SetPage(self.data.get_task_info())
         self.taskInfo.Hide()
         # 功能选择
@@ -265,11 +263,11 @@ class wxRank(wx.Frame, page):
             self.taskInfo.SetPage(self.data.get_task_info())
             self.taskInfo.Show()
             self.taskInfoBtn.SetLabel("<")
-            self.SetSize((1280, 566))
+            self.SetSize((1280, 580))
         else:
             self.taskInfo.Hide()
             self.taskInfoBtn.SetLabel(">")
-            self.SetSize(self.size)
+            self.SetSize((915, 580))
         self.Layout()
 
     def setStatusByDBDataBtn(self):
@@ -407,7 +405,7 @@ class wxRank(wx.Frame, page):
                 keyword = value["keyword"]
                 targetkw = value['targeturl_keyword'].split(",")
                 runtime = value['runtime']
-                self.rankobj = rank(searcher, driverType, isPhantomjs, self.proxyType, self.proxyConfig, keyword, targetkw, func, taskid, int(runtime))
+                rank(searcher, driverType, isPhantomjs, self.proxyType, self.proxyConfig, keyword, targetkw, func, taskid, int(runtime))
         else:
             searcher = self.EvtRadioBox_SPF(evt)
             driverType = self.EvtRadioBox_PF(evt)
@@ -417,7 +415,7 @@ class wxRank(wx.Frame, page):
                 keyword = value["keyword"]
                 targetkw = value['targeturl_keyword']
                 runtime = allRuntime if allRuntime else value['runtime']
-                self.rankobj = rank(searcher, driverType, isPhantomjs, self.proxyType, self.proxyConfig, keyword, targetkw, func, taskid=None, runtime=int(runtime))
+                rank(searcher, driverType, isPhantomjs, self.proxyType, self.proxyConfig, keyword, targetkw, func, taskid=None, runtime=int(runtime))
 
     def get_data_from_db(self):
         tasks = self.SqliteHelper.select_today_tasks()
@@ -548,6 +546,9 @@ class wxRank(wx.Frame, page):
         self.buttonStop.SetLabel(u"关闭")
         self.OnStop()
 
+    def closeApp(self):
+        wx.GetApp().ExitMainLoop()
+
     def update(self):
         pub.subscribe(self.errInfo, "log")
         pub.subscribe(self.printLog, "info")
@@ -555,6 +556,7 @@ class wxRank(wx.Frame, page):
         pub.subscribe(self.getProcess, "process")
         pub.subscribe(self.setSuccTime, "succTime")
         pub.subscribe(self.setSuccRatio, "succRatio")
+        pub.subscribe(self.closeApp, "close")
 
 if __name__ == "__main__":
     wr = wxRank()
