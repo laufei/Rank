@@ -12,12 +12,12 @@ from lib.SqliteHelper import SqliteHelper
 
 class wxRank(wx.Frame, page):
     def __init__(self, auto=False):
-        wx.Frame.__init__(self, parent=None, title=u'刷搜索排名小工具 v1.0', size=(915, 580))
+        wx.Frame.__init__(self, parent=None, title=u'刷搜索排名小工具 v1.0', size=(915, 593))
         self.data = data()
         self.task, self.urlkw, self.proxyType, self.proxyConfig, self.rankobj = "", "", "", "", None
         self.proValue, self.spend = 0, 0
         self.note = self.data.note
-        self.font = wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL, False)
+        self.font = wx.Font(9, wx.SWISS, wx.NORMAL, wx.NORMAL, False)
         self.update()
         self.Bind(wx.EVT_CLOSE, self.OnClickStop)
         # 添加drivers到环境变量
@@ -44,11 +44,11 @@ class wxRank(wx.Frame, page):
         self.Bind(wx.EVT_TIMER, self.OnTimer, self.timer)
         # 运行log
         self.om = wx.StaticBox(self, -1, u"▼ 运行日志:")
-        self.multiText = wx.TextCtrl(self, -1, value=self.note, size=(500, 420), style=wx.TE_MULTILINE|wx.TE_READONLY)
+        self.multiText = wx.TextCtrl(self, -1, value=self.note, size=(500, 425), style=wx.TE_MULTILINE|wx.TE_READONLY)
         self.multiText.SetInsertionPoint(0)
-        self.taskInfoBtn = wx.ToggleButton(self, label=u'>', size=(25, 420))
+        self.taskInfoBtn = wx.ToggleButton(self, label=u'>', size=(25, 425))
         self.Bind(wx.EVT_TOGGLEBUTTON, self.OnClickTaskInfoBtn, self.taskInfoBtn)
-        self.taskInfo = wx.html.HtmlWindow(self, -1, size=(500, 420))
+        self.taskInfo = wx.html.HtmlWindow(self, -1, size=(500, 425))
         self.taskInfo.SetPage(self.data.get_task_info())
         self.taskInfo.Hide()
         # 功能选择
@@ -56,24 +56,24 @@ class wxRank(wx.Frame, page):
         self.getDBDataBtn = wx.ToggleButton(self, label=u'DB获取任务', size=(85, 21))
         self.getDBDataBtn.SetValue(True)
         self.Bind(wx.EVT_TOGGLEBUTTON, self.OnClickGetDBDataBtn, self.getDBDataBtn)
-        self.runTypeBtn = wx.ToggleButton(self, -1, label=u'只刷指数', size=(68, 21))
-        self.getRankBtn = wx.ToggleButton(self, -1, label=u'获取排名', size=(68, 21))
+        self.runTypeBtn = wx.ToggleButton(self, -1, label=u'只刷指数', size=(80, 21))
+        self.getRankBtn = wx.ToggleButton(self, -1, label=u'获取排名', size=(80, 21))
         self.Bind(wx.EVT_TOGGLEBUTTON, self.OnClickGetRankBtn, self.getRankBtn)
-        self.dndBtn = wx.Button(self, label=u'+', size=(23, 21))
-        self.Bind(wx.EVT_BUTTON, self.cpDriver, self.dndBtn)
+        #################self.dndBtn = wx.Button(self, label=u'+', size=(23, 21))
+        #################self.Bind(wx.EVT_BUTTON, self.cpDriver, self.dndBtn)
         # 选择搜索引擎: baidu, sm, sogou
         self.sm = wx.StaticBox(self, -1, u"▼ 搜索平台:")
         spfList = ["Baidu", "SM", "Sogou"]
-        self.rb_splatform = wx.RadioBox(self, -1, "", wx.DefaultPosition, (120, 80), spfList, 3, wx.SL_VERTICAL)
+        self.rb_splatform = wx.RadioBox(self, -1, "", wx.DefaultPosition, (125, 100), spfList, 3, wx.SL_VERTICAL)
         # 选择平台：web，h5
         self.dm = wx.StaticBox(self, -1, u"▼ 运行平台:")
         pfList = ["H5", "Web"]
-        self.rb_platform = wx.RadioBox(self, -1, "", wx.DefaultPosition, (120, 40), pfList, 2, wx.SL_HORIZONTAL)
+        self.rb_platform = wx.RadioBox(self, -1, "", wx.DefaultPosition, (120, 60), pfList, 2, wx.SL_HORIZONTAL)
         # 是否使用模拟浏览器
         self.cb_isPhantomjs = wx.CheckBox(self, -1, u"模拟浏览器?", wx.DefaultPosition, (120, 30))
 
         self.fm = wx.StaticBox(self, -1, u"▼ 搜索关键词文件路径:")
-        self.kwText = wx.TextCtrl(self, -1, value=u"点击右侧按钮选择文件...", size=(222, 21), style=wx.TE_READONLY)
+        self.kwText = wx.TextCtrl(self, -1, value=u"点击右侧按钮选择文件...", size=(215, 21), style=wx.TE_READONLY)
         self.kwText.SetFont(self.font)
         self.kwBtn = wx.Button(self, label='...', size=(30, 21))
         self.Bind(wx.EVT_BUTTON, self.OnOpenKWFile, self.kwBtn)
@@ -82,21 +82,21 @@ class wxRank(wx.Frame, page):
         # 关键词运行次数
         self.rm = wx.StaticBox(self, -1, u"▼ 运行次数:")
         self.runTime = wx.CheckBox(self, -1, u"是否统一配置?  输入运行次数:")
-        self.runText = wx.TextCtrl(self, -1, size=(62, 21))
+        self.runText = wx.TextCtrl(self, -1, size=(70, 21))
         self.runText.SetEditable(False)
         self.runText.SetValue("100")
         self.Bind(wx.EVT_CHECKBOX, self.EvtCheckBox_RT, self.runTime)
         # 选择代理方式：Local, api，txt
         self.pm = wx.StaticBox(self, -1, u"▼ 代理方式:")
         sampleList = ["Local", "API", "TXT"]
-        self.rb_proxy = wx.RadioBox(self, -1, "", wx.DefaultPosition, wx.DefaultSize, sampleList, 3)
+        self.rb_proxy = wx.RadioBox(self, -1, "", wx.DefaultPosition, (180, 45), sampleList, 3)
         self.proxyType = self.rb_proxy.GetItemLabel(self.rb_proxy.GetSelection())
         self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox_Proxy, self.rb_proxy)
         self.proxyTextBtn = wx.Button(self, label='...', size=(30, 21))
         self.proxyTextBtn.Hide()
         self.Bind(wx.EVT_BUTTON, self.OnOpenProxyFile, self.proxyTextBtn)
         # 代理DNS，API, TXT配置输入框
-        self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_dns, size=(220, 21))
+        self.proxyText = wx.TextCtrl(self, -1, value=self.data.proxy_dns, size=(215, 21))
         self.proxyText.SetFont(self.font)
         # 代理数量显示
         self.apiCount, self.dnsCount = 0, 0
@@ -135,7 +135,7 @@ class wxRank(wx.Frame, page):
         funcbox.Add(self.getDBDataBtn, 0, wx.ALL, 5)
         funcbox.Add(self.runTypeBtn, 0, wx.ALL, 5)
         funcbox.Add(self.getRankBtn, 0, wx.ALL, 5)
-        funcbox.Add(self.dndBtn, 0, wx.ALL, 5)
+        #################funcbox.Add(self.dndBtn, 0, wx.ALL, 5)
 
         searchbox = wx.StaticBoxSizer(self.sm, wx.HORIZONTAL)
         searchbox.Add(self.rb_splatform, 0, wx.ALL, 5)
@@ -263,11 +263,11 @@ class wxRank(wx.Frame, page):
             self.taskInfo.SetPage(self.data.get_task_info())
             self.taskInfo.Show()
             self.taskInfoBtn.SetLabel("<")
-            self.SetSize((1280, 580))
+            self.SetSize((1280, 593))
         else:
             self.taskInfo.Hide()
             self.taskInfoBtn.SetLabel(">")
-            self.SetSize((915, 580))
+            self.SetSize((915, 593))
         self.Layout()
 
     def setStatusByDBDataBtn(self):
@@ -298,7 +298,7 @@ class wxRank(wx.Frame, page):
         self.getDBDataBtn.Disable()
         self.runTypeBtn.Disable()
         self.getRankBtn.Disable()
-        self.dndBtn.Disable()
+        #################self.dndBtn.Disable()
         self.kwBtn.Disable()
         self.tmpBtn.Disable()
         self.runTime.Disable()
@@ -312,7 +312,7 @@ class wxRank(wx.Frame, page):
         self.getDBDataBtn.Enable()
         self.setStatusByDBDataBtn()
         self.cb_isPhantomjs.Enable()
-        self.dndBtn.Enable()
+        #################self.dndBtn.Enable()
         self.tmpBtn.Enable()
         self.rb_proxy.Enable()
         self.proxyTextBtn.Enable()
