@@ -35,10 +35,10 @@ class rank(page, Thread):
         self.randomArea = 5     # 首页随机点击URL范围
         self.radio_sorted = 0.8  # 首页正序随机点击URL比例
         self.baidu_keywords = [u'百度', u'_相关']
+        self.output_Result(info=self.print_task_list(self.taskid, self.SearchKeywords, self.URLKeywords, self.Runtime))
         # 设置线程为后台线程, 并启动线程
         self.setDaemon(True)
         self.start()
-        self.output_Result(info=self.print_task_list(self.taskid, self.SearchKeywords, self.URLKeywords, self.Runtime))
 
     def __del__(self):
         self.end()

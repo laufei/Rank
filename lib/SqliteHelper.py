@@ -195,8 +195,8 @@ class SqliteHelper:
 
     def get_keyword_task_data(self):
         sql = '''
-                select ranker_id, platform, keyword, clicked_times, target_runtimes from ranker r, tasks t
-                where r.id = t.ranker_id and date(t.updatetime) = date('now')
+                select ranker_id, platform, keyword, clicked_times, target_runtimes, date(t.updatetime), date('now') from ranker r left join tasks t
+                on r.id = t.ranker_id where date(t.updatetime) = date('now', 'localtime')
                 order by r.id
         '''
         try:
