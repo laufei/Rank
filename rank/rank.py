@@ -281,27 +281,30 @@ class rank(page, Thread):
                     else:
                         targets = random.sample(range(self.randomArea), random.sample(range(1, self.randomNo_firstpage+1), 1)[0])
                     for index in targets:
-                        for baikw in self.baidu_keywords:
-                            try:
-                                if baikw in baidu_result_items[index].text:
-                                    isBaiduUrl = True
-                                else:
-                                    isBaiduUrl = False
-                            except:
-                                continue
+                        # 判断目标链接是否是百度的URL
+                        # for baikw in self.baidu_keywords:
+                            # try:
+                            #     if baikw in baidu_result_items[index].text:
+                            #         isBaiduUrl = True
+                            #     else:
+                            #         isBaiduUrl = False
+                            # except:
+                            #     continue
                         self.output_Result(info=u"     点击结果页面第[%d]个链接" % (index+1))
                         try:
-                            js = "document.querySelectorAll('%s')[%d].setAttribute('target', '_blank')"
-                            driver.execute_script(js % (self.baidu_result_items_m[-1], index))
-                            time.sleep(1)
+                            # js = "document.querySelectorAll('%s')[%d].setAttribute('target', '_blank')"
+                            # driver.execute_script(js % (self.baidu_result_items_m[-1], index))
+                            # time.sleep(1)
                             baidu_result_items[index].click()
                             time.sleep(6)
+                            driver.back()
                             # 如果目标链接是百度自己的链接，则点击后，页面运行返回操作
-                            if isBaiduUrl:
-                                driver.back()
+                            # if isBaiduUrl:
+                            #     driver.back()
                         except Exception, e:
                             self.output_Result(log=u"     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
-                        driver.switch_to_window(window)
+                        # driver.switch_to_window(window)
+                        baidu_result_items = self.pageobj.find_elements(*self.baidu_result_items_m)
                     if 1 == self.runType:   # 如果选择只刷指数, 则无需翻页再进行后续操作
                         self.succTimeAll += 1   #总的成功执行数增1
                         succtime += 1
