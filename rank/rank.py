@@ -142,7 +142,7 @@ class rank(page, Thread):
             try:
                 self.pageobj.gotoURL(self.gotoURL)
                 window = driver.current_window_handle
-                self.pageobj.find_element(*self.baidu_kw_m).click()
+                self.pageobj.find_element(*self.baidu_kw).click()
                 time.sleep(1)
                 self.pageobj.find_element(*self.baidu_kw).send_keys(unicode(self.SearchKeywords))
                 time.sleep(2)
