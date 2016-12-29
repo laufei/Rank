@@ -43,7 +43,6 @@ class base():
     def __del__(self):
         try:
             self.clearCookies()
-            self.quit()
         except Exception:
             pass
 
