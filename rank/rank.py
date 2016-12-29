@@ -27,7 +27,6 @@ class rank(page, Thread):
         self.runType = runType
         self.taskid = taskid
         self.Runtime = runtime
-        self.succTimeAll, self.succRatio = 0, 0
 
         # 常量设置
         self.PagesCount = 3     # 搜索结果页面中，遍历结果页面数量
@@ -125,6 +124,7 @@ class rank(page, Thread):
     def rank_baidu_web(self):
         threadname = threading.currentThread().getName()
         succtime, runtime = 0, 0         # succtime: 记录当前关键字下成功点击次数;     runtime: 记录当前关键字下所有点击次数
+        succTimeAll, succRatio = 0, 0   # succTimeAll: 记录当前任务下总的成功点击次数;     succRatio: 记录当前关键字下所有点击成功率
         self.output_Result(info=u"【%s】：当前关键词 - %s" % (threadname, self.SearchKeywords))
         while True:
             if self.taskid:
@@ -178,13 +178,13 @@ class rank(page, Thread):
                         driver.switch_to_window(window)
                     if 1 == self.runType:   # 如果选择只刷指数, 则无需翻页再进行后续操作
                         succtime += 1
-                        self.succTimeAll += 1   #总的成功执行数增1
+                        succTimeAll += 1   #总的成功执行数增1
                         self.updateDB(self.taskid)
-                        wx.CallAfter(pub.sendMessage, "succTime", threadName=threadname, value=self.succTimeAll)
-                        wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll*100/self.Runtime)
+                        wx.CallAfter(pub.sendMessage, "succTime", threadName=threadname, value=succTimeAll)
+                        wx.CallAfter(pub.sendMessage, "process", value=succTimeAll*100/self.Runtime)
                         try:
-                            self.succRatio = '%.2f' % (self.succTimeAll/runtime)
-                            wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
+                            self.succRatio = '%.2f' % (succTimeAll/runtime)
+                            wx.CallAfter(pub.sendMessage, "succRatio", value=(succRatio))
                         except ZeroDivisionError:
                             pass
                         break
@@ -227,14 +227,14 @@ class rank(page, Thread):
                             break       # 点击到目标链接后, 退出点击结果页面URL循环
                     self.pageobj.scroll_page(100)
                 if found:
-                    self.succTimeAll += 1   #总的成功执行数增1
-                    wx.CallAfter(pub.sendMessage, "succTime", threadName=threadname, value=self.succTimeAll)
+                    succTimeAll += 1   #总的成功执行数增1
+                    wx.CallAfter(pub.sendMessage, "succTime", threadName=threadname, value=succTimeAll)
                     break                  # 点击到目标链接后, 退出翻页操作循环
             self.end()
-            wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll*100/self.Runtime)
+            wx.CallAfter(pub.sendMessage, "process", value=succTimeAll*100/self.Runtime)
             try:
-                self.succRatio = '%.2f' % (self.succTimeAll/runtime)
-                wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
+                self.succRatio = '%.2f' % (succTimeAll/runtime)
+                wx.CallAfter(pub.sendMessage, "succRatio", value=(succRatio))
             except ZeroDivisionError:
                 pass
         if self.runType == 0:
@@ -243,6 +243,7 @@ class rank(page, Thread):
     def rank_baidu_m(self):
         threadname = threading.currentThread().getName()
         succtime, runtime = 0, 0         # succtime: 记录当前关键字下成功点击次数;     runtime: 记录当前关键字下所有点击次数
+        succTimeAll, succRatio = 0, 0   # succTimeAll: 记录当前任务下总的成功点击次数;     succRatio: 记录当前关键字下所有点击成功率
         self.output_Result(info=u"【%s】：当前关键词 - %s" % (threadname, self.SearchKeywords))
         while True:
             if self.taskid:
@@ -260,7 +261,7 @@ class rank(page, Thread):
             # 1. 打开搜索页面并使用关键词搜索
             try:
                 self.pageobj.gotoURL(self.getURL)
-                # window = driver.current_window_handle
+                window = driver.current_window_handle
                 self.pageobj.find_element(*self.baidu_kw_m).click()
                 time.sleep(1)
                 self.pageobj.find_element(*self.baidu_kw_m).send_keys(unicode(self.SearchKeywords))
@@ -311,14 +312,14 @@ class rank(page, Thread):
                         # driver.switch_to_window(window)
                         baidu_result_items = self.pageobj.find_elements(*self.baidu_result_items_m)
                     if 1 == self.runType:   # 如果选择只刷指数, 则无需翻页再进行后续操作
-                        self.succTimeAll += 1   #总的成功执行数增1
+                        succTimeAll += 1   #总的成功执行数增1
                         succtime += 1
                         self.updateDB(self.taskid)
-                        wx.CallAfter(pub.sendMessage, "succTime", threadName=threadname, value=self.succTimeAll)
-                        wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll*100/self.Runtime)
+                        wx.CallAfter(pub.sendMessage, "succTime", threadName=threadname, value=succTimeAll)
+                        wx.CallAfter(pub.sendMessage, "process", value=succTimeAll*100/self.Runtime)
                         try:
-                            self.succRatio = '%.2f' % (self.succTimeAll/runtime)
-                            wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
+                            self.succRatio = '%.2f' % (succTimeAll*100/runtime)
+                            wx.CallAfter(pub.sendMessage, "succRatio", value=(succRatio))
                         except ZeroDivisionError:
                             pass
                         break
@@ -364,14 +365,14 @@ class rank(page, Thread):
                             break       # 点击到目标链接后, 退出点击结果页面URL循环
                     self.pageobj.scroll_page(100)
                 if found:
-                    self.succTimeAll += 1   #总的成功执行数增1
-                    wx.CallAfter(pub.sendMessage, "succTime", threadName=threadname, value=self.succTimeAll)
+                    succTimeAll += 1   #总的成功执行数增1
+                    wx.CallAfter(pub.sendMessage, "succTime", threadName=threadname, value=succTimeAll)
                     break                  # 点击到目标链接后, 退出翻页操作循环
             self.end()
-            wx.CallAfter(pub.sendMessage, "process", value=self.succTimeAll*100/self.Runtime)
+            wx.CallAfter(pub.sendMessage, "process", value=succTimeAll*100/self.Runtime)
             try:
-                self.succRatio = '%.2f' % (self.succTimeAll/runtime)
-                wx.CallAfter(pub.sendMessage, "succRatio", value=(self.succRatio))
+                self.succRatio = '%.2f' % (succTimeAll/runtime)
+                wx.CallAfter(pub.sendMessage, "succRatio", value=(succRatio))
             except ZeroDivisionError:
                 pass
         if self.runType == 0:
