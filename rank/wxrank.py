@@ -248,6 +248,7 @@ class wxRank(wx.Frame, page):
 
     def setSuccTime(self, threadName, value):
         self.succTime.SetLabel(u"| %s: ▶ 成功次数: %d  " % (threadName, value))
+        self.taskInfo.SetPage(self.data.get_task_info())
 
     def setSuccRatio(self, value):
         self.succRatio.SetLabel(u"▶ 成功率: %s  " % str(value))
@@ -260,7 +261,6 @@ class wxRank(wx.Frame, page):
 
     def OnClickTaskInfoBtn(self, evt):
         if self.taskInfoBtn.GetValue():
-            self.taskInfo.SetPage(self.data.get_task_info())
             self.taskInfo.Show()
             self.taskInfoBtn.SetLabel("<")
             self.SetSize((1280, 593))
