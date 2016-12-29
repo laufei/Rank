@@ -19,7 +19,7 @@ class rank(page, Thread):
         self.searcher = searcher
         self.driverType = driverType
         self.isPhantomjs = isPhantomjs
-        self.gotoURL = self.getURL()
+        self.getURL = self.getURL()
         self.proxyType = proxyType
         self.proxyConfig = proxyConfig
         self.SearchKeywords = keyworks
@@ -141,7 +141,7 @@ class rank(page, Thread):
                 self.output_Result(info=u"[%s] 当前使用代理: %s" % (time.strftime("%Y-%m-%d %H:%M:%S"), self.pageobj.getProxyAddr()))
             # 1. 打开搜索页面并使用关键词搜索
             try:
-                self.pageobj.gotoURL(self.gotoURL)
+                self.pageobj.gotoURL(self.getURL)
                 window = driver.current_window_handle
                 self.pageobj.find_element(*self.baidu_kw).click()
                 time.sleep(1)
@@ -259,7 +259,7 @@ class rank(page, Thread):
                 self.output_Result(info=u"[%s] 当前使用代理: %s" % (time.strftime("%Y-%m-%d %H:%M:%S"), self.pageobj.getProxyAddr()))
             # 1. 打开搜索页面并使用关键词搜索
             try:
-                self.pageobj.gotoURL(self.gotoURL)
+                self.pageobj.gotoURL(self.getURL)
                 # window = driver.current_window_handle
                 self.pageobj.find_element(*self.baidu_kw_m).click()
                 time.sleep(1)
