@@ -183,7 +183,7 @@ class rank(page, Thread):
                         wx.CallAfter(pub.sendMessage, "succTime", threadName=threadname, value=succTimeAll)
                         wx.CallAfter(pub.sendMessage, "process", value=succTimeAll*100/self.Runtime)
                         try:
-                            self.succRatio = '%.2f' % (succTimeAll/runtime)
+                            succRatio = '%.2f' % (succTimeAll/runtime)
                             wx.CallAfter(pub.sendMessage, "succRatio", value=(succRatio))
                         except ZeroDivisionError:
                             pass
@@ -233,7 +233,7 @@ class rank(page, Thread):
             self.end()
             wx.CallAfter(pub.sendMessage, "process", value=succTimeAll*100/self.Runtime)
             try:
-                self.succRatio = '%.2f' % (succTimeAll/runtime)
+                succRatio = '%.2f' % (succTimeAll/runtime)
                 wx.CallAfter(pub.sendMessage, "succRatio", value=(succRatio))
             except ZeroDivisionError:
                 pass
@@ -318,7 +318,7 @@ class rank(page, Thread):
                         wx.CallAfter(pub.sendMessage, "succTime", threadName=threadname, value=succTimeAll)
                         wx.CallAfter(pub.sendMessage, "process", value=succTimeAll*100/self.Runtime)
                         try:
-                            self.succRatio = '%.2f' % (succTimeAll*100/runtime)
+                            succRatio = '%.2f' % (succTimeAll*100/runtime)
                             wx.CallAfter(pub.sendMessage, "succRatio", value=(succRatio))
                         except ZeroDivisionError:
                             pass
@@ -371,7 +371,7 @@ class rank(page, Thread):
             self.end()
             wx.CallAfter(pub.sendMessage, "process", value=succTimeAll*100/self.Runtime)
             try:
-                self.succRatio = '%.2f' % (succTimeAll/runtime)
+                succRatio = '%.2f' % (succTimeAll/runtime)
                 wx.CallAfter(pub.sendMessage, "succRatio", value=(succRatio))
             except ZeroDivisionError:
                 pass
