@@ -98,7 +98,7 @@ class config:
             driver.set_window_size(414, 900)
         driver.implicitly_wait(10)
         driver.set_script_timeout(10)
-        driver.set_page_load_timeout(10)
+        driver.set_page_load_timeout(20)
 
 if __name__ == "__main__":
     conf = config("web_phantomjs", "110.84.239.208:8118")

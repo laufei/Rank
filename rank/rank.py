@@ -176,6 +176,7 @@ class rank(page, Thread):
                         except Exception, e:
                             self.output_Result(log=u"     Oops，并没有点到您想要的链接.....  T_T, %s" % str(e))
                         driver.switch_to_window(window)
+                    time.sleep(6)
                     if 1 == self.runType:   # 如果选择只刷指数, 则无需翻页再进行后续操作
                         succtime += 1
                         succTimeAll += 1   #总的成功执行数增1
