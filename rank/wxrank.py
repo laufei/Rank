@@ -23,10 +23,10 @@ class wxRank(wx.Frame, page):
         # 添加drivers到环境变量
         if platform.system() == "Darwin":
             self.dir = os.environ["HOME"]+os.sep+"drivers"+os.sep
-            self.gdname = "geckodriver-v0.11.1-macos.tar.gz"
+            self.gdname = "geckodriver-v0.13.0-macos.tar.gz"
         elif platform.system() == "Windows":
             self.dir = os.environ["USERPROFILE"]+os.sep+"drivers"+os.sep
-            self.gdname = "geckodriver-v0.11.1-win64.zip"
+            self.gdname = "geckodriver-v0.13.0-win64.zip"
         os.environ["PATH"] += ':' + self.dir
 
         self.SqliteHelper = SqliteHelper()
