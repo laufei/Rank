@@ -12,7 +12,7 @@ class data:
 
     def __init__(self):
         self.baidu_url_web = "https://www.baidu.com"
-        self.baidu_url_h5 = "https://m.baidu.com/?from=2001a"
+        self.baidu_url_h5 = "https://m.baidu.com"
         self.baidu_url_request_web = "https://www.baidu.com/s?wd=%s&pn=%d&rsv_spt=1&issp=1&f=8&rsv_bp=0&rsv_idx=2&ie=utf-8&tn=baiduhome_pg\
                                                             &rsv_enter=0&rsv_sug3=16&rsv_sug1=18&rsv_sug7=101&inputT=6882&rsv_sug4=8327&rsv_sug=1"
         self.baidu_url_request_m = "https://m.baidu.com/s?word=%s&pn=%d&ref=www_colorful&st=111041&from=1014994a"
