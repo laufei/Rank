@@ -134,7 +134,7 @@ class base():
             if self.driver.current_url.startswith("http://"):
                 print u"     自动跳转到http页面, 打开该页面失败！"
                 assert False, "Went to http page, failed to open https page! "
-            time.sleep(3)
+            time.sleep(self.data.openURL_waittime)
         except TimeoutException:
             print u"     打开该页面超时！"
             self.driver.execute_script("window.stop()")

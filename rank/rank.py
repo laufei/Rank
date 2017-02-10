@@ -148,7 +148,7 @@ class rank(page, Thread):
                 self.pageobj.find_element(*self.baidu_kw).send_keys(unicode(self.SearchKeywords))
                 time.sleep(2)
                 self.pageobj.find_element(*self.baidu_submit).click()
-                time.sleep(2)
+                time.sleep(self.data.toSearchPage_waittime)
             except Exception, e:
                 self.output_Result(log=str(e))
                 self.end()
@@ -195,7 +195,7 @@ class rank(page, Thread):
                     except:
                         self.end()
                         continue
-                    time.sleep(2)
+                    time.sleep(self.data.toSearchPage_waittime)
                     # 等待翻页数据加载完成
                     self.pageobj.waitForPageLoad(*self.baidu_kw)
 
@@ -268,7 +268,7 @@ class rank(page, Thread):
                 self.pageobj.find_element(*self.baidu_kw_m).send_keys(unicode(self.SearchKeywords))
                 time.sleep(2)
                 self.pageobj.find_element(*self.baidu_submit_m).click()
-                time.sleep(2)
+                time.sleep(self.data.toSearchPage_waittime)
             except Exception, e:
                 self.output_Result(log="Failed to open buidu page!")
                 self.end()
@@ -330,7 +330,7 @@ class rank(page, Thread):
                     except:
                         self.end()
                         continue
-                    time.sleep(2)
+                    time.sleep(self.data.toSearchPage_waittime)
                     # 等待翻页数据加载完成
                     self.pageobj.waitForPageLoad(*self.baidu_se_kw_m)
 

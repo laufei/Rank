@@ -11,6 +11,8 @@ class data:
     sh = SqliteHelper()
 
     def __init__(self):
+        self.openURL_waittime = 3
+        self.toSearchPage_waittime = 3
         self.baidu_url_web = "https://www.baidu.com"
         self.baidu_url_h5 = "https://m.baidu.com"
         self.baidu_url_request_web = "https://www.baidu.com/s?wd=%s&pn=%d&rsv_spt=1&issp=1&f=8&rsv_bp=0&rsv_idx=2&ie=utf-8&tn=baiduhome_pg\
