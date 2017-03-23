@@ -18,7 +18,6 @@ class config:
             self.uaValue = random.choice(self.UA.USER_AGENTS_WEB)
         if driverConfig.startswith("h5"):
             self.uaValue = random.choice(self.UA.USER_AGENTS_H5)
-
         if proxy:
             try:
                 iparray = proxy.split(":")
@@ -46,7 +45,7 @@ class config:
                     service_args=service_args,
                     )
             except Exception, e:
-                assert False, e
+                assert False, "phantomjs: " + e
 
         elif driverConfig.endswith("firefox"):
             profile = webdriver.FirefoxProfile()
@@ -64,7 +63,7 @@ class config:
                     firefox_profile=profile,
                     )
             except Exception, e:
-                assert False, e
+                assert False, "firefox: " + e
 
         elif driverConfig.endswith("chrome"):
             if platform.system() == "Darwin":
@@ -86,7 +85,7 @@ class config:
                     # executable_path=chromedriver,
                     chrome_options=option)
             except Exception, e:
-                assert False, e
+                assert False, "chrome: " + e
         self.setDriver(driverConfig)
 
     def getDriver(self):
@@ -99,6 +98,7 @@ class config:
         driver.implicitly_wait(10)
         driver.set_script_timeout(10)
         driver.set_page_load_timeout(20)
+
 
 if __name__ == "__main__":
     conf = config("web_phantomjs", "110.84.239.208:8118")

@@ -93,15 +93,15 @@ class base():
         if self.isProxy:
             proxy["http"] = "http://"+self.proxy
             # proxy["https"] = "http://"+self.proxy
-            headers = {"User-Agent": self.ua,
-                    'Connection': 'keep-alive',
-                    'Pragma': 'no-cache',
-                    'Cache-Control': 'no-cache',
-                    'Upgrade-Insecure-Requests': '1',
-                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                    'Accept-Encoding': 'gzip, deflate, sdch',
-                    'Accept-Language': 'en-US,en;q=0.8,zh-CN;q=0.6,zh;q=0.4',
-                   }
+        headers = {"User-Agent": self.ua,
+                'Connection': 'keep-alive',
+                'Pragma': 'no-cache',
+                'Cache-Control': 'no-cache',
+                'Upgrade-Insecure-Requests': '1',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Encoding': 'gzip, deflate, sdch',
+                'Accept-Language': 'en-US,en;q=0.8,zh-CN;q=0.6,zh;q=0.4',
+               }
 
         if 0 == self.runType:
             response = self.getSession().get(url, headers=headers, proxies=proxy, timeout=timeout).text
