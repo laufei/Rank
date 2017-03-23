@@ -93,12 +93,14 @@ class config:
 
     def setDriver(self, driverConfig):
         driver = self.getDriver()
-        if driverConfig.startswith("h5"):
-            driver.set_window_size(414, 900)
-        driver.implicitly_wait(10)
-        driver.set_script_timeout(10)
-        driver.set_page_load_timeout(20)
-
+        try: #兼容老的selenium3.3已下版本
+            if driverConfig.startswith("h5"):
+                driver.set_window_size(414, 900)
+            driver.implicitly_wait(10)
+            driver.set_script_timeout(10)
+            driver.set_page_load_timeout(20)
+        except:
+            pass
 
 if __name__ == "__main__":
     conf = config("web_phantomjs", "110.84.239.208:8118")
