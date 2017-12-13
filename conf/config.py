@@ -13,6 +13,8 @@ sys.setdefaultencoding('utf8')
 
 class config:
     def __init__(self, driverConfig, proxy=""):
+        self.remote_hub_ip = "http://192.168.99.100:4444/wd/hub"
+        # self.remote_hub_ip = "http://127.0.0.1:4444/wd/hub"
         self.UA = ua()
         if driverConfig.startswith("web"):
             self.uaValue = random.choice(self.UA.USER_AGENTS_WEB)
@@ -58,12 +60,13 @@ class config:
             )
             profile.update_preferences()
             try:
-                self.driver = webdriver.Firefox(
+                self.driver = webdriver.Remote(
                     # executable_path="%s/drivers/" % os.environ["HOME"],
-                    firefox_profile=profile,
-                    )
+                    command_executor=self.remote_hub_ip,
+                    browser_profile=profile,
+                    desired_capabilities=DesiredCapabilities.FIREFOX)
             except Exception, e:
-                assert False, "firefox: " + e
+                assert False, "firefox: " + str(e)
 
         elif driverConfig.endswith("chrome"):
             if platform.system() == "Darwin":
@@ -71,7 +74,7 @@ class config:
             elif platform.system() == "Windows":
                 chromedriver = "C:\chromedriver\chromedriver.exe"
             os.environ["webdriver.chrome.driver"] = chromedriver
-            mobile_emulation = {"deviceName": "Google Nexus 5"}
+            mobile_emulation = {"deviceName": "iPhone 6 Plus"}
             option = webdriver.ChromeOptions()
             option.add_experimental_option("mobileEmulation", mobile_emulation)
             option.add_argument('--allow-running-insecure-content')
@@ -81,11 +84,12 @@ class config:
             option.add_experimental_option("prefs", {'profile.default_content_settings.images': 2})       # disable images in chromedriver
 
             try:
-                self.driver = webdriver.Chrome(
+                self.driver = webdriver.Remote(
                     # executable_path=chromedriver,
-                    chrome_options=option)
+                    command_executor=self.remote_hub_ip,
+                    desired_capabilities=option.to_capabilities())
             except Exception, e:
-                assert False, "chrome: " + e
+                assert False, "chrome: " + str(e)
         self.setDriver(driverConfig)
 
     def getDriver(self):

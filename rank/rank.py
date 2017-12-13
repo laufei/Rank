@@ -33,6 +33,7 @@ class rank(page, Thread):
         self.randomNo_firstpage = 2  # 首页最大随机点击URL数量
         self.randomArea = 5     # 首页随机点击URL范围
         self.radio_sorted = 0.8  # 首页正序随机点击URL比例
+        self.waitTime_afterClickTarget = 5 # 刷排名操作中, 点击到目标URL后的等待时间
         self.baidu_keywords = [u'百度', u'_相关']
         self.output_Result(info=self.print_task_list(self.taskid, self.SearchKeywords, self.URLKeywords, self.Runtime))
         # 设置线程为后台线程, 并启动线程
@@ -217,6 +218,7 @@ class rank(page, Thread):
                             try:
                                 time.sleep(1)
                                 baidu_result_items[index].click()
+                                time.sleep(self.waitTime_afterClickTarget)
                                 found = True
                                 succtime += 1
                                 self.updateDB(self.taskid)

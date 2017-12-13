@@ -67,13 +67,30 @@ class base():
         #         port = i['port']
         #         proxyaddr.append(ip+":"+str(port))
 
-        if type == "Local" or type == "API":
+        if type == "Local":
+            reqURL = config
+            try:
+                response = requests.get(reqURL)
+            except Exception:
+                return False
+            proxyaddr = eval(response.content)
+            if rand:
+                item = random.choice(proxyaddr)
+                proxyaddr = item[0]+":"+str(item[1])
+                return proxyaddr
+            return proxyaddr
+
+        if type == "API":
             reqURL = config
             try:
                 response = requests.get(reqURL)
             except Exception:
                 return False
             proxyaddr = response.text.split("\r\n")[:-1]
+            if rand:
+                return random.choice(proxyaddr)
+            return proxyaddr
+
         if type == "TXT":
             filename = config
             data = list()
@@ -84,9 +101,9 @@ class base():
             except:
                 return False
             proxyaddr = data
-        if rand:
-            return random.choice(proxyaddr)
-        return proxyaddr
+            if rand:
+                return random.choice(proxyaddr)
+            return proxyaddr
 
     def requests_url(self, url, timeout=30):
         proxy = {}
